@@ -1,0 +1,7 @@
+#PCWindCurrCommandRequest
+float32 wind_curr  # -35.0..35.0
+
+---
+
+#PCWindCurrCommandResponse
+PBCommandResponse result

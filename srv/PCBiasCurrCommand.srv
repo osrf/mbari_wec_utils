@@ -1,0 +1,7 @@
+#PCBiasCurrCommandRequest
+float32 bias_curr  # -15.0..15.0
+
+---
+
+#PCBiasCurrCommandResponse
+PBCommandResponse result

@@ -1,0 +1,11 @@
+#TFSetChargeModeCommandRequest
+uint16 OFF=0
+uint16 ON=1
+uint16 AUTO_TIME=2
+uint16 AUTO_VOLTAGE=3
+uint16 mode
+
+---
+
+#TFSetChargeModeCommandResponse
+PBCommandResponse result

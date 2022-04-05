@@ -1,0 +1,7 @@
+#TFSetCurrLimCommandRequest
+uint16 curr_lim  # 500..5000
+
+---
+
+#TFSetCurrLimCommandResponse
+PBCommandResponse result

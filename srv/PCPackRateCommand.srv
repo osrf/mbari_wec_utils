@@ -1,0 +1,7 @@
+#PCPackRateCommandRequest
+int16 rate_hz  # 10..50
+
+---
+
+#PCPackRateCommandResponse
+PBCommandResponse result

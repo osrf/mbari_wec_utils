@@ -1,0 +1,7 @@
+#PCScaleCommandRequest
+float32 scale  # 0.5..1.4
+
+---
+
+#PCScaleCommandResponse
+PBCommandResponse result

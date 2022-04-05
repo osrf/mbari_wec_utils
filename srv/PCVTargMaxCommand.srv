@@ -1,0 +1,7 @@
+#PCVTargMaxCommandRequest
+float32 v_targ_max  # 320.0..330.0
+
+---
+
+#PCTargetVoltageCommandResponse
+PBCommandResponse result

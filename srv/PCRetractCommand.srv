@@ -1,0 +1,7 @@
+#PCRetractCommandRequest
+float32 factor  # 0.4..1.0
+
+---
+
+#PCRetractCommandResponse
+PBCommandResponse result
