@@ -1,0 +1,6 @@
+#TFResetCommandRequest
+
+---
+
+#TFResetCommandResponse
+PBCommandResponse result

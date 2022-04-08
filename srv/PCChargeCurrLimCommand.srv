@@ -1,0 +1,7 @@
+#PCChargeCurrLimCommandRequest
+float32 charge_curr_lim  # 2.0..12.0
+
+---
+
+#PCChargeCurrLimCommandResponse
+PBCommandResponse result

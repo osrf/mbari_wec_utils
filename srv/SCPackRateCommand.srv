@@ -1,0 +1,7 @@
+#SCPackRateCommandRequest
+int16 rate_hz  #10..50
+
+---
+
+#SCPackRateCommandResponse
+PBCommandResponse result

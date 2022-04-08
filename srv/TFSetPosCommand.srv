@@ -1,0 +1,9 @@
+#TFSetPosCommandRequest
+uint16 OPEN=0
+uint16 CLOSED=1
+uint16 position
+
+---
+
+#TFSetPosCommandResponse
+PBCommandResponse result

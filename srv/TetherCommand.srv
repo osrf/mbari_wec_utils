@@ -1,0 +1,9 @@
+#TetherCommandRequest
+uint16 OFF=0
+uint16 ON=1
+uint16 state
+
+---
+
+#TetherCommandResponse
+PBCommandResponse result

@@ -1,0 +1,6 @@
+#BCResetCommandRequest
+
+---
+
+#BCResetCommandResponse
+PBCommandResponse result

@@ -1,0 +1,7 @@
+#PCDrawCurrLimCommandRequest
+float32 max_batt_draw_current  # 2.0..12.0
+
+---
+
+#PCDrawCurrLimCommandResponse
+PBCommandResponse result

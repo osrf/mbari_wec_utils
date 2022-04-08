@@ -1,0 +1,9 @@
+#TFSetStateMachineCommandRequest
+uint16 HOME_MOVE=0
+uint16 VEL_MOVE=1
+uint16 state
+
+---
+
+#TFSetStateMachineCommandResponse
+PBCommandResponse result

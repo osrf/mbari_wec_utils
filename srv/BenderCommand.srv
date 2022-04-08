@@ -1,0 +1,10 @@
+#BenderCommandRequest
+uint16 OFF=0
+uint16 ON=1
+uint16 AUTO=2
+uint16 state
+
+---
+
+#BenderCommandResponse
+PBCommandResponse result

@@ -1,0 +1,10 @@
+#TFSetModeCommandRequest
+uint16 PWR_10W=0
+uint16 MONITOR_POS=1
+uint16 HOLD_POS=2
+uint16 mode
+
+---
+
+#TFSetModeCommandResponse
+PBCommandResponse result

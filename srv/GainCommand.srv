@@ -1,0 +1,8 @@
+#GainCommandRequest
+uint16 OFF=0
+uint16 gain  # OFF, 1..200
+
+---
+
+#GainCommandResponse
+PBCommandResponse result

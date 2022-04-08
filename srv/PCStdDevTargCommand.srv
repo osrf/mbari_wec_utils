@@ -1,0 +1,7 @@
+#PCStdDevTargCommandRequest
+uint16 rpm_std_dev  # 0..2000
+
+---
+
+#PCStdDevTargCommandResponse
+PBCommandResponse result

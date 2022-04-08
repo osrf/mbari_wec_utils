@@ -1,0 +1,6 @@
+#SCResetCommandRequest
+
+---
+
+#SCResetCommandResponse
+PBCommandResponse result
