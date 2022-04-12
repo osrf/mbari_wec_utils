@@ -2,7 +2,7 @@ This document is a declaration of software quality for the `buoy_msgs` package, 
 
 # buoy_msgs Quality Declaration
 
-The package `buoy_msgs` claims to be in the **Quality Level 2** category.
+The package `buoy_msgs` claims to be in the **Quality Level 5** category.
 
 Below are the rationales, notes, and caveats for this claim, organized by each requirement listed in the [Package Quality Categories in REP-2004](https://index.ros.org/doc/ros2/Contributing/Developer-Guide/#package-quality-categories) of the ROS2 developer guide.
 
