@@ -78,7 +78,7 @@ class Interface(Node):
         self.tether_client_ = self.create_client(TetherCommand, "/tether_command")
         self.sc_reset_client_ = self.create_client(SCResetCommand, "/sc_reset_command")
         self.sc_pack_rate_client_ = self.create_client(SCPackRateCommand, "/sc_pack_rate_command")
-        self.pc_scale_client_ = self.create_client(PCScaleCommand, "/fake_pc_scale_command")
+        self.pc_scale_client_ = self.create_client(PCScaleCommand, "/pc_scale_command")
         self.pc_retract_client_ = self.create_client(PCRetractCommand, "/pc_retract_command")
         self.pc_v_targ_max_client_ = self.create_client(PCVTargMaxCommand,
                                                         "/pc_v_targ_max_command")
