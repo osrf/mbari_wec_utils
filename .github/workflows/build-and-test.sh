@@ -16,9 +16,7 @@ curl -s https://raw.githubusercontent.com/ros/rosdistro/master/ros.asc | apt-key
 apt-get update -qq
 apt-get install -y git \
                    python3-colcon-common-extensions \
-                   python3-rosdep \
-                   python3-vcstool \
-                   wget
+                   python3-rosdep
 
 cd $COLCON_WS_SRC
 cp -r $GITHUB_WORKSPACE $COLCON_WS_SRC

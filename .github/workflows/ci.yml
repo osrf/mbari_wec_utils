@@ -9,8 +9,7 @@ jobs:
     strategy:
       matrix:
         include:
-          - gz-version: "fortress"
-            ros-distro: "galactic"
+          - ros-distro: "galactic"
     container:
       image: ubuntu:latest
     steps:
@@ -19,5 +18,4 @@ jobs:
       - name: Build and Test
         run: .github/workflows/build-and-test.sh
         env:
-          IGNITION_VERSION: ${{ matrix.gz-version  }}
           ROS_DISTRO: ${{ matrix.ros-distro }}
