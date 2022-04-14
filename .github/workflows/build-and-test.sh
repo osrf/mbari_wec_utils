@@ -23,7 +23,7 @@ cp -r $GITHUB_WORKSPACE $COLCON_WS_SRC
 
 rosdep init
 rosdep update
-rosdep install --from-paths ./ -i -y -r --rosdistro $ROS_DISTRO
+rosdep install --from-paths $COLCON_WS_SRC -i -y --rosdistro $ROS_DISTRO
 
 # Build
 source /opt/ros/$ROS_DISTRO/setup.bash
