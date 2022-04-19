@@ -7,9 +7,11 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(geometry_msgs REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(rclpy REQUIRED)
 find_package(rosidl_default_generators REQUIRED)
+find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
@@ -48,7 +50,10 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/TFSetStateMachineCommand.srv"
   "srv/TFWatchDogCommand.srv"
   "srv/ValveCommand.srv"
-  DEPENDENCIES std_msgs
+  DEPENDENCIES
+    geometry_msgs
+    sensor_msgs
+    std_msgs
   ADD_LINTER_TESTS
 )
 

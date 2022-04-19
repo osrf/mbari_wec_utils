@@ -1,26 +1,20 @@
-#Crossbow AHRS
+# Crossbow AHRS
 
-std_msgs/Header header  # timestamp, seq_num
+# Timestamp, seq_num
+std_msgs/Header header
 
-float32 roll_angle  # Radians -pi to +pi
-float32 pitch_angle  # Radians -pi to +pi
-float32 yaw_angle_true  # (true north) Radians -pi to +pi
+# IMU data
+# * orientation expressed as a quaternion (radians)
+# * angular velocity (rad/s)
+# * linear acceleration (m/s^2, not in g)
+sensor_msgs/Imu imu
 
-float32 x_rate_corrected  # Corrected X angular rate, rads/sec
-float32 y_rate_corrected  # Corrected Y angular rate, rads/sec
-float32 z_rate_corrected  # Corrected Z angular rate, rads/sec
+# GPS latitude, longitude, altitude
+sensor_msgs/NavSatFix gps
 
-float32 x_accel  # X accelerometer, g
-float32 y_accel  # Y accelerometer, g
-float32 z_accel  # Z accelerometer, g
+# Linear velocity expressed in North-East-Down frame, in m/s
+geometry_msgs/Vector3 ned_velocity
 
-float32 n_velocity  # North velocity, m/s
-float32 e_velocity  # East  velocity, m/s
-float32 d_velocity  # Down  velocity, m/s
-
-float32 longitude  # GPS longitude, radians
-float32 latitude  # GPS latitude,  radians
-float32 altitude  # GPS altitude,  meters (-100 to 16284)
-
-float32 x_rate_temp  # X rate temperature, C
+# X rate temperature, C
+float32 x_rate_temp
 
