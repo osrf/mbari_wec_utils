@@ -16,5 +16,4 @@ sensor_msgs/NavSatFix gps
 geometry_msgs/Vector3 ned_velocity
 
 # X rate temperature, C
-float32 x_rate_temp
-
+sensor_msgs/Temperature x_rate_temp
