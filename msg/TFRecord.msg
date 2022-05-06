@@ -7,21 +7,15 @@ float32 tether_voltage
 float32 battery_voltage
 float32 pressure
 
-# Quaternion in meters
-geometry_msgs/Quaternion qtn
+# IMU containing orientation, angular velocity and linear acceleration
+sensor_msgs/Imu imu
 
 # Magnetic field in Tesla
 sensor_msgs/MagneticField mag
 
 int16 status  # bit field
 
-# Angular velocity in rad/s
-geometry_msgs/Vector3 ang_rate
-
 int16 vpe_status  # bit field
-
-# Linear acceleration m/s^2
-geometry_msgs/Vector3 accel
 
 int32 comms_timeouts
 int32 motor_status  # Maxon status
