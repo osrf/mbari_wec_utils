@@ -1,5 +1,5 @@
 #PCRetractCommandRequest
-float32 factor  # 0.4..1.0
+float32 retract  # 0.4..1.0
 
 ---
 
