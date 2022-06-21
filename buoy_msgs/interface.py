@@ -12,143 +12,155 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import rclpy
-from rclpy.node import Node
 
 # pbsrv commands
 # power microcontroller
-from buoy_msgs.srv import PCBattSwitchCommand
-from buoy_msgs.srv import PCBiasCurrCommand
-from buoy_msgs.srv import PCChargeCurrLimCommand
-from buoy_msgs.srv import PCDrawCurrLimCommand
-from buoy_msgs.srv import PCPackRateCommand
-from buoy_msgs.srv import PCRetractCommand
-from buoy_msgs.srv import PCScaleCommand
-from buoy_msgs.srv import PCStdDevTargCommand
-from buoy_msgs.srv import PCVTargMaxCommand
-from buoy_msgs.srv import PCWindCurrCommand
-from buoy_msgs.srv import GainCommand
+from buoy_msgs.srv import GainCommand  # noqa
+from buoy_msgs.srv import PCBattSwitchCommand  # noqa
+from buoy_msgs.srv import PCBiasCurrCommand  # noqa
+from buoy_msgs.srv import PCChargeCurrLimCommand  # noqa
+from buoy_msgs.srv import PCDrawCurrLimCommand  # noqa
+from buoy_msgs.srv import PCPackRateCommand  # noqa
+from buoy_msgs.srv import PCRetractCommand  # noqa
+from buoy_msgs.srv import PCScaleCommand  # noqa
+from buoy_msgs.srv import PCStdDevTargCommand  # noqa
+from buoy_msgs.srv import PCVTargMaxCommand  # noqa
+from buoy_msgs.srv import PCWindCurrCommand  # noqa
 
 # battery microcontroller
-from buoy_msgs.srv import BCResetCommand
+from buoy_msgs.srv import BCResetCommand  # noqa
 
 # spring microcontroller
-from buoy_msgs.srv import SCPackRateCommand
-from buoy_msgs.srv import SCResetCommand
-from buoy_msgs.srv import ValveCommand
-from buoy_msgs.srv import PumpCommand
-from buoy_msgs.srv import BenderCommand
-from buoy_msgs.srv import TetherCommand
+from buoy_msgs.srv import BenderCommand  # noqa
+from buoy_msgs.srv import PumpCommand  # noqa
+from buoy_msgs.srv import SCResetCommand  # noqa
+from buoy_msgs.srv import SCPackRateCommand  # noqa
+from buoy_msgs.srv import TetherCommand  # noqa
+from buoy_msgs.srv import ValveCommand  # noqa
 
 # trefoil microcontroller
-from buoy_msgs.srv import TFResetCommand
-from buoy_msgs.srv import TFSetActualPosCommand
-from buoy_msgs.srv import TFSetChargeModeCommand
-from buoy_msgs.srv import TFSetCurrLimCommand
-from buoy_msgs.srv import TFSetModeCommand
-from buoy_msgs.srv import TFSetPosCommand
-from buoy_msgs.srv import TFSetStateMachineCommand
-from buoy_msgs.srv import TFWatchDogCommand
+from buoy_msgs.srv import TFResetCommand  # noqa
+from buoy_msgs.srv import TFSetActualPosCommand  # noqa
+from buoy_msgs.srv import TFSetChargeModeCommand  # noqa
+from buoy_msgs.srv import TFSetCurrLimCommand  # noqa
+from buoy_msgs.srv import TFSetModeCommand  # noqa
+from buoy_msgs.srv import TFSetPosCommand  # noqa
+from buoy_msgs.srv import TFSetStateMachineCommand  # noqa
+from buoy_msgs.srv import TFWatchDogCommand  # noqa
 
 
 # pb telemetry
-from buoy_msgs.msg import XBRecord  # ahrs
-from buoy_msgs.msg import BCRecord  # battery
-from buoy_msgs.msg import SCRecord  # spring
-from buoy_msgs.msg import PCRecord  # power
-from buoy_msgs.msg import TFRecord  # trefoil
-from buoy_msgs.msg import PBRecord  # consolidated
-
-# Pack Rates
-from rcl_interfaces.srv import SetParameters
-from rclpy.parameter import Parameter
+from buoy_msgs.msg import BCRecord  # battery  # noqa
+from buoy_msgs.msg import PBRecord  # consolidated  # noqa
+from buoy_msgs.msg import PCRecord  # power  # noqa
+from buoy_msgs.msg import SCRecord  # spring  # noqa
+from buoy_msgs.msg import TFRecord  # trefoil  # noqa
+from buoy_msgs.msg import XBRecord  # ahrs  # noqa
 
 
-pbsrv_enum2str = {0: "OK",
-                  -1: "BAD_SOCK",
-                  -2: "BAD_OPTS",
-                  -3: "BAD_INPUT"}
+# Pack Rate Params
+from rclpy.parameter import Parameter  # noqa
+from rcl_interfaces.srv import SetParameters  # noqa
+
+
+import rclpy
+from rclpy.node import Node
+
+
+pbsrv_enum2str = {0: 'OK',
+                  -1: 'BAD_SOCK',
+                  -2: 'BAD_OPTS',
+                  -3: 'BAD_INPUT'}
 
 
 class Interface(Node):
+
     def __init__(self, node_name, **kwargs):
         super().__init__(node_name, **kwargs)
-        self.pc_pack_rate_param_client_ = self.create_client(SetParameters, "/power_controller/set_parameters")
-        self.pc_pack_rate_client_ = self.create_client(PCPackRateCommand, "/pc_pack_rate_command")
-        self.pc_wind_curr_client_ = self.create_client(PCWindCurrCommand, "/pc_wind_curr_command")
-        self.bender_client_ = self.create_client(BenderCommand, "/bender_command")
-        self.bc_reset_client_ = self.create_client(BCResetCommand, "/bc_reset_command")
-        self.pump_client_ = self.create_client(PumpCommand, "/pump_command")
-        self.valve_client_ = self.create_client(ValveCommand, "/valve_command")
-        self.tether_client_ = self.create_client(TetherCommand, "/tether_command")
-        self.sc_reset_client_ = self.create_client(SCResetCommand, "/sc_reset_command")
-        self.sc_pack_rate_param_client_ = self.create_client(SetParameters, "/spring_controller/set_parameters")
-        self.sc_pack_rate_client_ = self.create_client(SCPackRateCommand, "/sc_pack_rate_command")
-        self.pc_scale_client_ = self.create_client(PCScaleCommand, "/pc_scale_command")
-        self.pc_retract_client_ = self.create_client(PCRetractCommand, "/pc_retract_command")
+        self.pc_pack_rate_param_client_ = self.create_client(SetParameters,
+                                                             '/power_controller/set_parameters')
+        self.pc_pack_rate_client_ = self.create_client(PCPackRateCommand, '/pc_pack_rate_command')
+        self.pc_wind_curr_client_ = self.create_client(PCWindCurrCommand, '/pc_wind_curr_command')
+        self.bender_client_ = self.create_client(BenderCommand, '/bender_command')
+        self.bc_reset_client_ = self.create_client(BCResetCommand, '/bc_reset_command')
+        self.pump_client_ = self.create_client(PumpCommand, '/pump_command')
+        self.valve_client_ = self.create_client(ValveCommand, '/valve_command')
+        self.tether_client_ = self.create_client(TetherCommand, '/tether_command')
+        self.sc_reset_client_ = self.create_client(SCResetCommand, '/sc_reset_command')
+        self.sc_pack_rate_param_client_ = self.create_client(SetParameters,
+                                                             '/spring_controller/set_parameters')
+        self.sc_pack_rate_client_ = self.create_client(SCPackRateCommand, '/sc_pack_rate_command')
+        self.pc_scale_client_ = self.create_client(PCScaleCommand, '/pc_scale_command')
+        self.pc_retract_client_ = self.create_client(PCRetractCommand, '/pc_retract_command')
         self.pc_v_targ_max_client_ = self.create_client(PCVTargMaxCommand,
-                                                        "/pc_v_targ_max_command")
+                                                        '/pc_v_targ_max_command')
         self.pc_charge_curr_lim_client_ = self.create_client(PCChargeCurrLimCommand,
-                                                             "/pc_charge_curr_lim_command")
+                                                             '/pc_charge_curr_lim_command')
         self.pc_batt_switch_client_ = self.create_client(PCBattSwitchCommand,
-                                                         "/pc_batt_switch_command")
-        self.gain_client_ = self.create_client(GainCommand, "/gain_command")
+                                                         '/pc_batt_switch_command')
+        self.gain_client_ = self.create_client(GainCommand, '/gain_command')
         self.pc_std_dev_targ_client_ = self.create_client(PCStdDevTargCommand,
-                                                          "/pc_std_dev_targ_command")
+                                                          '/pc_std_dev_targ_command')
         self.pc_draw_curr_lim_client_ = self.create_client(PCDrawCurrLimCommand,
-                                                           "/pc_draw_curr_lim_command")
-        self.pc_bias_curr_client_ = self.create_client(PCBiasCurrCommand, "/pc_bias_curr_command")
-        self.tf_set_pos_client_ = self.create_client(TFSetPosCommand, "/tf_set_pos_command")
+                                                           '/pc_draw_curr_lim_command')
+        self.pc_bias_curr_client_ = self.create_client(PCBiasCurrCommand, '/pc_bias_curr_command')
+        self.tf_set_pos_client_ = self.create_client(TFSetPosCommand, '/tf_set_pos_command')
         self.tf_set_actual_pos_client_ = self.create_client(TFSetActualPosCommand,
-                                                            "/tf_set_actual_pos_command")
-        self.tf_set_mode_client_ = self.create_client(TFSetModeCommand, "/tf_set_mode_command")
+                                                            '/tf_set_actual_pos_command')
+        self.tf_set_mode_client_ = self.create_client(TFSetModeCommand, '/tf_set_mode_command')
         self.tf_set_charge_mode_client_ = self.create_client(TFSetChargeModeCommand,
-                                                             "/tf_set_charge_mode_command")
+                                                             '/tf_set_charge_mode_command')
         self.tf_set_curr_lim_client_ = self.create_client(TFSetCurrLimCommand,
-                                                          "/tf_set_curr_lim_command")
+                                                          '/tf_set_curr_lim_command')
         self.tf_set_state_machine_client_ = self.create_client(TFSetStateMachineCommand,
-                                                               "/tf_set_state_machine_command")
-        self.tf_watch_dog_client_ = self.create_client(TFWatchDogCommand, "/tf_watch_dog_command")
-        self.tf_reset_client_ = self.create_client(TFResetCommand, "/tf_reset_command")
+                                                               '/tf_set_state_machine_command')
+        self.tf_watch_dog_client_ = self.create_client(TFWatchDogCommand, '/tf_watch_dog_command')
+        self.tf_reset_client_ = self.create_client(TFResetCommand, '/tf_reset_command')
 
-        '''
-        found = self.wait_for_service(self.pc_pack_rate_param_client_, "/power_controller/set_parameters")
-        found = self.wait_for_service(self.pc_pack_rate_client_, "/pc_pack_rate_command")
-        found &= self.wait_for_service(self.pc_wind_curr_client_, "/pc_wind_curr_command")
-        # found &= self.wait_for_service(self.bender_client_, "/bender_command")
-        # found &= self.wait_for_service(self.bc_reset_client_, "/bc_reset_command")
-        found &= self.wait_for_service(self.pump_client_, "/pump_command")
-        found &= self.wait_for_service(self.valve_client_, "/valve_command")
-        # found &= self.wait_for_service(self.tether_client_, "/tether_command")
-        # found &= self.wait_for_service(self.sc_reset_client_, "/sc_reset_command")
-        found &= self.wait_for_service(self.sc_pack_rate_param_client_, "/spring_controller/set_parameters")
-        found &= self.wait_for_service(self.sc_pack_rate_client_, "/sc_pack_rate_command")
-        found &= self.wait_for_service(self.pc_scale_client_, "/pc_scale_command")
-        found &= self.wait_for_service(self.pc_retract_client_, "/pc_retract_command")
-        # found &= self.wait_for_service(self.pc_v_targ_max_client_, "/pc_v_targ_max_command")
+        # TODO(andermi) Put these back when sim & physical match up
+        # physical needs to switch from service to param for pack rates
+        # sim should add all services (even unused with noop)
+        """
+        found = self.wait_for_service(self.pc_pack_rate_param_client_,
+                                      '/power_controller/set_parameters')
+        found = self.wait_for_service(self.pc_pack_rate_client_, '/pc_pack_rate_command')
+        found &= self.wait_for_service(self.pc_wind_curr_client_, '/pc_wind_curr_command')
+        # found &= self.wait_for_service(self.bender_client_, '/bender_command')
+        # found &= self.wait_for_service(self.bc_reset_client_, '/bc_reset_command')
+        found &= self.wait_for_service(self.pump_client_, '/pump_command')
+        found &= self.wait_for_service(self.valve_client_, '/valve_command')
+        # found &= self.wait_for_service(self.tether_client_, '/tether_command')
+        # found &= self.wait_for_service(self.sc_reset_client_, '/sc_reset_command')
+        found &= self.wait_for_service(self.sc_pack_rate_param_client_,
+                                       '/spring_controller/set_parameters')
+        found &= self.wait_for_service(self.sc_pack_rate_client_, '/sc_pack_rate_command')
+        found &= self.wait_for_service(self.pc_scale_client_, '/pc_scale_command')
+        found &= self.wait_for_service(self.pc_retract_client_, '/pc_retract_command')
+        # found &= self.wait_for_service(self.pc_v_targ_max_client_, '/pc_v_targ_max_command')
         # found &= self.wait_for_service(self.pc_charge_curr_lim_client_,
-        #                                "/pc_charge_curr_lim_command")
-        # found &= self.wait_for_service(self.pc_batt_switch_client_, "/pc_batt_switch_command")
-        # found &= self.wait_for_service(self.gain_client_, "/gain_command")
-        # found &= self.wait_for_service(self.pc_std_dev_targ_client_, "/pc_std_dev_targ_command")
-        # found &= self.wait_for_service(self.pc_draw_curr_lim_client_, "/pc_draw_curr_lim_command")
-        found &= self.wait_for_service(self.pc_bias_curr_client_, "/pc_bias_curr_command")
-        # found &= self.wait_for_service(self.tf_set_pos_client_, "/tf_set_pos_command")
+        #                                '/pc_charge_curr_lim_command')
+        # found &= self.wait_for_service(self.pc_batt_switch_client_, '/pc_batt_switch_command')
+        # found &= self.wait_for_service(self.gain_client_, '/gain_command')
+        # found &= self.wait_for_service(self.pc_std_dev_targ_client_, '/pc_std_dev_targ_command')
+        # found &= self.wait_for_service(self.pc_draw_curr_lim_client_,
+                                         '/pc_draw_curr_lim_command')
+        found &= self.wait_for_service(self.pc_bias_curr_client_, '/pc_bias_curr_command')
+        # found &= self.wait_for_service(self.tf_set_pos_client_, '/tf_set_pos_command')
         # found &= self.wait_for_service(self.tf_set_actual_pos_client_,
-        #                                "/tf_set_actual_pos_command")
-        # found &= self.wait_for_service(self.tf_set_mode_client_, "/tf_set_mode_command")
+        #                                '/tf_set_actual_pos_command')
+        # found &= self.wait_for_service(self.tf_set_mode_client_, '/tf_set_mode_command')
         # found &= self.wait_for_service(self.tf_set_charge_mode_client_,
-        #                                "/tf_set_charge_mode_command")
-        # found &= self.wait_for_service(self.tf_set_curr_lim_client_, "/tf_set_curr_lim_command")
+        #                                '/tf_set_charge_mode_command')
+        # found &= self.wait_for_service(self.tf_set_curr_lim_client_, '/tf_set_curr_lim_command')
         # found &= self.wait_for_service(self.tf_set_state_machine_client_,
-        #                                "/tf_set_state_machine_command")
-        # found &= self.wait_for_service(self.tf_watch_dog_client_, "/tf_watch_dog_command")
-        # found &= self.wait_for_service(self.tf_reset_client_, "/tf_reset_command")
+        #                                '/tf_set_state_machine_command')
+        # found &= self.wait_for_service(self.tf_watch_dog_client_, '/tf_watch_dog_command')
+        # found &= self.wait_for_service(self.tf_reset_client_, '/tf_reset_command')
 
         if not found:
-            self.get_logger().error("Did not find required services")
+            self.get_logger().error('Did not find required services')
             return
-        '''
+        """
 
         self.pc_pack_rate_param_future_ = None
         self.pc_pack_rate_future_ = None
@@ -186,13 +198,13 @@ class Interface(Node):
     def setup_subscribers(self):
         self.subs_ = []
         sub_info = []
-        sub_info.append(["ahrs_callback", "/ahrs_data", XBRecord, self.ahrs_callback])
-        sub_info.append(["battery_callback", "/battery_data", BCRecord, self.battery_callback])
-        sub_info.append(["spring_callback", "/sc_record", SCRecord, self.spring_callback])
-        sub_info.append(["spring_callback", "/spring_data", SCRecord, self.spring_callback])
-        sub_info.append(["power_callback", "/power_data", PCRecord, self.power_callback])
-        sub_info.append(["trefoil_callback", "/trefoil_data", TFRecord, self.trefoil_callback])
-        sub_info.append(["powerbuoy_callback", "/powerbuoy_data",
+        sub_info.append(['ahrs_callback', '/ahrs_data', XBRecord, self.ahrs_callback])
+        sub_info.append(['battery_callback', '/battery_data', BCRecord, self.battery_callback])
+        sub_info.append(['spring_callback', '/sc_record', SCRecord, self.spring_callback])
+        sub_info.append(['spring_callback', '/spring_data', SCRecord, self.spring_callback])
+        sub_info.append(['power_callback', '/power_data', PCRecord, self.power_callback])
+        sub_info.append(['trefoil_callback', '/trefoil_data', TFRecord, self.trefoil_callback])
+        sub_info.append(['powerbuoy_callback', '/powerbuoy_data',
                          PBRecord, self.powerbuoy_callback])
         for cb_name, topic, msg_type, cb in sub_info:
             if cb_name in self.__class__.__dict__:  # did derived override a callback?
@@ -242,29 +254,29 @@ class Interface(Node):
 
     def param_response_callback(self, future):
         resp = future.result()
-        self.get_logger().info(f"Set Param Result: {resp}")
+        self.get_logger().info(f'Set Param Result: {resp}')
         # if resp.successful:
-        #     self.get_logger().info("Successfully set param.")
+        #     self.get_logger().info('Successfully set param.')
         # else:
-        #     self.get_logger().error("Param not set.")
+        #     self.get_logger().error('Param not set.')
 
     # generic service callback
     def service_response_callback(self, future):
         resp = future.result()
         if resp.result.value == resp.result.OK:
-            self.get_logger().info("Command Successful")
+            self.get_logger().info('Command Successful')
         else:
             self.get_logger().error(
-              f"Command Failed: received error code [[ {pbsrv_enum2str[resp.result.value]} ]]")
+              f'Command Failed: received error code [[ {pbsrv_enum2str[resp.result.value]} ]]')
             # TODO(andermi): should we shutdown?
 
     def wait_for_service(self, client, service_name):
         while not client.wait_for_service(timeout_sec=1.0):
             if not rclpy.ok():
                 self.get_logger().error(
-                  "Interrupted while waiting for {sn}. Exiting.".format(sn=service_name))
+                  'Interrupted while waiting for {sn}. Exiting.'.format(sn=service_name))
                 return False
 
             self.get_logger().info(
-              "{sn} not available, still waiting...".format(sn=service_name))
+              '{sn} not available, still waiting...'.format(sn=service_name))
         return True
