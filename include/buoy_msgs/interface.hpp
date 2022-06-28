@@ -15,13 +15,18 @@
 #ifndef BUOY_MSGS__INTERFACE_HPP_
 #define BUOY_MSGS__INTERFACE_HPP_
 
+#include <rclcpp/rclcpp.hpp>
+
+// Pack Rate Params
+#include <rclcpp/parameter_client.hpp>
+#include <rclcpp/parameter_value.hpp>
+#include <rclcpp/parameter.hpp>
 
 #include <string>
 #include <map>
 #include <memory>
 #include <mutex>
-
-#include "rclcpp/rclcpp.hpp"
+#include <vector>
 
 // pbsrv commands
 // power microcontroller
@@ -58,7 +63,6 @@
 #include "buoy_msgs/srv/tf_set_state_machine_command.hpp"
 #include "buoy_msgs/srv/tf_watch_dog_command.hpp"
 
-
 // pb telemetry
 #include "buoy_msgs/msg/xb_record.hpp"  // ahrs
 #include "buoy_msgs/msg/bc_record.hpp"  // battery
@@ -66,12 +70,6 @@
 #include "buoy_msgs/msg/pc_record.hpp"  // power
 #include "buoy_msgs/msg/tf_record.hpp"  // trefoil
 #include "buoy_msgs/msg/pb_record.hpp"  // consolidated
-
-
-// Pack Rate Params
-#include <rclcpp/parameter_client.hpp>
-#include <rclcpp/parameter_value.hpp>
-#include <rclcpp/parameter.hpp>
 
 
 namespace buoy_msgs
@@ -95,8 +93,8 @@ public:
   {
     pc_pack_rate_param_client_ =
       std::make_unique<rclcpp::SyncParametersClient>(
-        std::shared_ptr<rclcpp::Node>(static_cast<ControllerImplCRTP *>(this), [](rclcpp::Node *){}),
-        "/power_controller");
+      std::shared_ptr<rclcpp::Node>(static_cast<ControllerImplCRTP *>(this), [](rclcpp::Node *) {}),
+      "/power_controller");
     pc_pack_rate_client_ = \
       this->create_client<buoy_msgs::srv::PCPackRateCommand>("/pc_pack_rate_command");
     pc_wind_curr_client_ = \
@@ -109,8 +107,8 @@ public:
     sc_reset_client_ = this->create_client<buoy_msgs::srv::SCResetCommand>("/sc_reset_command");
     sc_pack_rate_param_client_ =
       std::make_unique<rclcpp::SyncParametersClient>(
-        std::shared_ptr<rclcpp::Node>(static_cast<ControllerImplCRTP *>(this), [](rclcpp::Node *){}),
-        "/spring_controller");
+      std::shared_ptr<rclcpp::Node>(static_cast<ControllerImplCRTP *>(this), [](rclcpp::Node *) {}),
+      "/spring_controller");
     sc_pack_rate_client_ = \
       this->create_client<buoy_msgs::srv::SCPackRateCommand>("/sc_pack_rate_command");
     pc_scale_client_ = this->create_client<buoy_msgs::srv::PCScaleCommand>("/pc_scale_command");
@@ -146,8 +144,9 @@ public:
       this->create_client<buoy_msgs::srv::TFWatchDogCommand>("/tf_watch_dog_command");
     tf_reset_client_ = this->create_client<buoy_msgs::srv::TFResetCommand>("/tf_reset_command");
 
-    bool found_pc_param = wait_for_service(pc_pack_rate_param_client_,
-                                           "/power_controller/set_parameters");
+    bool found_pc_param = wait_for_service(
+      pc_pack_rate_param_client_,
+      "/power_controller/set_parameters");
     bool found_pc_packrate = wait_for_service(pc_pack_rate_client_, "/pc_pack_rate_command");
     bool found = found_pc_param || found_pc_packrate;
     found &= wait_for_service(pc_wind_curr_client_, "/pc_wind_curr_command");
@@ -157,8 +156,9 @@ public:
     found &= wait_for_service(valve_client_, "/valve_command");
     found &= wait_for_service(tether_client_, "/tether_command");
     found &= wait_for_service(sc_reset_client_, "/sc_reset_command");
-    bool found_sc_param = wait_for_service(sc_pack_rate_param_client_,
-                                           "/spring_controller/set_parameters");
+    bool found_sc_param = wait_for_service(
+      sc_pack_rate_param_client_,
+      "/spring_controller/set_parameters");
     bool found_sc_packrate = wait_for_service(sc_pack_rate_client_, "/sc_pack_rate_command");
     found &= found_sc_param || found_sc_packrate;
     found &= wait_for_service(pc_scale_client_, "/pc_scale_command");
@@ -339,7 +339,7 @@ public:
   void set_pc_pack_rate_param(const double & rate_hz = 50.0)
   {
     std::vector<rclcpp::Parameter> params = {rclcpp::Parameter{"publish_rate",
-      rclcpp::ParameterValue{rate_hz}}};
+        rclcpp::ParameterValue{rate_hz}}};
     auto result = pc_pack_rate_param_client_->set_parameters(params);
     if (result[0U].successful) {
       RCLCPP_INFO_STREAM(
@@ -356,7 +356,7 @@ public:
   void set_sc_pack_rate_param(const double & rate_hz = 50.0)
   {
     std::vector<rclcpp::Parameter> params = {rclcpp::Parameter{"publish_rate",
-      rclcpp::ParameterValue{rate_hz}}};
+        rclcpp::ParameterValue{rate_hz}}};
     auto result = sc_pack_rate_param_client_->set_parameters(params);
     if (result[0U].successful) {
       RCLCPP_INFO_STREAM(
@@ -541,7 +541,7 @@ private:
         // TODO(anyone) Why do I need this assignment after every `async_send_request` callback?
         // Without this, results in `std::bad_function_call` on the second `async_send_request`
         this->pc_wind_curr_callback = service_response_callback<PCWindCurrServiceCallback,
-          PCWindCurrServiceResponseFuture>();
+            PCWindCurrServiceResponseFuture>();
       };
 
     return callback;
@@ -577,7 +577,6 @@ private:
   rclcpp::Subscription<buoy_msgs::msg::PCRecord>::SharedPtr power_data_sub_;
   rclcpp::Subscription<buoy_msgs::msg::TFRecord>::SharedPtr trefoil_data_sub_;
   rclcpp::Subscription<buoy_msgs::msg::PBRecord>::SharedPtr powerbuoy_data_sub_;
-
 };
 
 }  // namespace buoy_msgs

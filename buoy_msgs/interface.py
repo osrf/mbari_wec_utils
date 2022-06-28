@@ -122,7 +122,8 @@ class Interface(Node):
         # sim should add all services (even unused with noop)
         found_pc_param = self.wait_for_service(self.pc_pack_rate_param_client_,
                                                '/power_controller/set_parameters')
-        found_pc_packrate = self.wait_for_service(self.pc_pack_rate_client_, '/pc_pack_rate_command')
+        found_pc_packrate = self.wait_for_service(self.pc_pack_rate_client_,
+                                                  '/pc_pack_rate_command')
         found = found_pc_param or found_pc_packrate
         found &= self.wait_for_service(self.pc_wind_curr_client_, '/pc_wind_curr_command')
         found &= self.wait_for_service(self.bender_client_, '/bender_command')
@@ -133,7 +134,8 @@ class Interface(Node):
         found &= self.wait_for_service(self.sc_reset_client_, '/sc_reset_command')
         found_sc_param = self.wait_for_service(self.sc_pack_rate_param_client_,
                                                '/spring_controller/set_parameters')
-        found_sc_packrate = self.wait_for_service(self.sc_pack_rate_client_, '/sc_pack_rate_command')
+        found_sc_packrate = self.wait_for_service(self.sc_pack_rate_client_,
+                                                  '/sc_pack_rate_command')
         found &= found_sc_param or found_sc_packrate
         found &= self.wait_for_service(self.pc_scale_client_, '/pc_scale_command')
         found &= self.wait_for_service(self.pc_retract_client_, '/pc_retract_command')
