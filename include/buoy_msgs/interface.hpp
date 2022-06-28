@@ -19,7 +19,7 @@
 #include <string>
 #include <map>
 #include <memory>
-
+#include <mutex>
 
 #include "rclcpp/rclcpp.hpp"
 
@@ -95,7 +95,7 @@ public:
   {
     pc_pack_rate_param_client_ =
       std::make_unique<rclcpp::SyncParametersClient>(
-        std::shared_ptr<rclcpp::Node>(static_cast<rclcpp::Node *>(this), [](rclcpp::Node *){}),
+        std::shared_ptr<rclcpp::Node>(static_cast<ControllerImplCRTP *>(this), [](rclcpp::Node *){}),
         "/power_controller");
     pc_pack_rate_client_ = \
       this->create_client<buoy_msgs::srv::PCPackRateCommand>("/pc_pack_rate_command");
@@ -109,7 +109,7 @@ public:
     sc_reset_client_ = this->create_client<buoy_msgs::srv::SCResetCommand>("/sc_reset_command");
     sc_pack_rate_param_client_ =
       std::make_unique<rclcpp::SyncParametersClient>(
-        std::shared_ptr<rclcpp::Node>(static_cast<rclcpp::Node *>(this), [](rclcpp::Node *){}),
+        std::shared_ptr<rclcpp::Node>(static_cast<ControllerImplCRTP *>(this), [](rclcpp::Node *){}),
         "/spring_controller");
     sc_pack_rate_client_ = \
       this->create_client<buoy_msgs::srv::SCPackRateCommand>("/sc_pack_rate_command");
@@ -538,6 +538,10 @@ private:
             pbsrv_enum2str[future.get()->result.value].c_str());
           // TODO(andermi): should we shutdown?
         }
+        // TODO(anyone) Why do I need this assignment after every `async_send_request` callback?
+        // Without this, results in `std::bad_function_call` on the second `async_send_request`
+        this->pc_wind_curr_callback = service_response_callback<PCWindCurrServiceCallback,
+          PCWindCurrServiceResponseFuture>();
       };
 
     return callback;
@@ -549,7 +553,7 @@ private:
     // NOLINTNEXTLINE
     using namespace std::chrono_literals;
     size_t count{0U};
-    while (count < 2U && !client->wait_for_service(1s)) {
+    while (count < 1U && !client->wait_for_service(1s)) {
       ++count;
       if (!rclcpp::ok()) {
         RCLCPP_ERROR(
@@ -573,6 +577,7 @@ private:
   rclcpp::Subscription<buoy_msgs::msg::PCRecord>::SharedPtr power_data_sub_;
   rclcpp::Subscription<buoy_msgs::msg::TFRecord>::SharedPtr trefoil_data_sub_;
   rclcpp::Subscription<buoy_msgs::msg::PBRecord>::SharedPtr powerbuoy_data_sub_;
+
 };
 
 }  // namespace buoy_msgs

@@ -271,7 +271,7 @@ class Interface(Node):
 
     def wait_for_service(self, client, service_name):
         count = 0
-        while count < 2 and not client.wait_for_service(timeout_sec=1.0):
+        while count < 1 and not client.wait_for_service(timeout_sec=1.0):
             count += 1
             if not rclpy.ok():
                 self.get_logger().error(
