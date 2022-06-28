@@ -68,6 +68,12 @@
 #include "buoy_msgs/msg/pb_record.hpp"  // consolidated
 
 
+// Pack Rate Params
+#include <rclcpp/parameter_client.hpp>
+#include <rclcpp/parameter_value.hpp>
+#include <rclcpp/parameter.hpp>
+
+
 namespace buoy_msgs
 {
 using std::placeholders::_1;
@@ -87,6 +93,10 @@ public:
   explicit Interface(const std::string & node_name)
   : Node(node_name)
   {
+    pc_pack_rate_param_client_ =
+      std::make_unique<rclcpp::SyncParametersClient>(
+        std::shared_ptr<rclcpp::Node>(static_cast<rclcpp::Node *>(this), [](rclcpp::Node *){}),
+        "/power_controller");
     pc_pack_rate_client_ = \
       this->create_client<buoy_msgs::srv::PCPackRateCommand>("/pc_pack_rate_command");
     pc_wind_curr_client_ = \
@@ -97,6 +107,10 @@ public:
     valve_client_ = this->create_client<buoy_msgs::srv::ValveCommand>("/valve_command");
     tether_client_ = this->create_client<buoy_msgs::srv::TetherCommand>("/tether_command");
     sc_reset_client_ = this->create_client<buoy_msgs::srv::SCResetCommand>("/sc_reset_command");
+    sc_pack_rate_param_client_ =
+      std::make_unique<rclcpp::SyncParametersClient>(
+        std::shared_ptr<rclcpp::Node>(static_cast<rclcpp::Node *>(this), [](rclcpp::Node *){}),
+        "/spring_controller");
     sc_pack_rate_client_ = \
       this->create_client<buoy_msgs::srv::SCPackRateCommand>("/sc_pack_rate_command");
     pc_scale_client_ = this->create_client<buoy_msgs::srv::PCScaleCommand>("/pc_scale_command");
@@ -132,7 +146,10 @@ public:
       this->create_client<buoy_msgs::srv::TFWatchDogCommand>("/tf_watch_dog_command");
     tf_reset_client_ = this->create_client<buoy_msgs::srv::TFResetCommand>("/tf_reset_command");
 
-    bool found = wait_for_service(pc_pack_rate_client_, "/pc_pack_rate_command");
+    bool found_pc_param = wait_for_service(pc_pack_rate_param_client_,
+                                           "/power_controller/set_parameters");
+    bool found_pc_packrate = wait_for_service(pc_pack_rate_client_, "/pc_pack_rate_command");
+    bool found = found_pc_param || found_pc_packrate;
     found &= wait_for_service(pc_wind_curr_client_, "/pc_wind_curr_command");
     found &= wait_for_service(bender_client_, "/bender_command");
     found &= wait_for_service(bc_reset_client_, "/bc_reset_command");
@@ -140,7 +157,10 @@ public:
     found &= wait_for_service(valve_client_, "/valve_command");
     found &= wait_for_service(tether_client_, "/tether_command");
     found &= wait_for_service(sc_reset_client_, "/sc_reset_command");
-    found &= wait_for_service(sc_pack_rate_client_, "/sc_pack_rate_command");
+    bool found_sc_param = wait_for_service(sc_pack_rate_param_client_,
+                                           "/spring_controller/set_parameters");
+    bool found_sc_packrate = wait_for_service(sc_pack_rate_client_, "/sc_pack_rate_command");
+    found &= found_sc_param || found_sc_packrate;
     found &= wait_for_service(pc_scale_client_, "/pc_scale_command");
     found &= wait_for_service(pc_retract_client_, "/pc_retract_command");
     found &= wait_for_service(pc_v_targ_max_client_, "/pc_v_targ_max_command");
@@ -298,21 +318,55 @@ public:
   }
 
   // set publish rate of PC Microcontroller telemetry
-  void set_pc_pack_rate()
+  void set_pc_pack_rate(const uint8_t & rate_hz = 50)
   {
     auto request = std::make_shared<buoy_msgs::srv::PCPackRateCommand::Request>();
-    request->rate_hz = 50;
+    request->rate_hz = rate_hz;
 
     auto response = pc_pack_rate_client_->async_send_request(request, pc_pack_rate_callback);
   }
 
   // set publish rate of SC Microcontroller telemetry
-  void set_sc_pack_rate()
+  void set_sc_pack_rate(const uint8_t & rate_hz = 50)
   {
     auto request = std::make_shared<buoy_msgs::srv::SCPackRateCommand::Request>();
-    request->rate_hz = 50;
+    request->rate_hz = rate_hz;
 
     auto response = sc_pack_rate_client_->async_send_request(request, sc_pack_rate_callback);
+  }
+
+  // set publish rate of PC Microcontroller telemetry
+  void set_pc_pack_rate_param(const double & rate_hz = 50.0)
+  {
+    std::vector<rclcpp::Parameter> params = {rclcpp::Parameter{"publish_rate",
+      rclcpp::ParameterValue{rate_hz}}};
+    auto result = pc_pack_rate_param_client_->set_parameters(params);
+    if (result[0U].successful) {
+      RCLCPP_INFO_STREAM(
+        rclcpp::get_logger(this->get_name()),
+        "Successfully set publish_rate for power_controller");
+    } else {
+      RCLCPP_INFO_STREAM(
+        rclcpp::get_logger(this->get_name()),
+        "Failed to set publish_rate for power_controller: " << result[0U].reason);
+    }
+  }
+
+  // set publish rate of SC Microcontroller telemetry
+  void set_sc_pack_rate_param(const double & rate_hz = 50.0)
+  {
+    std::vector<rclcpp::Parameter> params = {rclcpp::Parameter{"publish_rate",
+      rclcpp::ParameterValue{rate_hz}}};
+    auto result = sc_pack_rate_param_client_->set_parameters(params);
+    if (result[0U].successful) {
+      RCLCPP_INFO_STREAM(
+        rclcpp::get_logger(this->get_name()),
+        "Successfully set publish_rate for spring_controller");
+    } else {
+      RCLCPP_INFO_STREAM(
+        rclcpp::get_logger(this->get_name()),
+        "Failed to set publish_rate for spring_controller: " << result[0U].reason);
+    }
   }
 
 protected:
@@ -444,6 +498,7 @@ protected:
   rclcpp::Client<buoy_msgs::srv::TetherCommand>::SharedPtr tether_client_;
   rclcpp::Client<buoy_msgs::srv::SCResetCommand>::SharedPtr sc_reset_client_;
   rclcpp::Client<buoy_msgs::srv::SCPackRateCommand>::SharedPtr sc_pack_rate_client_;
+  std::unique_ptr<rclcpp::SyncParametersClient> sc_pack_rate_param_client_;
   rclcpp::Client<buoy_msgs::srv::PCScaleCommand>::SharedPtr pc_scale_client_;
   rclcpp::Client<buoy_msgs::srv::PCRetractCommand>::SharedPtr pc_retract_client_;
   rclcpp::Client<buoy_msgs::srv::PCVTargMaxCommand>::SharedPtr pc_v_targ_max_client_;
@@ -455,6 +510,7 @@ protected:
   rclcpp::Client<buoy_msgs::srv::PCWindCurrCommand>::SharedPtr pc_wind_curr_client_;
   rclcpp::Client<buoy_msgs::srv::PCBiasCurrCommand>::SharedPtr pc_bias_curr_client_;
   rclcpp::Client<buoy_msgs::srv::PCPackRateCommand>::SharedPtr pc_pack_rate_client_;
+  std::unique_ptr<rclcpp::SyncParametersClient> pc_pack_rate_param_client_;
   rclcpp::Client<buoy_msgs::srv::TFSetPosCommand>::SharedPtr tf_set_pos_client_;
   rclcpp::Client<buoy_msgs::srv::TFSetActualPosCommand>::SharedPtr tf_set_actual_pos_client_;
   rclcpp::Client<buoy_msgs::srv::TFSetModeCommand>::SharedPtr tf_set_mode_client_;
@@ -492,7 +548,9 @@ private:
   {
     // NOLINTNEXTLINE
     using namespace std::chrono_literals;
-    while (!client->wait_for_service(1s)) {
+    size_t count{0U};
+    while (count < 2U && !client->wait_for_service(1s)) {
+      ++count;
       if (!rclcpp::ok()) {
         RCLCPP_ERROR(
           rclcpp::get_logger(this->get_name()),

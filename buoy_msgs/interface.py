@@ -117,50 +117,50 @@ class Interface(Node):
         self.tf_watch_dog_client_ = self.create_client(TFWatchDogCommand, '/tf_watch_dog_command')
         self.tf_reset_client_ = self.create_client(TFResetCommand, '/tf_reset_command')
 
-        # TODO(andermi) Put these back when sim & physical match up
+        # TODO(andermi)
         # physical needs to switch from service to param for pack rates
         # sim should add all services (even unused with noop)
-        """
-        found = self.wait_for_service(self.pc_pack_rate_param_client_,
-                                      '/power_controller/set_parameters')
-        found = self.wait_for_service(self.pc_pack_rate_client_, '/pc_pack_rate_command')
+        found_pc_param = self.wait_for_service(self.pc_pack_rate_param_client_,
+                                               '/power_controller/set_parameters')
+        found_pc_packrate = self.wait_for_service(self.pc_pack_rate_client_, '/pc_pack_rate_command')
+        found = found_pc_param or found_pc_packrate
         found &= self.wait_for_service(self.pc_wind_curr_client_, '/pc_wind_curr_command')
-        # found &= self.wait_for_service(self.bender_client_, '/bender_command')
-        # found &= self.wait_for_service(self.bc_reset_client_, '/bc_reset_command')
+        found &= self.wait_for_service(self.bender_client_, '/bender_command')
+        found &= self.wait_for_service(self.bc_reset_client_, '/bc_reset_command')
         found &= self.wait_for_service(self.pump_client_, '/pump_command')
         found &= self.wait_for_service(self.valve_client_, '/valve_command')
-        # found &= self.wait_for_service(self.tether_client_, '/tether_command')
-        # found &= self.wait_for_service(self.sc_reset_client_, '/sc_reset_command')
-        found &= self.wait_for_service(self.sc_pack_rate_param_client_,
-                                       '/spring_controller/set_parameters')
-        found &= self.wait_for_service(self.sc_pack_rate_client_, '/sc_pack_rate_command')
+        found &= self.wait_for_service(self.tether_client_, '/tether_command')
+        found &= self.wait_for_service(self.sc_reset_client_, '/sc_reset_command')
+        found_sc_param = self.wait_for_service(self.sc_pack_rate_param_client_,
+                                               '/spring_controller/set_parameters')
+        found_sc_packrate = self.wait_for_service(self.sc_pack_rate_client_, '/sc_pack_rate_command')
+        found &= found_sc_param or found_sc_packrate
         found &= self.wait_for_service(self.pc_scale_client_, '/pc_scale_command')
         found &= self.wait_for_service(self.pc_retract_client_, '/pc_retract_command')
-        # found &= self.wait_for_service(self.pc_v_targ_max_client_, '/pc_v_targ_max_command')
-        # found &= self.wait_for_service(self.pc_charge_curr_lim_client_,
-        #                                '/pc_charge_curr_lim_command')
-        # found &= self.wait_for_service(self.pc_batt_switch_client_, '/pc_batt_switch_command')
-        # found &= self.wait_for_service(self.gain_client_, '/gain_command')
-        # found &= self.wait_for_service(self.pc_std_dev_targ_client_, '/pc_std_dev_targ_command')
-        # found &= self.wait_for_service(self.pc_draw_curr_lim_client_,
-                                         '/pc_draw_curr_lim_command')
+        found &= self.wait_for_service(self.pc_v_targ_max_client_, '/pc_v_targ_max_command')
+        found &= self.wait_for_service(self.pc_charge_curr_lim_client_,
+                                       '/pc_charge_curr_lim_command')
+        found &= self.wait_for_service(self.pc_batt_switch_client_, '/pc_batt_switch_command')
+        found &= self.wait_for_service(self.gain_client_, '/gain_command')
+        found &= self.wait_for_service(self.pc_std_dev_targ_client_, '/pc_std_dev_targ_command')
+        found &= self.wait_for_service(self.pc_draw_curr_lim_client_,
+                                       '/pc_draw_curr_lim_command')
         found &= self.wait_for_service(self.pc_bias_curr_client_, '/pc_bias_curr_command')
-        # found &= self.wait_for_service(self.tf_set_pos_client_, '/tf_set_pos_command')
-        # found &= self.wait_for_service(self.tf_set_actual_pos_client_,
-        #                                '/tf_set_actual_pos_command')
-        # found &= self.wait_for_service(self.tf_set_mode_client_, '/tf_set_mode_command')
-        # found &= self.wait_for_service(self.tf_set_charge_mode_client_,
-        #                                '/tf_set_charge_mode_command')
-        # found &= self.wait_for_service(self.tf_set_curr_lim_client_, '/tf_set_curr_lim_command')
-        # found &= self.wait_for_service(self.tf_set_state_machine_client_,
-        #                                '/tf_set_state_machine_command')
-        # found &= self.wait_for_service(self.tf_watch_dog_client_, '/tf_watch_dog_command')
-        # found &= self.wait_for_service(self.tf_reset_client_, '/tf_reset_command')
+        found &= self.wait_for_service(self.tf_set_pos_client_, '/tf_set_pos_command')
+        found &= self.wait_for_service(self.tf_set_actual_pos_client_,
+                                       '/tf_set_actual_pos_command')
+        found &= self.wait_for_service(self.tf_set_mode_client_, '/tf_set_mode_command')
+        found &= self.wait_for_service(self.tf_set_charge_mode_client_,
+                                       '/tf_set_charge_mode_command')
+        found &= self.wait_for_service(self.tf_set_curr_lim_client_, '/tf_set_curr_lim_command')
+        found &= self.wait_for_service(self.tf_set_state_machine_client_,
+                                       '/tf_set_state_machine_command')
+        found &= self.wait_for_service(self.tf_watch_dog_client_, '/tf_watch_dog_command')
+        found &= self.wait_for_service(self.tf_reset_client_, '/tf_reset_command')
 
         if not found:
             self.get_logger().error('Did not find required services')
             return
-        """
 
         self.pc_pack_rate_param_future_ = None
         self.pc_pack_rate_future_ = None
@@ -200,7 +200,6 @@ class Interface(Node):
         sub_info = []
         sub_info.append(['ahrs_callback', '/ahrs_data', XBRecord, self.ahrs_callback])
         sub_info.append(['battery_callback', '/battery_data', BCRecord, self.battery_callback])
-        sub_info.append(['spring_callback', '/sc_record', SCRecord, self.spring_callback])
         sub_info.append(['spring_callback', '/spring_data', SCRecord, self.spring_callback])
         sub_info.append(['power_callback', '/power_data', PCRecord, self.power_callback])
         sub_info.append(['trefoil_callback', '/trefoil_data', TFRecord, self.trefoil_callback])
@@ -228,17 +227,17 @@ class Interface(Node):
         self.sc_pack_rate_param_future_.add_done_callback(self.param_response_callback)
 
     # set publish rate of PC Microcontroller telemetry
-    def set_pc_pack_rate(self):
+    def set_pc_pack_rate(self, rate_hz=50):
         request = PCPackRateCommand.Request()
-        request.rate_hz = 50
+        request.rate_hz = rate_hz
 
         self.pc_pack_rate_future_ = self.pc_pack_rate_client_.call_async(request)
         self.pc_pack_rate_future_.add_done_callback(self.service_response_callback)
 
     # set publish rate of SC Microcontroller telemetry
-    def set_sc_pack_rate(self):
+    def set_sc_pack_rate(self, rate_hz=50):
         request = SCPackRateCommand.Request()
-        request.rate_hz = 50
+        request.rate_hz = rate_hz
 
         self.sc_pack_rate_future_ = self.sc_pack_rate_client_.call_async(request)
         self.sc_pack_rate_future_.add_done_callback(self.service_response_callback)
@@ -271,7 +270,9 @@ class Interface(Node):
             # TODO(andermi): should we shutdown?
 
     def wait_for_service(self, client, service_name):
-        while not client.wait_for_service(timeout_sec=1.0):
+        count = 0
+        while count < 2 and not client.wait_for_service(timeout_sec=1.0):
+            count += 1
             if not rclpy.ok():
                 self.get_logger().error(
                   'Interrupted while waiting for {sn}. Exiting.'.format(sn=service_name))
