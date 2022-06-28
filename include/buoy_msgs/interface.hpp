@@ -181,7 +181,6 @@ public:
 
     if (!found) {
       RCLCPP_ERROR(rclcpp::get_logger(node_name), "Did not find required services");
-      return;
     }
 
     bender_callback = service_response_callback<BenderServiceCallback,
@@ -548,12 +547,12 @@ private:
   }
 
   template<class T>
-  bool wait_for_service(T & client, const std::string & service)
+  bool wait_for_service(T & client, const std::string & service, const size_t & _count = 1U)
   {
     // NOLINTNEXTLINE
     using namespace std::chrono_literals;
     size_t count{0U};
-    while (count < 1U && !client->wait_for_service(1s)) {
+    while (count < _count && !client->wait_for_service(1s)) {
       ++count;
       if (!rclcpp::ok()) {
         RCLCPP_ERROR(
@@ -567,7 +566,7 @@ private:
         "%s not available, still waiting...",
         service.c_str());
     }
-    return true;
+    return count < _count;
   }
 
   // declare all subscribers
