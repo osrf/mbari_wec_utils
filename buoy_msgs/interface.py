@@ -162,7 +162,6 @@ class Interface(Node):
 
         if not found:
             self.get_logger().error('Did not find required services')
-            return
 
         self.pc_pack_rate_param_future_ = None
         self.pc_pack_rate_future_ = None
@@ -271,9 +270,9 @@ class Interface(Node):
               f'Command Failed: received error code [[ {pbsrv_enum2str[resp.result.value]} ]]')
             # TODO(andermi): should we shutdown?
 
-    def wait_for_service(self, client, service_name):
+    def wait_for_service(self, client, service_name, _count=1):
         count = 0
-        while count < 1 and not client.wait_for_service(timeout_sec=1.0):
+        while count < _count and not client.wait_for_service(timeout_sec=1.0):
             count += 1
             if not rclpy.ok():
                 self.get_logger().error(
@@ -282,4 +281,4 @@ class Interface(Node):
 
             self.get_logger().info(
               '{sn} not available, still waiting...'.format(sn=service_name))
-        return True
+        return count < _count
