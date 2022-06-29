@@ -88,7 +88,8 @@ class Interface : public rclcpp::Node
 public:
   using CRTP = Interface;  // syntactic sugar for friend class
                            // see https://stackoverflow.com/a/58435857/9686600
-  explicit Interface(const std::string & node_name) : Interface(node_name, False)
+  explicit Interface(const std::string & node_name)
+  : Interface(node_name, false)
   {
   }
 
@@ -202,8 +203,7 @@ public:
 
     setup_subscribers();
     bool found = false;
-    do
-    {
+    do {
       found = wait_for_services();
     } while (rclcpp::ok() && !found && _wait_for_services);
   }
@@ -246,7 +246,7 @@ public:
     found &= wait_for_service(tf_reset_client_, "/tf_reset_command");
 
     if (!found) {
-      RCLCPP_ERROR(rclcpp::get_logger(node_name), "Did not find required services");
+      RCLCPP_ERROR(rclcpp::get_logger(this->get_name()), "Did not find required services");
     }
     return found;
   }
