@@ -88,7 +88,11 @@ class Interface : public rclcpp::Node
 public:
   using CRTP = Interface;  // syntactic sugar for friend class
                            // see https://stackoverflow.com/a/58435857/9686600
-  explicit Interface(const std::string & node_name)
+  explicit Interface(const std::string & node_name) : Interface(node_name, False)
+  {
+  }
+
+  explicit Interface(const std::string & node_name, bool _wait_for_services)
   : Node(node_name)
   {
     pc_pack_rate_param_client_ =
@@ -144,45 +148,6 @@ public:
       this->create_client<buoy_msgs::srv::TFWatchDogCommand>("/tf_watch_dog_command");
     tf_reset_client_ = this->create_client<buoy_msgs::srv::TFResetCommand>("/tf_reset_command");
 
-    bool found_pc_param = wait_for_service(
-      pc_pack_rate_param_client_,
-      "/power_controller/set_parameters");
-    bool found_pc_packrate = wait_for_service(pc_pack_rate_client_, "/pc_pack_rate_command");
-    bool found = found_pc_param || found_pc_packrate;
-    found &= wait_for_service(pc_wind_curr_client_, "/pc_wind_curr_command");
-    found &= wait_for_service(bender_client_, "/bender_command");
-    found &= wait_for_service(bc_reset_client_, "/bc_reset_command");
-    found &= wait_for_service(pump_client_, "/pump_command");
-    found &= wait_for_service(valve_client_, "/valve_command");
-    found &= wait_for_service(tether_client_, "/tether_command");
-    found &= wait_for_service(sc_reset_client_, "/sc_reset_command");
-    bool found_sc_param = wait_for_service(
-      sc_pack_rate_param_client_,
-      "/spring_controller/set_parameters");
-    bool found_sc_packrate = wait_for_service(sc_pack_rate_client_, "/sc_pack_rate_command");
-    found &= found_sc_param || found_sc_packrate;
-    found &= wait_for_service(pc_scale_client_, "/pc_scale_command");
-    found &= wait_for_service(pc_retract_client_, "/pc_retract_command");
-    found &= wait_for_service(pc_v_targ_max_client_, "/pc_v_targ_max_command");
-    found &= wait_for_service(pc_charge_curr_lim_client_, "/pc_charge_curr_lim_command");
-    found &= wait_for_service(pc_batt_switch_client_, "/pc_batt_switch_command");
-    found &= wait_for_service(gain_client_, "/gain_command");
-    found &= wait_for_service(pc_std_dev_targ_client_, "/pc_std_dev_targ_command");
-    found &= wait_for_service(pc_draw_curr_lim_client_, "/pc_draw_curr_lim_command");
-    found &= wait_for_service(pc_bias_curr_client_, "/pc_bias_curr_command");
-    found &= wait_for_service(tf_set_pos_client_, "/tf_set_pos_command");
-    found &= wait_for_service(tf_set_actual_pos_client_, "/tf_set_actual_pos_command");
-    found &= wait_for_service(tf_set_mode_client_, "/tf_set_mode_command");
-    found &= wait_for_service(tf_set_charge_mode_client_, "/tf_set_charge_mode_command");
-    found &= wait_for_service(tf_set_curr_lim_client_, "/tf_set_curr_lim_command");
-    found &= wait_for_service(tf_set_state_machine_client_, "/tf_set_state_machine_command");
-    found &= wait_for_service(tf_watch_dog_client_, "/tf_watch_dog_command");
-    found &= wait_for_service(tf_reset_client_, "/tf_reset_command");
-
-    if (!found) {
-      RCLCPP_ERROR(rclcpp::get_logger(node_name), "Did not find required services");
-    }
-
     bender_callback = service_response_callback<BenderServiceCallback,
         BenderServiceResponseFuture>();
     bc_reset_callback = service_response_callback<BCResetServiceCallback,
@@ -236,6 +201,54 @@ public:
         TFResetServiceResponseFuture>();
 
     setup_subscribers();
+    bool found = false;
+    do
+    {
+      found = wait_for_services();
+    } while (rclcpp::ok() && !found && _wait_for_services);
+  }
+
+  bool wait_for_services()
+  {
+    bool found_pc_param = wait_for_service(
+      pc_pack_rate_param_client_,
+      "/power_controller/set_parameters");
+    bool found_pc_packrate = wait_for_service(pc_pack_rate_client_, "/pc_pack_rate_command");
+    bool found = found_pc_param || found_pc_packrate;
+    found &= wait_for_service(pc_wind_curr_client_, "/pc_wind_curr_command");
+    found &= wait_for_service(bender_client_, "/bender_command");
+    found &= wait_for_service(bc_reset_client_, "/bc_reset_command");
+    found &= wait_for_service(pump_client_, "/pump_command");
+    found &= wait_for_service(valve_client_, "/valve_command");
+    found &= wait_for_service(tether_client_, "/tether_command");
+    found &= wait_for_service(sc_reset_client_, "/sc_reset_command");
+    bool found_sc_param = wait_for_service(
+      sc_pack_rate_param_client_,
+      "/spring_controller/set_parameters");
+    bool found_sc_packrate = wait_for_service(sc_pack_rate_client_, "/sc_pack_rate_command");
+    found &= found_sc_param || found_sc_packrate;
+    found &= wait_for_service(pc_scale_client_, "/pc_scale_command");
+    found &= wait_for_service(pc_retract_client_, "/pc_retract_command");
+    found &= wait_for_service(pc_v_targ_max_client_, "/pc_v_targ_max_command");
+    found &= wait_for_service(pc_charge_curr_lim_client_, "/pc_charge_curr_lim_command");
+    found &= wait_for_service(pc_batt_switch_client_, "/pc_batt_switch_command");
+    found &= wait_for_service(gain_client_, "/gain_command");
+    found &= wait_for_service(pc_std_dev_targ_client_, "/pc_std_dev_targ_command");
+    found &= wait_for_service(pc_draw_curr_lim_client_, "/pc_draw_curr_lim_command");
+    found &= wait_for_service(pc_bias_curr_client_, "/pc_bias_curr_command");
+    found &= wait_for_service(tf_set_pos_client_, "/tf_set_pos_command");
+    found &= wait_for_service(tf_set_actual_pos_client_, "/tf_set_actual_pos_command");
+    found &= wait_for_service(tf_set_mode_client_, "/tf_set_mode_command");
+    found &= wait_for_service(tf_set_charge_mode_client_, "/tf_set_charge_mode_command");
+    found &= wait_for_service(tf_set_curr_lim_client_, "/tf_set_curr_lim_command");
+    found &= wait_for_service(tf_set_state_machine_client_, "/tf_set_state_machine_command");
+    found &= wait_for_service(tf_watch_dog_client_, "/tf_watch_dog_command");
+    found &= wait_for_service(tf_reset_client_, "/tf_reset_command");
+
+    if (!found) {
+      RCLCPP_ERROR(rclcpp::get_logger(node_name), "Did not find required services");
+    }
+    return found;
   }
 
   // if user has shadowed a callback in their user-derived class, this will use their

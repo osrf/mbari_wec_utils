@@ -75,7 +75,7 @@ pbsrv_enum2str = {0: 'OK',
 
 class Interface(Node):
 
-    def __init__(self, node_name, **kwargs):
+    def __init__(self, node_name, wait_for_services=False, **kwargs):
         super().__init__(node_name, **kwargs)
         self.pc_pack_rate_param_client_ = self.create_client(SetParameters,
                                                              '/power_controller/set_parameters')
@@ -117,6 +117,43 @@ class Interface(Node):
         self.tf_watch_dog_client_ = self.create_client(TFWatchDogCommand, '/tf_watch_dog_command')
         self.tf_reset_client_ = self.create_client(TFResetCommand, '/tf_reset_command')
 
+        self.pc_pack_rate_param_future_ = None
+        self.pc_pack_rate_future_ = None
+        self.pc_wind_curr_future_ = None
+        self.bender_future_ = None
+        self.bc_reset_future_ = None
+        self.pump_future_ = None
+        self.valve_future_ = None
+        self.tether_future_ = None
+        self.sc_reset_future_ = None
+        self.sc_pack_rate_param_future_ = None
+        self.sc_pack_rate_future_ = None
+        self.pc_scale_future_ = None
+        self.pc_retract_future_ = None
+        self.pc_v_targ_max_future_ = None
+        self.pc_charge_curr_lim_future_ = None
+        self.pc_batt_switch_future_ = None
+        self.gain_future_ = None
+        self.pc_std_dev_targ_future_ = None
+        self.pc_draw_curr_lim_future_ = None
+        self.pc_bias_curr_future_ = None
+        self.tf_set_pos_future_ = None
+        self.tf_set_actual_pos_future_ = None
+        self.tf_set_mode_future_ = None
+        self.tf_set_charge_mode_future_ = None
+        self.tf_set_curr_lim_future_ = None
+        self.tf_set_state_machine_future_ = None
+        self.tf_watch_dog_future_ = None
+        self.tf_reset_future_ = None
+
+        self.setup_subscribers()
+        found = self.wait_for_services()
+        if not found and wait_for_services:
+            while rclpy.ok() and not self.wait_for_services():
+              pass
+
+
+    def wait_for_services(self):
         # TODO(andermi)
         # physical needs to switch from service to param for pack rates
         # sim should add all services (even unused with noop)
@@ -162,37 +199,7 @@ class Interface(Node):
 
         if not found:
             self.get_logger().error('Did not find required services')
-
-        self.pc_pack_rate_param_future_ = None
-        self.pc_pack_rate_future_ = None
-        self.pc_wind_curr_future_ = None
-        self.bender_future_ = None
-        self.bc_reset_future_ = None
-        self.pump_future_ = None
-        self.valve_future_ = None
-        self.tether_future_ = None
-        self.sc_reset_future_ = None
-        self.sc_pack_rate_param_future_ = None
-        self.sc_pack_rate_future_ = None
-        self.pc_scale_future_ = None
-        self.pc_retract_future_ = None
-        self.pc_v_targ_max_future_ = None
-        self.pc_charge_curr_lim_future_ = None
-        self.pc_batt_switch_future_ = None
-        self.gain_future_ = None
-        self.pc_std_dev_targ_future_ = None
-        self.pc_draw_curr_lim_future_ = None
-        self.pc_bias_curr_future_ = None
-        self.tf_set_pos_future_ = None
-        self.tf_set_actual_pos_future_ = None
-        self.tf_set_mode_future_ = None
-        self.tf_set_charge_mode_future_ = None
-        self.tf_set_curr_lim_future_ = None
-        self.tf_set_state_machine_future_ = None
-        self.tf_watch_dog_future_ = None
-        self.tf_reset_future_ = None
-
-        self.setup_subscribers()
+        return found
 
     # if user has shadowed a callback in their user-derived class, this will use their
     # implementation if they did not define one, the subscriber will not be set up
@@ -280,5 +287,5 @@ class Interface(Node):
                 return False
 
             self.get_logger().info(
-              '{sn} not available, still waiting...'.format(sn=service_name))
+              '{sn} not available'.format(sn=service_name))
         return count < _count
