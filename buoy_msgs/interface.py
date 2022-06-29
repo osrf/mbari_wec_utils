@@ -210,6 +210,11 @@ class Interface(Node):
         sub_info.append(['spring_callback', '/spring_data', SCRecord, self.spring_callback])
         sub_info.append(['power_callback', '/power_data', PCRecord, self.power_callback])
         sub_info.append(['trefoil_callback', '/trefoil_data', TFRecord, self.trefoil_callback])
+        sub_info.append(['ahrs_callback', '/xb_record', XBRecord, self.ahrs_callback])
+        sub_info.append(['battery_callback', '/bc_record', BCRecord, self.battery_callback])
+        sub_info.append(['spring_callback', '/sc_record', SCRecord, self.spring_callback])
+        sub_info.append(['power_callback', '/pc_record', PCRecord, self.power_callback])
+        sub_info.append(['trefoil_callback', '/tf_record', TFRecord, self.trefoil_callback])
         sub_info.append(['powerbuoy_callback', '/powerbuoy_data',
                          PBRecord, self.powerbuoy_callback])
         for cb_name, topic, msg_type, cb in sub_info:
@@ -278,7 +283,7 @@ class Interface(Node):
 
     def wait_for_service(self, client, service_name, _count=1):
         count = 0
-        while count < _count and not client.wait_for_service(timeout_sec=1.0):
+        while count < _count and not client.wait_for_service(timeout_sec=0.1):
             count += 1
             if not rclpy.ok():
                 self.get_logger().error(

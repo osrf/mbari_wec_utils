@@ -259,9 +259,14 @@ public:
     } else {
       RCLCPP_INFO_STREAM(
         rclcpp::get_logger(this->get_name()),
-        "Subscribing to XBRecord on '/ahrs_data'");
+        "Subscribing to XBRecord on '/ahrs_data' and '/xb_record'");
       ahrs_data_sub_ = this->create_subscription<buoy_msgs::msg::XBRecord>(
         "/ahrs_data", 1,
+        std::bind(
+          &ControllerImplCRTP::ahrs_callback,
+          static_cast<ControllerImplCRTP *>(this), _1));
+      xb_record_sub_ = this->create_subscription<buoy_msgs::msg::XBRecord>(
+        "/xb_record", 1,
         std::bind(
           &ControllerImplCRTP::ahrs_callback,
           static_cast<ControllerImplCRTP *>(this), _1));
@@ -271,9 +276,14 @@ public:
     } else {
       RCLCPP_INFO_STREAM(
         rclcpp::get_logger(this->get_name()),
-        "Subscribing to BCRecord on '/battery_data'");
+        "Subscribing to BCRecord on '/battery_data' and '/bc_record'");
       battery_data_sub_ = this->create_subscription<buoy_msgs::msg::BCRecord>(
         "/battery_data", 1,
+        std::bind(
+          &ControllerImplCRTP::battery_callback,
+          static_cast<ControllerImplCRTP *>(this), _1));
+      bc_record_sub_ = this->create_subscription<buoy_msgs::msg::BCRecord>(
+        "/bc_record", 1,
         std::bind(
           &ControllerImplCRTP::battery_callback,
           static_cast<ControllerImplCRTP *>(this), _1));
@@ -283,9 +293,14 @@ public:
     } else {
       RCLCPP_INFO_STREAM(
         rclcpp::get_logger(this->get_name()),
-        "Subscribing to SCRecord on '/spring_data'");
+        "Subscribing to SCRecord on '/spring_data' and '/sc_record'");
       spring_data_sub_ = this->create_subscription<buoy_msgs::msg::SCRecord>(
         "/spring_data", 1,
+        std::bind(
+          &ControllerImplCRTP::spring_callback,
+          static_cast<ControllerImplCRTP *>(this), _1));
+      sc_record_sub_ = this->create_subscription<buoy_msgs::msg::SCRecord>(
+        "/sc_record", 1,
         std::bind(
           &ControllerImplCRTP::spring_callback,
           static_cast<ControllerImplCRTP *>(this), _1));
@@ -295,9 +310,14 @@ public:
     } else {
       RCLCPP_INFO_STREAM(
         rclcpp::get_logger(this->get_name()),
-        "Subscribing to PCRecord on '/power_data'");
+        "Subscribing to PCRecord on '/power_data' and '/pc_record'");
       power_data_sub_ = this->create_subscription<buoy_msgs::msg::PCRecord>(
         "/power_data", 1,
+        std::bind(
+          &ControllerImplCRTP::power_callback,
+          static_cast<ControllerImplCRTP *>(this), _1));
+      pc_record_sub_ = this->create_subscription<buoy_msgs::msg::PCRecord>(
+        "/pc_record", 1,
         std::bind(
           &ControllerImplCRTP::power_callback,
           static_cast<ControllerImplCRTP *>(this), _1));
@@ -307,9 +327,14 @@ public:
     } else {
       RCLCPP_INFO_STREAM(
         rclcpp::get_logger(this->get_name()),
-        "Subscribing to TFRecord on '/trefoil_data'");
+        "Subscribing to TFRecord on '/trefoil_data' and '/tf_record'");
       trefoil_data_sub_ = this->create_subscription<buoy_msgs::msg::TFRecord>(
         "/trefoil_data", 1,
+        std::bind(
+          &ControllerImplCRTP::trefoil_callback,
+          static_cast<ControllerImplCRTP *>(this), _1));
+      tf_record_sub_ = this->create_subscription<buoy_msgs::msg::TFRecord>(
+        "/tf_record", 1,
         std::bind(
           &ControllerImplCRTP::trefoil_callback,
           static_cast<ControllerImplCRTP *>(this), _1));
@@ -565,7 +590,7 @@ private:
     // NOLINTNEXTLINE
     using namespace std::chrono_literals;
     size_t count{0U};
-    while (count < _count && !client->wait_for_service(1s)) {
+    while (count < _count && !client->wait_for_service(100ms)) {
       ++count;
       if (!rclcpp::ok()) {
         RCLCPP_ERROR(
@@ -583,11 +608,11 @@ private:
   }
 
   // declare all subscribers
-  rclcpp::Subscription<buoy_msgs::msg::XBRecord>::SharedPtr ahrs_data_sub_;
-  rclcpp::Subscription<buoy_msgs::msg::BCRecord>::SharedPtr battery_data_sub_;
-  rclcpp::Subscription<buoy_msgs::msg::SCRecord>::SharedPtr spring_data_sub_;
-  rclcpp::Subscription<buoy_msgs::msg::PCRecord>::SharedPtr power_data_sub_;
-  rclcpp::Subscription<buoy_msgs::msg::TFRecord>::SharedPtr trefoil_data_sub_;
+  rclcpp::Subscription<buoy_msgs::msg::XBRecord>::SharedPtr ahrs_data_sub_, xb_record_sub_;
+  rclcpp::Subscription<buoy_msgs::msg::BCRecord>::SharedPtr battery_data_sub_, bc_record_sub_;
+  rclcpp::Subscription<buoy_msgs::msg::SCRecord>::SharedPtr spring_data_sub_, sc_record_sub_;
+  rclcpp::Subscription<buoy_msgs::msg::PCRecord>::SharedPtr power_data_sub_, pc_record_sub_;
+  rclcpp::Subscription<buoy_msgs::msg::TFRecord>::SharedPtr trefoil_data_sub_, tf_record_sub_;
   rclcpp::Subscription<buoy_msgs::msg::PBRecord>::SharedPtr powerbuoy_data_sub_;
 };
 
