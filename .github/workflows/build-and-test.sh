@@ -18,6 +18,21 @@ apt-get install -y git \
                    python3-colcon-common-extensions \
                    python3-rosdep
 
+# Python packages needed for testing
+python3 -m pip install -U \
+  flake8-blind-except \
+  flake8-builtins \
+  flake8-class-newline \
+  flake8-comprehensions \
+  flake8-deprecated \
+  flake8-docstrings \
+  flake8-import-order \
+  flake8-quotes \
+  pytest-repeat \
+  pytest-rerunfailures \
+  pytest \
+  setuptools
+
 cd $COLCON_WS_SRC
 cp -r $GITHUB_WORKSPACE $COLCON_WS_SRC
 
