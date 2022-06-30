@@ -17,8 +17,18 @@ apt-get update -qq
 apt-get install -y git \
                    python3-colcon-common-extensions \
                    python3-rosdep
-
-# Python packages needed for testing
+                   build-essential \
+                   cmake \
+                   git \
+                   python3-colcon-common-extensions \
+                   python3-flake8 \
+                   python3-pip \
+                   python3-pytest-cov \
+                   python3-rosdep \
+                   python3-setuptools \
+                   python3-vcstool \
+                   wget
+# TODO: get from apt when upgrading to Jammy
 python3 -m pip install -U \
   flake8-blind-except \
   flake8-builtins \
