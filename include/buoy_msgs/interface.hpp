@@ -149,58 +149,6 @@ public:
       this->create_client<buoy_msgs::srv::TFWatchDogCommand>("/tf_watch_dog_command");
     tf_reset_client_ = this->create_client<buoy_msgs::srv::TFResetCommand>("/tf_reset_command");
 
-    bender_callback = service_response_callback<BenderServiceCallback,
-        BenderServiceResponseFuture>();
-    bc_reset_callback = service_response_callback<BCResetServiceCallback,
-        BCResetServiceResponseFuture>();
-    pump_callback = service_response_callback<PumpServiceCallback, PumpServiceResponseFuture>();
-    valve_callback = service_response_callback<ValveServiceCallback, ValveServiceResponseFuture>();
-    tether_callback = service_response_callback<TetherServiceCallback,
-        TetherServiceResponseFuture>();
-    sc_reset_callback = service_response_callback<SCResetServiceCallback,
-        SCResetServiceResponseFuture>();
-    sc_pack_rate_callback = service_response_callback<SCPackRateServiceCallback,
-        SCPackRateServiceResponseFuture>();
-    pc_scale_callback = service_response_callback<PCScaleServiceCallback,
-        PCScaleServiceResponseFuture>();
-    pc_retract_callback = service_response_callback<PCRetractServiceCallback,
-        PCRetractServiceResponseFuture>();
-    pc_v_targ_max_callback = service_response_callback<PCVTargMaxServiceCallback,
-        PCVTargMaxServiceResponseFuture>();
-    pc_charge_curr_lim_callback = service_response_callback<PCChargeCurrLimServiceCallback,
-        PCChargeCurrLimServiceResponseFuture>();
-    pc_batt_switch_callback = service_response_callback<PCBattSwitchServiceCallback,
-        PCBattSwitchServiceResponseFuture>();
-    gain_callback = service_response_callback<GainServiceCallback,
-        GainServiceResponseFuture>();
-    pc_std_dev_targ_callback = service_response_callback<PCStdDevTargServiceCallback,
-        PCStdDevTargServiceResponseFuture>();
-    pc_draw_curr_lim_callback = service_response_callback<PCDrawCurrLimServiceCallback,
-        PCDrawCurrLimServiceResponseFuture>();
-    pc_wind_curr_callback = service_response_callback<PCWindCurrServiceCallback,
-        PCWindCurrServiceResponseFuture>();
-    pc_bias_curr_callback = service_response_callback<PCBiasCurrServiceCallback,
-        PCBiasCurrServiceResponseFuture>();
-    pc_pack_rate_callback = service_response_callback<PCPackRateServiceCallback,
-        PCPackRateServiceResponseFuture>();
-    tf_set_pos_callback = service_response_callback<TFSetPosServiceCallback,
-        TFSetPosServiceResponseFuture>();
-    tf_set_actual_pos_callback = service_response_callback<TFSetActualPosServiceCallback,
-        TFSetActualPosServiceResponseFuture>();
-    tf_set_mode_callback = service_response_callback<TFSetModeServiceCallback,
-        TFSetModeServiceResponseFuture>();
-    tf_set_charge_mode_callback = service_response_callback<TFSetChargeModeServiceCallback,
-        TFSetChargeModeServiceResponseFuture>();
-    tf_set_curr_lim_callback = service_response_callback<TFSetCurrLimServiceCallback,
-        TFSetCurrLimServiceResponseFuture>();
-    tf_set_state_machine_callback = \
-      service_response_callback<TFSetStateMachineServiceCallback,
-        TFSetStateMachineServiceResponseFuture>();
-    tf_watchdog_callback = service_response_callback<TFWatchDogServiceCallback, \
-        TFWatchDogServiceResponseFuture>();
-    tf_reset_callback = service_response_callback<TFResetServiceCallback,
-        TFResetServiceResponseFuture>();
-
     setup_subscribers();
     bool found = false;
     do {
@@ -360,6 +308,10 @@ public:
     auto request = std::make_shared<buoy_msgs::srv::PCPackRateCommand::Request>();
     request->rate_hz = rate_hz;
 
+    PCPackRateServiceCallback pc_pack_rate_callback =
+      default_service_response_callback<PCPackRateServiceCallback,
+        PCPackRateServiceResponseFuture>();
+
     auto response = pc_pack_rate_client_->async_send_request(request, pc_pack_rate_callback);
   }
 
@@ -368,6 +320,10 @@ public:
   {
     auto request = std::make_shared<buoy_msgs::srv::SCPackRateCommand::Request>();
     request->rate_hz = rate_hz;
+
+    SCPackRateServiceCallback sc_pack_rate_callback =
+      default_service_response_callback<SCPackRateServiceCallback,
+        SCPackRateServiceResponseFuture>();
 
     auto response = sc_pack_rate_client_->async_send_request(request, sc_pack_rate_callback);
   }
@@ -499,33 +455,86 @@ protected:
   using TFWatchDogServiceCallback = rclcpp::Client<buoy_msgs::srv::TFWatchDogCommand>::CallbackType;
   using TFResetServiceCallback = rclcpp::Client<buoy_msgs::srv::TFResetCommand>::CallbackType;
 
-  // declare callbacks for all services
-  BenderServiceCallback bender_callback;
-  BCResetServiceCallback bc_reset_callback;
-  PumpServiceCallback pump_callback;
-  ValveServiceCallback valve_callback;
-  TetherServiceCallback tether_callback;
-  SCResetServiceCallback sc_reset_callback;
-  SCPackRateServiceCallback sc_pack_rate_callback;
-  PCScaleServiceCallback pc_scale_callback;
-  PCRetractServiceCallback pc_retract_callback;
-  PCVTargMaxServiceCallback pc_v_targ_max_callback;
-  PCChargeCurrLimServiceCallback pc_charge_curr_lim_callback;
-  PCBattSwitchServiceCallback pc_batt_switch_callback;
-  GainServiceCallback gain_callback;
-  PCStdDevTargServiceCallback pc_std_dev_targ_callback;
-  PCDrawCurrLimServiceCallback pc_draw_curr_lim_callback;
-  PCWindCurrServiceCallback pc_wind_curr_callback;
-  PCBiasCurrServiceCallback pc_bias_curr_callback;
-  PCPackRateServiceCallback pc_pack_rate_callback;
-  TFSetPosServiceCallback tf_set_pos_callback;
-  TFSetActualPosServiceCallback tf_set_actual_pos_callback;
-  TFSetModeServiceCallback tf_set_mode_callback;
-  TFSetChargeModeServiceCallback tf_set_charge_mode_callback;
-  TFSetCurrLimServiceCallback tf_set_curr_lim_callback;
-  TFSetStateMachineServiceCallback tf_set_state_machine_callback;
-  TFWatchDogServiceCallback tf_watchdog_callback;
-  TFResetServiceCallback tf_reset_callback;
+  /***** Example Default Callback Usage *****
+   * BenderServiceCallback bender_callback =
+   *   default_service_response_callback<BenderServiceCallback,
+   *     BenderServiceResponseFuture>();
+   * BCResetServiceCallback bc_reset_callback =
+   *   default_service_response_callback<BCResetServiceCallback,
+   *     BCResetServiceResponseFuture>();
+   * PumpServiceCallback pump_callback =
+   *   default_service_response_callback<PumpServiceCallback,
+   *     PumpServiceResponseFuture>();
+   * ValveServiceCallback valve_callback =
+   *   default_service_response_callback<ValveServiceCallback,
+   *     ValveServiceResponseFuture>();
+   * TetherServiceCallback tether_callback =
+   *   default_service_response_callback<TetherServiceCallback,
+   *     TetherServiceResponseFuture>();
+   * SCResetServiceCallback sc_reset_callback =
+   *   default_service_response_callback<SCResetServiceCallback,
+   *     SCResetServiceResponseFuture>();
+   * SCPackRateServiceCallback sc_pack_rate_callback =
+   *   default_service_response_callback<SCPackRateServiceCallback,
+   *     SCPackRateServiceResponseFuture>();
+   * PCScaleServiceCallback pc_scale_callback =
+   *   default_service_response_callback<PCScaleServiceCallback,
+   *     PCScaleServiceResponseFuture>();
+   * PCRetractServiceCallback pc_retract_callback =
+   *   default_service_response_callback<PCRetractServiceCallback,
+   *     PCRetractServiceResponseFuture>();
+   * PCVTargMaxServiceCallback pc_v_targ_max_callback =
+   *   default_service_response_callback<PCVTargMaxServiceCallback,
+   *     PCVTargMaxServiceResponseFuture>();
+   * PCChargeCurrLimServiceCallback pc_charge_curr_lim_callback =
+   *   default_service_response_callback<PCChargeCurrLimServiceCallback,
+   *     PCChargeCurrLimServiceResponseFuture>();
+   * PCBattSwitchServiceCallback pc_batt_switch_callback =
+   *   default_service_response_callback<PCBattSwitchServiceCallback,
+   *     PCBattSwitchServiceResponseFuture>();
+   * GainServiceCallback gain_callback =
+   *   default_service_response_callback<GainServiceCallback,
+   *     GainServiceResponseFuture>();
+   * PCStdDevTargServiceCallback pc_std_dev_targ_callback =
+   *   default_service_response_callback<PCStdDevTargServiceCallback,
+   *     PCStdDevTargServiceResponseFuture>();
+   * PCDrawCurrLimServiceCallback pc_draw_curr_lim_callback =
+   *   default_service_response_callback<PCDrawCurrLimServiceCallback,
+   *     PCDrawCurrLimServiceResponseFuture>();
+   * PCWindCurrServiceCallback pc_wind_curr_callback =
+   *   default_service_response_callback<PCWindCurrServiceCallback,
+   *     PCWindCurrServiceResponseFuture>();
+   * PCBiasCurrServiceCallback pc_bias_curr_callback =
+   *   default_service_response_callback<PCBiasCurrServiceCallback,
+   *     PCBiasCurrServiceResponseFuture>();
+   * PCPackRateServiceCallback pc_pack_rate_callback =
+   *   default_service_response_callback<PCPackRateServiceCallback,
+   *     PCPackRateServiceResponseFuture>();
+   * TFSetPosServiceCallback tf_set_pos_callback =
+   *   default_service_response_callback<TFSetPosServiceCallback,
+   *     TFSetPosServiceResponseFuture>();
+   * TFSetActualPosServiceCallback tf_set_actual_pos_callback =
+   *   default_service_response_callback<TFSetActualPosServiceCallback,
+   *     TFSetActualPosServiceResponseFuture>();
+   * TFSetModeServiceCallback tf_set_mode_callback =
+   *   default_service_response_callback<TFSetModeServiceCallback,
+   *     TFSetModeServiceResponseFuture>();
+   * TFSetChargeModeServiceCallback tf_set_charge_mode_callback =
+   *   default_service_response_callback<TFSetChargeModeServiceCallback,
+   *     TFSetChargeModeServiceResponseFuture>();
+   * TFSetCurrLimServiceCallback tf_set_curr_lim_callback =
+   *   default_service_response_callback<TFSetCurrLimServiceCallback,
+   *     TFSetCurrLimServiceResponseFuture>();
+   * TFSetStateMachineServiceCallback tf_set_state_machine_callback =
+   *   default_service_response_callback<TFSetStateMachineServiceCallback,
+   *     TFSetStateMachineServiceResponseFuture>();
+   * TFWatchDogServiceCallback tf_watchdog_callback =
+   *   default_service_response_callback<TFWatchDogServiceCallback,
+   *     TFWatchDogServiceResponseFuture>();
+   * TFResetServiceCallback tf_reset_callback =
+   *   default_service_response_callback<TFResetServiceCallback,
+   *     TFResetServiceResponseFuture>();
+   */
 
   // declare all clients
   rclcpp::Client<buoy_msgs::srv::BenderCommand>::SharedPtr bender_client_;
@@ -557,10 +566,9 @@ protected:
   rclcpp::Client<buoy_msgs::srv::TFWatchDogCommand>::SharedPtr tf_watch_dog_client_;
   rclcpp::Client<buoy_msgs::srv::TFResetCommand>::SharedPtr tf_reset_client_;
 
-private:
   // generic service callback
   template<class CallbackType, class ServiceResponseFuture>
-  CallbackType service_response_callback()
+  CallbackType default_service_response_callback()
   {
     CallbackType callback = [this](ServiceResponseFuture future)
       {
@@ -575,15 +583,12 @@ private:
             pbsrv_enum2str[future.get()->result.value].c_str());
           // TODO(andermi): should we shutdown?
         }
-        // TODO(anyone) Why do I need this assignment after every `async_send_request` callback?
-        // Without this, results in `std::bad_function_call` on the second `async_send_request`
-        this->pc_wind_curr_callback = service_response_callback<PCWindCurrServiceCallback,
-            PCWindCurrServiceResponseFuture>();
       };
 
     return callback;
   }
 
+private:
   template<class T>
   bool wait_for_service(T & client, const std::string & service, const size_t & _count = 1U)
   {
