@@ -15,13 +15,18 @@
 #ifndef BUOY_MSGS__INTERFACE_HPP_
 #define BUOY_MSGS__INTERFACE_HPP_
 
+#include <rclcpp/rclcpp.hpp>
+
+// Pack Rate Params
+#include <rclcpp/parameter_client.hpp>
+#include <rclcpp/parameter_value.hpp>
+#include <rclcpp/parameter.hpp>
 
 #include <string>
 #include <map>
 #include <memory>
-
-
-#include "rclcpp/rclcpp.hpp"
+#include <mutex>
+#include <vector>
 
 // pbsrv commands
 // power microcontroller
@@ -58,7 +63,6 @@
 #include "buoy_msgs/srv/tf_set_state_machine_command.hpp"
 #include "buoy_msgs/srv/tf_watch_dog_command.hpp"
 
-
 // pb telemetry
 #include "buoy_msgs/msg/xb_record.hpp"  // ahrs
 #include "buoy_msgs/msg/bc_record.hpp"  // battery
@@ -85,8 +89,17 @@ public:
   using CRTP = Interface;  // syntactic sugar for friend class
                            // see https://stackoverflow.com/a/58435857/9686600
   explicit Interface(const std::string & node_name)
+  : Interface(node_name, false)
+  {
+  }
+
+  explicit Interface(const std::string & node_name, bool _wait_for_services)
   : Node(node_name)
   {
+    pc_pack_rate_param_client_ =
+      std::make_unique<rclcpp::SyncParametersClient>(
+      std::shared_ptr<rclcpp::Node>(static_cast<ControllerImplCRTP *>(this), [](rclcpp::Node *) {}),
+      "/power_controller");
     pc_pack_rate_client_ = \
       this->create_client<buoy_msgs::srv::PCPackRateCommand>("/pc_pack_rate_command");
     pc_wind_curr_client_ = \
@@ -97,6 +110,10 @@ public:
     valve_client_ = this->create_client<buoy_msgs::srv::ValveCommand>("/valve_command");
     tether_client_ = this->create_client<buoy_msgs::srv::TetherCommand>("/tether_command");
     sc_reset_client_ = this->create_client<buoy_msgs::srv::SCResetCommand>("/sc_reset_command");
+    sc_pack_rate_param_client_ =
+      std::make_unique<rclcpp::SyncParametersClient>(
+      std::shared_ptr<rclcpp::Node>(static_cast<ControllerImplCRTP *>(this), [](rclcpp::Node *) {}),
+      "/spring_controller");
     sc_pack_rate_client_ = \
       this->create_client<buoy_msgs::srv::SCPackRateCommand>("/sc_pack_rate_command");
     pc_scale_client_ = this->create_client<buoy_msgs::srv::PCScaleCommand>("/pc_scale_command");
@@ -132,7 +149,20 @@ public:
       this->create_client<buoy_msgs::srv::TFWatchDogCommand>("/tf_watch_dog_command");
     tf_reset_client_ = this->create_client<buoy_msgs::srv::TFResetCommand>("/tf_reset_command");
 
-    bool found = wait_for_service(pc_pack_rate_client_, "/pc_pack_rate_command");
+    setup_subscribers();
+    bool found = false;
+    do {
+      found = wait_for_services();
+    } while (rclcpp::ok() && !found && _wait_for_services);
+  }
+
+  bool wait_for_services()
+  {
+    bool found_pc_param = wait_for_service(
+      pc_pack_rate_param_client_,
+      "/power_controller/set_parameters");
+    bool found_pc_packrate = wait_for_service(pc_pack_rate_client_, "/pc_pack_rate_command");
+    bool found = found_pc_param || found_pc_packrate;
     found &= wait_for_service(pc_wind_curr_client_, "/pc_wind_curr_command");
     found &= wait_for_service(bender_client_, "/bender_command");
     found &= wait_for_service(bc_reset_client_, "/bc_reset_command");
@@ -140,7 +170,11 @@ public:
     found &= wait_for_service(valve_client_, "/valve_command");
     found &= wait_for_service(tether_client_, "/tether_command");
     found &= wait_for_service(sc_reset_client_, "/sc_reset_command");
-    found &= wait_for_service(sc_pack_rate_client_, "/sc_pack_rate_command");
+    bool found_sc_param = wait_for_service(
+      sc_pack_rate_param_client_,
+      "/spring_controller/set_parameters");
+    bool found_sc_packrate = wait_for_service(sc_pack_rate_client_, "/sc_pack_rate_command");
+    found &= found_sc_param || found_sc_packrate;
     found &= wait_for_service(pc_scale_client_, "/pc_scale_command");
     found &= wait_for_service(pc_retract_client_, "/pc_retract_command");
     found &= wait_for_service(pc_v_targ_max_client_, "/pc_v_targ_max_command");
@@ -160,63 +194,9 @@ public:
     found &= wait_for_service(tf_reset_client_, "/tf_reset_command");
 
     if (!found) {
-      RCLCPP_ERROR(rclcpp::get_logger(node_name), "Did not find required services");
-      return;
+      RCLCPP_ERROR(rclcpp::get_logger(this->get_name()), "Did not find required services");
     }
-
-    bender_callback = service_response_callback<BenderServiceCallback,
-        BenderServiceResponseFuture>();
-    bc_reset_callback = service_response_callback<BCResetServiceCallback,
-        BCResetServiceResponseFuture>();
-    pump_callback = service_response_callback<PumpServiceCallback, PumpServiceResponseFuture>();
-    valve_callback = service_response_callback<ValveServiceCallback, ValveServiceResponseFuture>();
-    tether_callback = service_response_callback<TetherServiceCallback,
-        TetherServiceResponseFuture>();
-    sc_reset_callback = service_response_callback<SCResetServiceCallback,
-        SCResetServiceResponseFuture>();
-    sc_pack_rate_callback = service_response_callback<SCPackRateServiceCallback,
-        SCPackRateServiceResponseFuture>();
-    pc_scale_callback = service_response_callback<PCScaleServiceCallback,
-        PCScaleServiceResponseFuture>();
-    pc_retract_callback = service_response_callback<PCRetractServiceCallback,
-        PCRetractServiceResponseFuture>();
-    pc_v_targ_max_callback = service_response_callback<PCVTargMaxServiceCallback,
-        PCVTargMaxServiceResponseFuture>();
-    pc_charge_curr_lim_callback = service_response_callback<PCChargeCurrLimServiceCallback,
-        PCChargeCurrLimServiceResponseFuture>();
-    pc_batt_switch_callback = service_response_callback<PCBattSwitchServiceCallback,
-        PCBattSwitchServiceResponseFuture>();
-    gain_callback = service_response_callback<GainServiceCallback,
-        GainServiceResponseFuture>();
-    pc_std_dev_targ_callback = service_response_callback<PCStdDevTargServiceCallback,
-        PCStdDevTargServiceResponseFuture>();
-    pc_draw_curr_lim_callback = service_response_callback<PCDrawCurrLimServiceCallback,
-        PCDrawCurrLimServiceResponseFuture>();
-    pc_wind_curr_callback = service_response_callback<PCWindCurrServiceCallback,
-        PCWindCurrServiceResponseFuture>();
-    pc_bias_curr_callback = service_response_callback<PCBiasCurrServiceCallback,
-        PCBiasCurrServiceResponseFuture>();
-    pc_pack_rate_callback = service_response_callback<PCPackRateServiceCallback,
-        PCPackRateServiceResponseFuture>();
-    tf_set_pos_callback = service_response_callback<TFSetPosServiceCallback,
-        TFSetPosServiceResponseFuture>();
-    tf_set_actual_pos_callback = service_response_callback<TFSetActualPosServiceCallback,
-        TFSetActualPosServiceResponseFuture>();
-    tf_set_mode_callback = service_response_callback<TFSetModeServiceCallback,
-        TFSetModeServiceResponseFuture>();
-    tf_set_charge_mode_callback = service_response_callback<TFSetChargeModeServiceCallback,
-        TFSetChargeModeServiceResponseFuture>();
-    tf_set_curr_lim_callback = service_response_callback<TFSetCurrLimServiceCallback,
-        TFSetCurrLimServiceResponseFuture>();
-    tf_set_state_machine_callback = \
-      service_response_callback<TFSetStateMachineServiceCallback,
-        TFSetStateMachineServiceResponseFuture>();
-    tf_watchdog_callback = service_response_callback<TFWatchDogServiceCallback, \
-        TFWatchDogServiceResponseFuture>();
-    tf_reset_callback = service_response_callback<TFResetServiceCallback,
-        TFResetServiceResponseFuture>();
-
-    setup_subscribers();
+    return found;
   }
 
   // if user has shadowed a callback in their user-derived class, this will use their
@@ -227,9 +207,14 @@ public:
     } else {
       RCLCPP_INFO_STREAM(
         rclcpp::get_logger(this->get_name()),
-        "Subscribing to XBRecord on '/ahrs_data'");
+        "Subscribing to XBRecord on '/ahrs_data' and '/xb_record'");
       ahrs_data_sub_ = this->create_subscription<buoy_msgs::msg::XBRecord>(
         "/ahrs_data", 1,
+        std::bind(
+          &ControllerImplCRTP::ahrs_callback,
+          static_cast<ControllerImplCRTP *>(this), _1));
+      xb_record_sub_ = this->create_subscription<buoy_msgs::msg::XBRecord>(
+        "/xb_record", 1,
         std::bind(
           &ControllerImplCRTP::ahrs_callback,
           static_cast<ControllerImplCRTP *>(this), _1));
@@ -239,9 +224,14 @@ public:
     } else {
       RCLCPP_INFO_STREAM(
         rclcpp::get_logger(this->get_name()),
-        "Subscribing to BCRecord on '/battery_data'");
+        "Subscribing to BCRecord on '/battery_data' and '/bc_record'");
       battery_data_sub_ = this->create_subscription<buoy_msgs::msg::BCRecord>(
         "/battery_data", 1,
+        std::bind(
+          &ControllerImplCRTP::battery_callback,
+          static_cast<ControllerImplCRTP *>(this), _1));
+      bc_record_sub_ = this->create_subscription<buoy_msgs::msg::BCRecord>(
+        "/bc_record", 1,
         std::bind(
           &ControllerImplCRTP::battery_callback,
           static_cast<ControllerImplCRTP *>(this), _1));
@@ -251,9 +241,14 @@ public:
     } else {
       RCLCPP_INFO_STREAM(
         rclcpp::get_logger(this->get_name()),
-        "Subscribing to SCRecord on '/spring_data'");
+        "Subscribing to SCRecord on '/spring_data' and '/sc_record'");
       spring_data_sub_ = this->create_subscription<buoy_msgs::msg::SCRecord>(
         "/spring_data", 1,
+        std::bind(
+          &ControllerImplCRTP::spring_callback,
+          static_cast<ControllerImplCRTP *>(this), _1));
+      sc_record_sub_ = this->create_subscription<buoy_msgs::msg::SCRecord>(
+        "/sc_record", 1,
         std::bind(
           &ControllerImplCRTP::spring_callback,
           static_cast<ControllerImplCRTP *>(this), _1));
@@ -263,9 +258,14 @@ public:
     } else {
       RCLCPP_INFO_STREAM(
         rclcpp::get_logger(this->get_name()),
-        "Subscribing to PCRecord on '/power_data'");
+        "Subscribing to PCRecord on '/power_data' and '/pc_record'");
       power_data_sub_ = this->create_subscription<buoy_msgs::msg::PCRecord>(
         "/power_data", 1,
+        std::bind(
+          &ControllerImplCRTP::power_callback,
+          static_cast<ControllerImplCRTP *>(this), _1));
+      pc_record_sub_ = this->create_subscription<buoy_msgs::msg::PCRecord>(
+        "/pc_record", 1,
         std::bind(
           &ControllerImplCRTP::power_callback,
           static_cast<ControllerImplCRTP *>(this), _1));
@@ -275,9 +275,14 @@ public:
     } else {
       RCLCPP_INFO_STREAM(
         rclcpp::get_logger(this->get_name()),
-        "Subscribing to TFRecord on '/trefoil_data'");
+        "Subscribing to TFRecord on '/trefoil_data' and '/tf_record'");
       trefoil_data_sub_ = this->create_subscription<buoy_msgs::msg::TFRecord>(
         "/trefoil_data", 1,
+        std::bind(
+          &ControllerImplCRTP::trefoil_callback,
+          static_cast<ControllerImplCRTP *>(this), _1));
+      tf_record_sub_ = this->create_subscription<buoy_msgs::msg::TFRecord>(
+        "/tf_record", 1,
         std::bind(
           &ControllerImplCRTP::trefoil_callback,
           static_cast<ControllerImplCRTP *>(this), _1));
@@ -298,21 +303,63 @@ public:
   }
 
   // set publish rate of PC Microcontroller telemetry
-  void set_pc_pack_rate()
+  void set_pc_pack_rate(const uint8_t & rate_hz = 50)
   {
     auto request = std::make_shared<buoy_msgs::srv::PCPackRateCommand::Request>();
-    request->rate_hz = 50;
+    request->rate_hz = rate_hz;
+
+    PCPackRateServiceCallback pc_pack_rate_callback =
+      default_service_response_callback<PCPackRateServiceCallback,
+        PCPackRateServiceResponseFuture>();
 
     auto response = pc_pack_rate_client_->async_send_request(request, pc_pack_rate_callback);
   }
 
   // set publish rate of SC Microcontroller telemetry
-  void set_sc_pack_rate()
+  void set_sc_pack_rate(const uint8_t & rate_hz = 50)
   {
     auto request = std::make_shared<buoy_msgs::srv::SCPackRateCommand::Request>();
-    request->rate_hz = 50;
+    request->rate_hz = rate_hz;
+
+    SCPackRateServiceCallback sc_pack_rate_callback =
+      default_service_response_callback<SCPackRateServiceCallback,
+        SCPackRateServiceResponseFuture>();
 
     auto response = sc_pack_rate_client_->async_send_request(request, sc_pack_rate_callback);
+  }
+
+  // set publish rate of PC Microcontroller telemetry
+  void set_pc_pack_rate_param(const double & rate_hz = 50.0)
+  {
+    std::vector<rclcpp::Parameter> params = {rclcpp::Parameter{"publish_rate",
+        rclcpp::ParameterValue{rate_hz}}};
+    auto result = pc_pack_rate_param_client_->set_parameters(params);
+    if (result[0U].successful) {
+      RCLCPP_INFO_STREAM(
+        rclcpp::get_logger(this->get_name()),
+        "Successfully set publish_rate for power_controller");
+    } else {
+      RCLCPP_INFO_STREAM(
+        rclcpp::get_logger(this->get_name()),
+        "Failed to set publish_rate for power_controller: " << result[0U].reason);
+    }
+  }
+
+  // set publish rate of SC Microcontroller telemetry
+  void set_sc_pack_rate_param(const double & rate_hz = 50.0)
+  {
+    std::vector<rclcpp::Parameter> params = {rclcpp::Parameter{"publish_rate",
+        rclcpp::ParameterValue{rate_hz}}};
+    auto result = sc_pack_rate_param_client_->set_parameters(params);
+    if (result[0U].successful) {
+      RCLCPP_INFO_STREAM(
+        rclcpp::get_logger(this->get_name()),
+        "Successfully set publish_rate for spring_controller");
+    } else {
+      RCLCPP_INFO_STREAM(
+        rclcpp::get_logger(this->get_name()),
+        "Failed to set publish_rate for spring_controller: " << result[0U].reason);
+    }
   }
 
 protected:
@@ -408,33 +455,86 @@ protected:
   using TFWatchDogServiceCallback = rclcpp::Client<buoy_msgs::srv::TFWatchDogCommand>::CallbackType;
   using TFResetServiceCallback = rclcpp::Client<buoy_msgs::srv::TFResetCommand>::CallbackType;
 
-  // declare callbacks for all services
-  BenderServiceCallback bender_callback;
-  BCResetServiceCallback bc_reset_callback;
-  PumpServiceCallback pump_callback;
-  ValveServiceCallback valve_callback;
-  TetherServiceCallback tether_callback;
-  SCResetServiceCallback sc_reset_callback;
-  SCPackRateServiceCallback sc_pack_rate_callback;
-  PCScaleServiceCallback pc_scale_callback;
-  PCRetractServiceCallback pc_retract_callback;
-  PCVTargMaxServiceCallback pc_v_targ_max_callback;
-  PCChargeCurrLimServiceCallback pc_charge_curr_lim_callback;
-  PCBattSwitchServiceCallback pc_batt_switch_callback;
-  GainServiceCallback gain_callback;
-  PCStdDevTargServiceCallback pc_std_dev_targ_callback;
-  PCDrawCurrLimServiceCallback pc_draw_curr_lim_callback;
-  PCWindCurrServiceCallback pc_wind_curr_callback;
-  PCBiasCurrServiceCallback pc_bias_curr_callback;
-  PCPackRateServiceCallback pc_pack_rate_callback;
-  TFSetPosServiceCallback tf_set_pos_callback;
-  TFSetActualPosServiceCallback tf_set_actual_pos_callback;
-  TFSetModeServiceCallback tf_set_mode_callback;
-  TFSetChargeModeServiceCallback tf_set_charge_mode_callback;
-  TFSetCurrLimServiceCallback tf_set_curr_lim_callback;
-  TFSetStateMachineServiceCallback tf_set_state_machine_callback;
-  TFWatchDogServiceCallback tf_watchdog_callback;
-  TFResetServiceCallback tf_reset_callback;
+  /***** Example Default Callback Usage *****
+   * BenderServiceCallback bender_callback =
+   *   default_service_response_callback<BenderServiceCallback,
+   *     BenderServiceResponseFuture>();
+   * BCResetServiceCallback bc_reset_callback =
+   *   default_service_response_callback<BCResetServiceCallback,
+   *     BCResetServiceResponseFuture>();
+   * PumpServiceCallback pump_callback =
+   *   default_service_response_callback<PumpServiceCallback,
+   *     PumpServiceResponseFuture>();
+   * ValveServiceCallback valve_callback =
+   *   default_service_response_callback<ValveServiceCallback,
+   *     ValveServiceResponseFuture>();
+   * TetherServiceCallback tether_callback =
+   *   default_service_response_callback<TetherServiceCallback,
+   *     TetherServiceResponseFuture>();
+   * SCResetServiceCallback sc_reset_callback =
+   *   default_service_response_callback<SCResetServiceCallback,
+   *     SCResetServiceResponseFuture>();
+   * SCPackRateServiceCallback sc_pack_rate_callback =
+   *   default_service_response_callback<SCPackRateServiceCallback,
+   *     SCPackRateServiceResponseFuture>();
+   * PCScaleServiceCallback pc_scale_callback =
+   *   default_service_response_callback<PCScaleServiceCallback,
+   *     PCScaleServiceResponseFuture>();
+   * PCRetractServiceCallback pc_retract_callback =
+   *   default_service_response_callback<PCRetractServiceCallback,
+   *     PCRetractServiceResponseFuture>();
+   * PCVTargMaxServiceCallback pc_v_targ_max_callback =
+   *   default_service_response_callback<PCVTargMaxServiceCallback,
+   *     PCVTargMaxServiceResponseFuture>();
+   * PCChargeCurrLimServiceCallback pc_charge_curr_lim_callback =
+   *   default_service_response_callback<PCChargeCurrLimServiceCallback,
+   *     PCChargeCurrLimServiceResponseFuture>();
+   * PCBattSwitchServiceCallback pc_batt_switch_callback =
+   *   default_service_response_callback<PCBattSwitchServiceCallback,
+   *     PCBattSwitchServiceResponseFuture>();
+   * GainServiceCallback gain_callback =
+   *   default_service_response_callback<GainServiceCallback,
+   *     GainServiceResponseFuture>();
+   * PCStdDevTargServiceCallback pc_std_dev_targ_callback =
+   *   default_service_response_callback<PCStdDevTargServiceCallback,
+   *     PCStdDevTargServiceResponseFuture>();
+   * PCDrawCurrLimServiceCallback pc_draw_curr_lim_callback =
+   *   default_service_response_callback<PCDrawCurrLimServiceCallback,
+   *     PCDrawCurrLimServiceResponseFuture>();
+   * PCWindCurrServiceCallback pc_wind_curr_callback =
+   *   default_service_response_callback<PCWindCurrServiceCallback,
+   *     PCWindCurrServiceResponseFuture>();
+   * PCBiasCurrServiceCallback pc_bias_curr_callback =
+   *   default_service_response_callback<PCBiasCurrServiceCallback,
+   *     PCBiasCurrServiceResponseFuture>();
+   * PCPackRateServiceCallback pc_pack_rate_callback =
+   *   default_service_response_callback<PCPackRateServiceCallback,
+   *     PCPackRateServiceResponseFuture>();
+   * TFSetPosServiceCallback tf_set_pos_callback =
+   *   default_service_response_callback<TFSetPosServiceCallback,
+   *     TFSetPosServiceResponseFuture>();
+   * TFSetActualPosServiceCallback tf_set_actual_pos_callback =
+   *   default_service_response_callback<TFSetActualPosServiceCallback,
+   *     TFSetActualPosServiceResponseFuture>();
+   * TFSetModeServiceCallback tf_set_mode_callback =
+   *   default_service_response_callback<TFSetModeServiceCallback,
+   *     TFSetModeServiceResponseFuture>();
+   * TFSetChargeModeServiceCallback tf_set_charge_mode_callback =
+   *   default_service_response_callback<TFSetChargeModeServiceCallback,
+   *     TFSetChargeModeServiceResponseFuture>();
+   * TFSetCurrLimServiceCallback tf_set_curr_lim_callback =
+   *   default_service_response_callback<TFSetCurrLimServiceCallback,
+   *     TFSetCurrLimServiceResponseFuture>();
+   * TFSetStateMachineServiceCallback tf_set_state_machine_callback =
+   *   default_service_response_callback<TFSetStateMachineServiceCallback,
+   *     TFSetStateMachineServiceResponseFuture>();
+   * TFWatchDogServiceCallback tf_watchdog_callback =
+   *   default_service_response_callback<TFWatchDogServiceCallback,
+   *     TFWatchDogServiceResponseFuture>();
+   * TFResetServiceCallback tf_reset_callback =
+   *   default_service_response_callback<TFResetServiceCallback,
+   *     TFResetServiceResponseFuture>();
+   */
 
   // declare all clients
   rclcpp::Client<buoy_msgs::srv::BenderCommand>::SharedPtr bender_client_;
@@ -444,6 +544,7 @@ protected:
   rclcpp::Client<buoy_msgs::srv::TetherCommand>::SharedPtr tether_client_;
   rclcpp::Client<buoy_msgs::srv::SCResetCommand>::SharedPtr sc_reset_client_;
   rclcpp::Client<buoy_msgs::srv::SCPackRateCommand>::SharedPtr sc_pack_rate_client_;
+  std::unique_ptr<rclcpp::SyncParametersClient> sc_pack_rate_param_client_;
   rclcpp::Client<buoy_msgs::srv::PCScaleCommand>::SharedPtr pc_scale_client_;
   rclcpp::Client<buoy_msgs::srv::PCRetractCommand>::SharedPtr pc_retract_client_;
   rclcpp::Client<buoy_msgs::srv::PCVTargMaxCommand>::SharedPtr pc_v_targ_max_client_;
@@ -455,6 +556,7 @@ protected:
   rclcpp::Client<buoy_msgs::srv::PCWindCurrCommand>::SharedPtr pc_wind_curr_client_;
   rclcpp::Client<buoy_msgs::srv::PCBiasCurrCommand>::SharedPtr pc_bias_curr_client_;
   rclcpp::Client<buoy_msgs::srv::PCPackRateCommand>::SharedPtr pc_pack_rate_client_;
+  std::unique_ptr<rclcpp::SyncParametersClient> pc_pack_rate_param_client_;
   rclcpp::Client<buoy_msgs::srv::TFSetPosCommand>::SharedPtr tf_set_pos_client_;
   rclcpp::Client<buoy_msgs::srv::TFSetActualPosCommand>::SharedPtr tf_set_actual_pos_client_;
   rclcpp::Client<buoy_msgs::srv::TFSetModeCommand>::SharedPtr tf_set_mode_client_;
@@ -464,10 +566,9 @@ protected:
   rclcpp::Client<buoy_msgs::srv::TFWatchDogCommand>::SharedPtr tf_watch_dog_client_;
   rclcpp::Client<buoy_msgs::srv::TFResetCommand>::SharedPtr tf_reset_client_;
 
-private:
   // generic service callback
   template<class CallbackType, class ServiceResponseFuture>
-  CallbackType service_response_callback()
+  CallbackType default_service_response_callback()
   {
     CallbackType callback = [this](ServiceResponseFuture future)
       {
@@ -487,12 +588,15 @@ private:
     return callback;
   }
 
+private:
   template<class T>
-  bool wait_for_service(T & client, const std::string & service)
+  bool wait_for_service(T & client, const std::string & service, const size_t & _count = 1U)
   {
     // NOLINTNEXTLINE
     using namespace std::chrono_literals;
-    while (!client->wait_for_service(1s)) {
+    size_t count{0U};
+    while (count < _count && !client->wait_for_service(100ms)) {
+      ++count;
       if (!rclcpp::ok()) {
         RCLCPP_ERROR(
           rclcpp::get_logger(this->get_name()),
@@ -505,15 +609,15 @@ private:
         "%s not available, still waiting...",
         service.c_str());
     }
-    return true;
+    return count < _count;
   }
 
   // declare all subscribers
-  rclcpp::Subscription<buoy_msgs::msg::XBRecord>::SharedPtr ahrs_data_sub_;
-  rclcpp::Subscription<buoy_msgs::msg::BCRecord>::SharedPtr battery_data_sub_;
-  rclcpp::Subscription<buoy_msgs::msg::SCRecord>::SharedPtr spring_data_sub_;
-  rclcpp::Subscription<buoy_msgs::msg::PCRecord>::SharedPtr power_data_sub_;
-  rclcpp::Subscription<buoy_msgs::msg::TFRecord>::SharedPtr trefoil_data_sub_;
+  rclcpp::Subscription<buoy_msgs::msg::XBRecord>::SharedPtr ahrs_data_sub_, xb_record_sub_;
+  rclcpp::Subscription<buoy_msgs::msg::BCRecord>::SharedPtr battery_data_sub_, bc_record_sub_;
+  rclcpp::Subscription<buoy_msgs::msg::SCRecord>::SharedPtr spring_data_sub_, sc_record_sub_;
+  rclcpp::Subscription<buoy_msgs::msg::PCRecord>::SharedPtr power_data_sub_, pc_record_sub_;
+  rclcpp::Subscription<buoy_msgs::msg::TFRecord>::SharedPtr trefoil_data_sub_, tf_record_sub_;
   rclcpp::Subscription<buoy_msgs::msg::PBRecord>::SharedPtr powerbuoy_data_sub_;
 };
 
