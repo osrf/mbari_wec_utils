@@ -16,6 +16,23 @@ float32 scale
 float32 retract
 float32 target_v
 float32 target_a
-int16 status
 float32 charge_curr_limit
 
+# Note: Not Currently Implemented in Sim Controller
+uint16 Mode=1  # controller mode. specified by defines in config.h (GENERATOR_MODE, TORQUE_MODE)
+uint16 TorqueCmdLimited=4  # defines what is limited the Torque Command
+                           # (0 = Not limited, 1 = Rate, 2 = Min, 3 = Max).
+uint16 BattSwitchRequest=8  # Indicates state of battery switch that the user desires.
+                            # 0 = off, 1 = on
+uint16 BattSwitchSetting=16  # Indicates instantaneous setting of Battery Switch
+uint16 SlowSwitchSetting=32  # Indicates instantaneous setting of Bettery Slow Switch
+uint16 EXT_Voltage_Detect=64  # Indicates if >170V is available on outside connector
+uint16 GainScheduleMode=128  # 0 = off. 1 = on.
+uint16 OverCurrentShutdown=256  # 1 indicates drive is in overcurrent shutdown.
+uint16 OverVoltageShutdown=512  # 1 indicates drive is in overvoltage shutdown.
+uint16 SpringRangeValid=1024  # 1 indicates the current SC_Range value is valid (received within
+                              # approximately SC_RANGE_VALID_TIMEOUT milliseconds)
+uint16 PermissiveMode=2048  # 1 indicates user has selected "permissive mode" which allows
+                            # WindingCurrent commands to be set even if SpringController Range
+                            # packets aren't arriving
+uint16 status
