@@ -8,5 +8,5 @@ float32 vbalance
 float32 vstopcharge
 float32 gfault
 float32 hydrogen
-int16 status
+uint16 status
 
