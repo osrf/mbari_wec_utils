@@ -362,6 +362,117 @@ public:
     }
   }
 
+  // abbrv futures
+  using BenderServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::BenderCommand>::SharedFuture;
+  using BCResetServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::BCResetCommand>::SharedFuture;
+  using PumpServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::PumpCommand>::SharedFuture;
+  using ValveServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::ValveCommand>::SharedFuture;
+  using TetherServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::TetherCommand>::SharedFuture;
+  using SCResetServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::SCResetCommand>::SharedFuture;
+  using SCPackRateServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::SCPackRateCommand>::SharedFuture;
+  using PCScaleServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::PCScaleCommand>::SharedFuture;
+  using PCRetractServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::PCRetractCommand>::SharedFuture;
+  using PCVTargMaxServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::PCVTargMaxCommand>::SharedFuture;
+  using PCChargeCurrLimServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::PCChargeCurrLimCommand>::SharedFuture;
+  using PCBattSwitchServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::PCBattSwitchCommand>::SharedFuture;
+  using GainServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::GainCommand>::SharedFuture;
+  using PCStdDevTargServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::PCStdDevTargCommand>::SharedFuture;
+  using PCDrawCurrLimServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::PCDrawCurrLimCommand>::SharedFuture;
+  using PCWindCurrServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::PCWindCurrCommand>::SharedFuture;
+  using PCBiasCurrServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::PCBiasCurrCommand>::SharedFuture;
+  using PCPackRateServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::PCPackRateCommand>::SharedFuture;
+  using TFSetPosServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::TFSetPosCommand>::SharedFuture;
+  using TFSetActualPosServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::TFSetActualPosCommand>::SharedFuture;
+  using TFSetModeServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::TFSetModeCommand>::SharedFuture;
+  using TFSetChargeModeServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::TFSetChargeModeCommand>::SharedFuture;
+  using TFSetCurrLimServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::TFSetCurrLimCommand>::SharedFuture;
+  using TFSetStateMachineServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::TFSetStateMachineCommand>::SharedFuture;
+  using TFWatchDogServiceResponseFuture =
+    rclcpp::Client<buoy_msgs::srv::TFWatchDogCommand>::SharedFuture;
+  using TFResetServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::TFResetCommand>::SharedFuture;
+
+  ValveServiceResponseFuture send_valve_command(const uint16_t & duration_sec)
+  {
+    auto request = std::make_shared<buoy_msgs::srv::ValveCommand::Request>();
+    request->duration_sec = duration_sec;
+
+    ValveServiceResponseFuture valve_response_future =
+      valve_client_->async_send_request(request);
+
+    return valve_response_future;
+  }
+
+  PumpServiceResponseFuture send_pump_command(const uint16_t & duration_sec)
+  {
+    auto request = std::make_shared<buoy_msgs::srv::PumpCommand::Request>();
+    request->duration_sec = duration_sec;
+
+    PumpServiceResponseFuture pump_response_future =
+      pump_client_->async_send_request(request);
+
+    return pump_response_future;
+  }
+
+  PCWindCurrServiceResponseFuture send_pc_wind_curr_command(const float & wind_curr)
+  {
+    auto request = std::make_shared<buoy_msgs::srv::PCWindCurrCommand::Request>();
+    request->wind_curr = wind_curr;
+
+    PCWindCurrServiceResponseFuture pc_wind_curr_response_future =
+      pc_wind_curr_client_->async_send_request(request);
+
+    return pc_wind_curr_response_future;
+  }
+
+  PCBiasCurrServiceResponseFuture send_pc_bias_curr_command(const float & bias_curr)
+  {
+    auto request = std::make_shared<buoy_msgs::srv::PCBiasCurrCommand::Request>();
+    request->bias_curr = bias_curr;
+
+    PCBiasCurrServiceResponseFuture pc_bias_curr_response_future =
+      pc_bias_curr_client_->async_send_request(request);
+
+    return pc_bias_curr_response_future;
+  }
+
+  PCScaleServiceResponseFuture send_pc_scale_command(const float & scale)
+  {
+    auto request = std::make_shared<buoy_msgs::srv::PCScaleCommand::Request>();
+    request->scale = scale;
+
+    PCScaleServiceResponseFuture pc_scale_response_future =
+      pc_scale_client_->async_send_request(request);
+
+    return pc_scale_response_future;
+  }
+
+  PCRetractServiceResponseFuture send_pc_retract_command(const float & retract)
+  {
+    auto request = std::make_shared<buoy_msgs::srv::PCRetractCommand::Request>();
+    request->retract = retract;
+
+    PCRetractServiceResponseFuture pc_retract_response_future =
+      pc_retract_client_->async_send_request(request);
+
+    return pc_retract_response_future;
+  }
+
 protected:
   virtual ~Interface() = default;
 
@@ -374,51 +485,6 @@ protected:
   void trefoil_callback(const buoy_msgs::msg::TFRecord &) {}
   void powerbuoy_callback(const buoy_msgs::msg::PBRecord &) {}
 
-  // abbrv futures
-  using BenderServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::BenderCommand>::SharedFuture;
-  using BCResetServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::BCResetCommand>::SharedFuture;
-  using PumpServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::PumpCommand>::SharedFuture;
-  using ValveServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::ValveCommand>::SharedFuture;
-  using TetherServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::TetherCommand>::SharedFuture;
-  using SCResetServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::SCResetCommand>::SharedFuture;
-  using SCPackRateServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::SCPackRateCommand>::SharedFuture;
-  using PCScaleServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::PCScaleCommand>::SharedFuture;
-  using PCRetractServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::PCRetractCommand>::SharedFuture;
-  using PCVTargMaxServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::PCVTargMaxCommand>::SharedFuture;
-  using PCChargeCurrLimServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::PCChargeCurrLimCommand>::SharedFuture;
-  using PCBattSwitchServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::PCBattSwitchCommand>::SharedFuture;
-  using GainServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::GainCommand>::SharedFuture;
-  using PCStdDevTargServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::PCStdDevTargCommand>::SharedFuture;
-  using PCDrawCurrLimServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::PCDrawCurrLimCommand>::SharedFuture;
-  using PCWindCurrServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::PCWindCurrCommand>::SharedFuture;
-  using PCBiasCurrServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::PCBiasCurrCommand>::SharedFuture;
-  using PCPackRateServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::PCPackRateCommand>::SharedFuture;
-  using TFSetPosServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::TFSetPosCommand>::SharedFuture;
-  using TFSetActualPosServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::TFSetActualPosCommand>::SharedFuture;
-  using TFSetModeServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::TFSetModeCommand>::SharedFuture;
-  using TFSetChargeModeServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::TFSetChargeModeCommand>::SharedFuture;
-  using TFSetCurrLimServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::TFSetCurrLimCommand>::SharedFuture;
-  using TFSetStateMachineServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::TFSetStateMachineCommand>::SharedFuture;
-  using TFWatchDogServiceResponseFuture = \
-    rclcpp::Client<buoy_msgs::srv::TFWatchDogCommand>::SharedFuture;
-  using TFResetServiceResponseFuture = rclcpp::Client<buoy_msgs::srv::TFResetCommand>::SharedFuture;
-
   // abbrv callback types
   using BenderServiceCallback = rclcpp::Client<buoy_msgs::srv::BenderCommand>::CallbackType;
   using BCResetServiceCallback = rclcpp::Client<buoy_msgs::srv::BCResetCommand>::CallbackType;
@@ -430,27 +496,27 @@ protected:
   using PCScaleServiceCallback = rclcpp::Client<buoy_msgs::srv::PCScaleCommand>::CallbackType;
   using PCRetractServiceCallback = rclcpp::Client<buoy_msgs::srv::PCRetractCommand>::CallbackType;
   using PCVTargMaxServiceCallback = rclcpp::Client<buoy_msgs::srv::PCVTargMaxCommand>::CallbackType;
-  using PCChargeCurrLimServiceCallback = \
+  using PCChargeCurrLimServiceCallback =
     rclcpp::Client<buoy_msgs::srv::PCChargeCurrLimCommand>::CallbackType;
-  using PCBattSwitchServiceCallback = \
+  using PCBattSwitchServiceCallback =
     rclcpp::Client<buoy_msgs::srv::PCBattSwitchCommand>::CallbackType;
   using GainServiceCallback = rclcpp::Client<buoy_msgs::srv::GainCommand>::CallbackType;
-  using PCStdDevTargServiceCallback = \
+  using PCStdDevTargServiceCallback =
     rclcpp::Client<buoy_msgs::srv::PCStdDevTargCommand>::CallbackType;
-  using PCDrawCurrLimServiceCallback = \
+  using PCDrawCurrLimServiceCallback =
     rclcpp::Client<buoy_msgs::srv::PCDrawCurrLimCommand>::CallbackType;
   using PCWindCurrServiceCallback = rclcpp::Client<buoy_msgs::srv::PCWindCurrCommand>::CallbackType;
   using PCBiasCurrServiceCallback = rclcpp::Client<buoy_msgs::srv::PCBiasCurrCommand>::CallbackType;
   using PCPackRateServiceCallback = rclcpp::Client<buoy_msgs::srv::PCPackRateCommand>::CallbackType;
   using TFSetPosServiceCallback = rclcpp::Client<buoy_msgs::srv::TFSetPosCommand>::CallbackType;
-  using TFSetActualPosServiceCallback = \
+  using TFSetActualPosServiceCallback =
     rclcpp::Client<buoy_msgs::srv::TFSetActualPosCommand>::CallbackType;
   using TFSetModeServiceCallback = rclcpp::Client<buoy_msgs::srv::TFSetModeCommand>::CallbackType;
-  using TFSetChargeModeServiceCallback = \
+  using TFSetChargeModeServiceCallback =
     rclcpp::Client<buoy_msgs::srv::TFSetChargeModeCommand>::CallbackType;
-  using TFSetCurrLimServiceCallback = \
+  using TFSetCurrLimServiceCallback =
     rclcpp::Client<buoy_msgs::srv::TFSetCurrLimCommand>::CallbackType;
-  using TFSetStateMachineServiceCallback = \
+  using TFSetStateMachineServiceCallback =
     rclcpp::Client<buoy_msgs::srv::TFSetStateMachineCommand>::CallbackType;
   using TFWatchDogServiceCallback = rclcpp::Client<buoy_msgs::srv::TFWatchDogCommand>::CallbackType;
   using TFResetServiceCallback = rclcpp::Client<buoy_msgs::srv::TFResetCommand>::CallbackType;
@@ -581,7 +647,6 @@ protected:
             rclcpp::get_logger(this->get_name()),
             "Command Failed: received error code [[ %s ]]",
             pbsrv_enum2str[future.get()->result.value].c_str());
-          // TODO(andermi): should we shutdown?
         }
       };
 
