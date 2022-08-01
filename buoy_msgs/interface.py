@@ -12,6 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import asyncio
 
 # pbsrv commands
 # power microcontroller
@@ -244,7 +245,7 @@ class Interface(Node):
         request.rate_hz = rate_hz
 
         self.pc_pack_rate_future_ = self.pc_pack_rate_client_.call_async(request)
-        self.pc_pack_rate_future_.add_done_callback(self.service_response_callback)
+        self.pc_pack_rate_future_.add_done_callback(self.default_service_response_callback)
 
     # set publish rate of SC Microcontroller telemetry
     def set_sc_pack_rate(self, rate_hz=50):
@@ -252,7 +253,73 @@ class Interface(Node):
         request.rate_hz = rate_hz
 
         self.sc_pack_rate_future_ = self.sc_pack_rate_client_.call_async(request)
-        self.sc_pack_rate_future_.add_done_callback(self.service_response_callback)
+        self.sc_pack_rate_future_.add_done_callback(self.default_service_response_callback)
+
+    def send_pump_command(self, duration_sec):
+        return asyncio.run(self._send_pump_command(duration_sec))
+
+    async def _send_pump_command(self, duration_sec):
+        request = PumpCommand.Request()
+        request.duration_sec = duration_sec
+
+        self.pump_future_ = self.pump_client_.call_async(request)
+        self.pump_future_.add_done_callback(self.default_service_response_callback)
+        await self.pump_future_
+
+    def send_valve_command(self, duration_sec):
+        return asyncio.run(self._send_valve_command(duration_sec))
+
+    async def _send_valve_command(self, duration_sec):
+        request = ValveCommand.Request()
+        request.duration_sec = duration_sec
+
+        self.valve_future_ = self.valve_client_.call_async(request)
+        self.valve_future_.add_done_callback(self.default_service_response_callback)
+        await self.valve_future_
+
+    def send_pc_wind_curr_command(self, wind_curr):
+        return asyncio.run(self._send_pc_wind_curr_command(wind_curr))
+
+    async def _send_pc_wind_curr_command(self, wind_curr):
+        request = PCWindCurrCommand.Request()
+        request.wind_curr = wind_curr
+
+        self.pc_wind_curr_future_ = self.pc_wind_curr_client_.call_async(request)
+        self.pc_wind_curr_future_.add_done_callback(self.default_service_response_callback)
+        await self.pc_wind_curr_future
+
+    def send_pc_bias_curr_command(self, bias_curr):
+        return asyncio.run(self._send_pc_bias_curr_command(bias_curr))
+
+    async def _send_pc_bias_curr_command(self, bias_curr):
+        request = PCBiasCurrCommand.Request()
+        request.bias_curr = bias_curr
+
+        self.pc_bias_curr_future_ = self.pc_bias_curr_client_.call_async(request)
+        self.pc_bias_curr_future_.add_done_callback(self.default_service_response_callback)
+        await self.pc_bias_curr_future
+
+    def send_pc_scale_command(self, scale):
+        return asyncio.run(self._send_valve_command(scale))
+
+    async def _send_pc_scale_command(self, scale):
+        request = PCScaleCommand.Request()
+        request.duration_sec = scale
+
+        self.pc_scale_future_ = self.pc_scale_client_.call_async(request)
+        self.pc_scale_future_.add_done_callback(self.default_service_response_callback)
+        await self.pc_scale_future_
+
+    def send_retract_command(self, retract):
+        return asyncio.run(self._send_retract_command(retract))
+
+    async def _send_pc_retract_command(self, retract):
+        request = PCRetractCommand.Request()
+        request.retract = retract
+
+        self.pc_retract_future_ = self.pc_retract_client_.call_async(request)
+        self.pc_retract_future_.add_done_callback(self.default_service_response_callback)
+        await self.pc_retract_future_
 
     # set_params and callbacks optionally defined by user
     def set_params(self): pass
@@ -272,7 +339,7 @@ class Interface(Node):
         #     self.get_logger().error('Param not set.')
 
     # generic service callback
-    def service_response_callback(self, future):
+    def default_service_response_callback(self, future):
         resp = future.result()
         if resp.result.value == resp.result.OK:
             self.get_logger().info('Command Successful')
