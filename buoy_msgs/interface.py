@@ -286,7 +286,7 @@ class Interface(Node):
 
         self.pc_wind_curr_future_ = self.pc_wind_curr_client_.call_async(request)
         self.pc_wind_curr_future_.add_done_callback(self.default_service_response_callback)
-        await self.pc_wind_curr_future
+        await self.pc_wind_curr_future_
 
     def send_pc_bias_curr_command(self, bias_curr):
         return asyncio.run(self._send_pc_bias_curr_command(bias_curr))
@@ -297,21 +297,21 @@ class Interface(Node):
 
         self.pc_bias_curr_future_ = self.pc_bias_curr_client_.call_async(request)
         self.pc_bias_curr_future_.add_done_callback(self.default_service_response_callback)
-        await self.pc_bias_curr_future
+        await self.pc_bias_curr_future_
 
     def send_pc_scale_command(self, scale):
-        return asyncio.run(self._send_valve_command(scale))
+        return asyncio.run(self._send_pc_scale_command(scale))
 
     async def _send_pc_scale_command(self, scale):
         request = PCScaleCommand.Request()
-        request.duration_sec = scale
+        request.scale = scale
 
         self.pc_scale_future_ = self.pc_scale_client_.call_async(request)
         self.pc_scale_future_.add_done_callback(self.default_service_response_callback)
         await self.pc_scale_future_
 
-    def send_retract_command(self, retract):
-        return asyncio.run(self._send_retract_command(retract))
+    def send_pc_retract_command(self, retract):
+        return asyncio.run(self._send_pc_retract_command(retract))
 
     async def _send_pc_retract_command(self, retract):
         request = PCRetractCommand.Request()
