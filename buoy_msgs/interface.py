@@ -228,29 +228,31 @@ class Interface(Node):
     # set publish rate of PC Microcontroller telemetry
     def set_pc_pack_rate_param(self, rate_hz=50.0):
         request = SetParameters.Request()
-        request.parameters = [Parameter(name='publish_rate', value=rate_hz).to_parameter_msg()]
+        request.parameters = [Parameter(name='publish_rate',
+                                        value=float(rate_hz)).to_parameter_msg()]
         self.pc_pack_rate_param_future_ = self.pc_pack_rate_param_client_.call_async(request)
         self.pc_pack_rate_param_future_.add_done_callback(self.param_response_callback)
 
     # set publish rate of SC Microcontroller telemetry
     def set_sc_pack_rate_param(self, rate_hz=50.0):
         request = SetParameters.Request()
-        request.parameters = [Parameter(name='publish_rate', value=rate_hz).to_parameter_msg()]
+        request.parameters = [Parameter(name='publish_rate',
+                                        value=float(rate_hz)).to_parameter_msg()]
         self.sc_pack_rate_param_future_ = self.sc_pack_rate_param_client_.call_async(request)
         self.sc_pack_rate_param_future_.add_done_callback(self.param_response_callback)
 
     # set publish rate of PC Microcontroller telemetry
-    def set_pc_pack_rate(self, rate_hz=50):
+    def set_pc_pack_rate(self, rate_hz=50.0):
         request = PCPackRateCommand.Request()
-        request.rate_hz = rate_hz
+        request.rate_hz = float(rate_hz)
 
         self.pc_pack_rate_future_ = self.pc_pack_rate_client_.call_async(request)
         self.pc_pack_rate_future_.add_done_callback(self.default_service_response_callback)
 
     # set publish rate of SC Microcontroller telemetry
-    def set_sc_pack_rate(self, rate_hz=50):
+    def set_sc_pack_rate(self, rate_hz=50.0):
         request = SCPackRateCommand.Request()
-        request.rate_hz = rate_hz
+        request.rate_hz = float(rate_hz)
 
         self.sc_pack_rate_future_ = self.sc_pack_rate_client_.call_async(request)
         self.sc_pack_rate_future_.add_done_callback(self.default_service_response_callback)
@@ -260,7 +262,7 @@ class Interface(Node):
 
     async def _send_pump_command(self, duration_sec):
         request = PumpCommand.Request()
-        request.duration_sec = duration_sec
+        request.duration_sec = int(duration_sec)
 
         self.pump_future_ = self.pump_client_.call_async(request)
         self.pump_future_.add_done_callback(self.default_service_response_callback)
@@ -271,7 +273,7 @@ class Interface(Node):
 
     async def _send_valve_command(self, duration_sec):
         request = ValveCommand.Request()
-        request.duration_sec = duration_sec
+        request.duration_sec = int(duration_sec)
 
         self.valve_future_ = self.valve_client_.call_async(request)
         self.valve_future_.add_done_callback(self.default_service_response_callback)
@@ -282,7 +284,7 @@ class Interface(Node):
 
     async def _send_pc_wind_curr_command(self, wind_curr):
         request = PCWindCurrCommand.Request()
-        request.wind_curr = wind_curr
+        request.wind_curr = float(wind_curr)
 
         self.pc_wind_curr_future_ = self.pc_wind_curr_client_.call_async(request)
         self.pc_wind_curr_future_.add_done_callback(self.default_service_response_callback)
@@ -293,7 +295,7 @@ class Interface(Node):
 
     async def _send_pc_bias_curr_command(self, bias_curr):
         request = PCBiasCurrCommand.Request()
-        request.bias_curr = bias_curr
+        request.bias_curr = float(bias_curr)
 
         self.pc_bias_curr_future_ = self.pc_bias_curr_client_.call_async(request)
         self.pc_bias_curr_future_.add_done_callback(self.default_service_response_callback)
@@ -304,7 +306,7 @@ class Interface(Node):
 
     async def _send_pc_scale_command(self, scale):
         request = PCScaleCommand.Request()
-        request.scale = scale
+        request.scale = float(scale)
 
         self.pc_scale_future_ = self.pc_scale_client_.call_async(request)
         self.pc_scale_future_.add_done_callback(self.default_service_response_callback)
@@ -315,7 +317,7 @@ class Interface(Node):
 
     async def _send_pc_retract_command(self, retract):
         request = PCRetractCommand.Request()
-        request.retract = retract
+        request.retract = float(retract)
 
         self.pc_retract_future_ = self.pc_retract_client_.call_async(request)
         self.pc_retract_future_.add_done_callback(self.default_service_response_callback)
