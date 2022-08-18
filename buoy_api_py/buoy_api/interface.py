@@ -16,47 +16,47 @@ import asyncio
 
 # pbsrv commands
 # power microcontroller
-from buoy_msgs.srv import GainCommand  # noqa
-from buoy_msgs.srv import PCBattSwitchCommand  # noqa
-from buoy_msgs.srv import PCBiasCurrCommand  # noqa
-from buoy_msgs.srv import PCChargeCurrLimCommand  # noqa
-from buoy_msgs.srv import PCDrawCurrLimCommand  # noqa
-from buoy_msgs.srv import PCPackRateCommand  # noqa
-from buoy_msgs.srv import PCRetractCommand  # noqa
-from buoy_msgs.srv import PCScaleCommand  # noqa
-from buoy_msgs.srv import PCStdDevTargCommand  # noqa
-from buoy_msgs.srv import PCVTargMaxCommand  # noqa
-from buoy_msgs.srv import PCWindCurrCommand  # noqa
+from buoy_interfaces.srv import GainCommand  # noqa
+from buoy_interfaces.srv import PCBattSwitchCommand  # noqa
+from buoy_interfaces.srv import PCBiasCurrCommand  # noqa
+from buoy_interfaces.srv import PCChargeCurrLimCommand  # noqa
+from buoy_interfaces.srv import PCDrawCurrLimCommand  # noqa
+from buoy_interfaces.srv import PCPackRateCommand  # noqa
+from buoy_interfaces.srv import PCRetractCommand  # noqa
+from buoy_interfaces.srv import PCScaleCommand  # noqa
+from buoy_interfaces.srv import PCStdDevTargCommand  # noqa
+from buoy_interfaces.srv import PCVTargMaxCommand  # noqa
+from buoy_interfaces.srv import PCWindCurrCommand  # noqa
 
 # battery microcontroller
-from buoy_msgs.srv import BCResetCommand  # noqa
+from buoy_interfaces.srv import BCResetCommand  # noqa
 
 # spring microcontroller
-from buoy_msgs.srv import BenderCommand  # noqa
-from buoy_msgs.srv import PumpCommand  # noqa
-from buoy_msgs.srv import SCResetCommand  # noqa
-from buoy_msgs.srv import SCPackRateCommand  # noqa
-from buoy_msgs.srv import TetherCommand  # noqa
-from buoy_msgs.srv import ValveCommand  # noqa
+from buoy_interfaces.srv import BenderCommand  # noqa
+from buoy_interfaces.srv import PumpCommand  # noqa
+from buoy_interfaces.srv import SCResetCommand  # noqa
+from buoy_interfaces.srv import SCPackRateCommand  # noqa
+from buoy_interfaces.srv import TetherCommand  # noqa
+from buoy_interfaces.srv import ValveCommand  # noqa
 
 # trefoil microcontroller
-from buoy_msgs.srv import TFResetCommand  # noqa
-from buoy_msgs.srv import TFSetActualPosCommand  # noqa
-from buoy_msgs.srv import TFSetChargeModeCommand  # noqa
-from buoy_msgs.srv import TFSetCurrLimCommand  # noqa
-from buoy_msgs.srv import TFSetModeCommand  # noqa
-from buoy_msgs.srv import TFSetPosCommand  # noqa
-from buoy_msgs.srv import TFSetStateMachineCommand  # noqa
-from buoy_msgs.srv import TFWatchDogCommand  # noqa
+from buoy_interfaces.srv import TFResetCommand  # noqa
+from buoy_interfaces.srv import TFSetActualPosCommand  # noqa
+from buoy_interfaces.srv import TFSetChargeModeCommand  # noqa
+from buoy_interfaces.srv import TFSetCurrLimCommand  # noqa
+from buoy_interfaces.srv import TFSetModeCommand  # noqa
+from buoy_interfaces.srv import TFSetPosCommand  # noqa
+from buoy_interfaces.srv import TFSetStateMachineCommand  # noqa
+from buoy_interfaces.srv import TFWatchDogCommand  # noqa
 
 
 # pb telemetry
-from buoy_msgs.msg import BCRecord  # battery  # noqa
-from buoy_msgs.msg import PBRecord  # consolidated  # noqa
-from buoy_msgs.msg import PCRecord  # power  # noqa
-from buoy_msgs.msg import SCRecord  # spring  # noqa
-from buoy_msgs.msg import TFRecord  # trefoil  # noqa
-from buoy_msgs.msg import XBRecord  # ahrs  # noqa
+from buoy_interfaces.msg import BCRecord  # battery  # noqa
+from buoy_interfaces.msg import PBRecord  # consolidated  # noqa
+from buoy_interfaces.msg import PCRecord  # power  # noqa
+from buoy_interfaces.msg import SCRecord  # spring  # noqa
+from buoy_interfaces.msg import TFRecord  # trefoil  # noqa
+from buoy_interfaces.msg import XBRecord  # ahrs  # noqa
 
 
 # Pack Rate Params
