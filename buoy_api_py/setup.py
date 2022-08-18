@@ -5,7 +5,7 @@ package_name = 'buoy_api_py'
 setup(
     name=package_name,
     version='0.0.0',
-    packages=['buoy_api'],
+    packages=['buoy_api', 'buoy_api.examples'],
     data_files=[
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
@@ -20,6 +20,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
+            'torque_controller = buoy_api.examples.torque_controller:main',
+            'bias_damping = buoy_api.examples.bias_damping:main'
         ],
     },
 )
