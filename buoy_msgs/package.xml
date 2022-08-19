@@ -3,7 +3,7 @@
 <package format="3">
   <name>buoy_msgs</name>
   <version>0.0.0</version>
-  <description>MBARI Power Buoy messages (telemetry), services (commands), and API</description>
+  <description>Meta-package for MBARI Power Buoy messages (telemetry), services (commands), and API</description>
   <maintainer email="anderson@mbari.org">Michael Anderson</maintainer>
   <license>Apache 2.0</license>
 
