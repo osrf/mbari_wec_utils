@@ -17,8 +17,8 @@
 
 #include <buoy_api/interface.hpp>
 
-#include <string>
 #include <memory>
+#include <string>
 
 
 // forward declare
