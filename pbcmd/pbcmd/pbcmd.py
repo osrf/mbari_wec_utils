@@ -14,6 +14,7 @@
 
 import argparse
 import threading
+import time
 
 from buoy_api import Interface
 
@@ -108,9 +109,10 @@ def pump(parser):
         print(f'Executing pump to Spring Controller pump: {duration_minutes}')
         duration_minutes = 0
     else:
-        print(f'Executing pump to Spring Controller pump: {duration_minutes} minutes')
+        print(f'Executing pump to Spring Controller pump: {duration_minutes} minute(s)')
     _pbcmd = PBCmd()
     _pbcmd.send_pump_command(duration_minutes * 60)
+    time.sleep(1)
     print('done!')
 
 
@@ -126,9 +128,11 @@ def valve(parser):
         print(f'Executing valve to Spring Controller valve: {duration_sec}')
         duration_sec = 0
     else:
-        print(f'Executing valve to Spring Controller valve: {duration_sec} seconds')
+        print(f'Executing valve to Spring Controller valve: {duration_sec} second(s)')
     _pbcmd = PBCmd()
     _pbcmd.send_valve_command(duration_sec)
+    time.sleep(1)
+    print('done!')
 
 
 def main():
