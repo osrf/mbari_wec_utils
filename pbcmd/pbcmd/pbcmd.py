@@ -51,8 +51,8 @@ def int_or_off(arg):
     try:
         return int(arg)
     except ValueError:
-        if arg == 'off':
-            return arg
+        if arg.lower() == 'off':
+            return arg.lower()
         raise argparse.ArgumentTypeError("argument must be an int or 'off'")
 
 
