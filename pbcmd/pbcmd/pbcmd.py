@@ -1,9 +1,23 @@
-
+# Copyright 2022 Open Source Robotics Foundation, Inc. and Monterey Bay Aquarium Research Institute
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 import argparse
-from buoy_api import Interface
-import rclpy
 import threading
+
+from buoy_api import Interface
+
+import rclpy
 
 
 class PBCmd(Interface):
@@ -16,26 +30,21 @@ class PBCmd(Interface):
         self.spin_thread.start()
 
 
-def float_range(mini,maxi):
-    """Return function handle of an argument type function for
-       ArgumentParser checking a float range: mini <= arg <= maxi
-         mini - minimum acceptable argument
-         maxi - maximum acceptable argument"""
-
-    # Define the function with default arguments
+def float_range(mini, maxi):
     def float_range_checker(arg):
-        """New Type function for argparse - a float within predefined range."""
-
         try:
             f = float(arg)
         except ValueError:
-            raise argparse.ArgumentTypeError("must be a floating point number")
+            raise argparse.ArgumentTypeError('must be a floating point number')
         if f < mini or f > maxi:
-            raise argparse.ArgumentTypeError("must be in range [" + str(mini) + " .. " + str(maxi)+"]")
+            raise argparse.ArgumentTypeError('must be in range [' +
+                                             str(mini) + ' .. ' +
+                                             str(maxi)+']')
         return f
 
     # Return function handle to checking function
     return float_range_checker
+
 
 def int_or_off(arg):
     try:
@@ -86,6 +95,7 @@ Except the reset commands which take no arguments.
 
 DO NOT enter reset_power and expect to get help. The command will execute!""")
 
+
 def pump(parser):
     parser.add_argument('duration_minutes', type=int_or_off,
                         choices=tuple(['off'] + list(range(127))),
@@ -102,6 +112,7 @@ def pump(parser):
     _pbcmd = PBCmd()
     _pbcmd.send_pump_command(duration_minutes * 60)
     print('done!')
+
 
 def valve(parser):
     parser.add_argument('duration_sec', type=int_or_off,
@@ -123,16 +134,15 @@ def valve(parser):
 def main():
     parser = argparse.ArgumentParser()
 
-    cmds = dict(pbcmd=pbcmd,
-                pump=pump,
-                valve=valve
-                )
+    cmds = {'pbcmd': pbcmd,
+            'pump': pump,
+            'valve': valve}
 
     if parser.prog in cmds:
         cmds[parser.prog](parser)
     else:
-        print(parser.prog + " not currently implemented")
+        print(parser.prog + ' not currently implemented')
 
 
-if __name__=='__main__':
+if __name__ == '__main__':
     main()
