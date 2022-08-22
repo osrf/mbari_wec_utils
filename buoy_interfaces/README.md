@@ -1,8 +1,6 @@
-# buoy_msgs
+# buoy_interfaces
 
-TODO(anyone)
-
-Packages in this repo provide interfaces, API, examples for MBARI Power Buoy.
+`buoy_interfaces` provides messages for marine buoys.
 
 For more information about ROS 2 interfaces, see [docs.ros.org](https://docs.ros.org/en/rolling/Concepts/About-ROS-Interfaces.html).
 
