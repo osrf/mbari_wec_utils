@@ -77,7 +77,7 @@ class NonLinearBiasDamping(Interface):
         request.bias_curr = float(bct)
 
         self.pc_bias_curr_future_ = self.pc_bias_curr_client_.call_async(request)
-        self.pc_bias_curr_future_.add_done_callback(self.service_response_callback)
+        self.pc_bias_curr_future_.add_done_callback(self.default_service_response_callback)
 
 
 def main():
