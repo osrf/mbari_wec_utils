@@ -1,6 +1,29 @@
+import atexit
+from functools import partial
+import os
+from subprocess import check_call
+
 from setuptools import setup
+from setuptools.command.install import install
+
 
 package_name = 'pbcmd'
+
+
+def _post_install(inst=None):
+    print('~~~ post-install ~~~')
+    if inst is not None:
+        install_aliases = os.path.join(inst.install_scripts, 'install_aliases.sh')
+        print('post-install scripts: ', install_aliases)
+        check_call(install_aliases)
+
+
+class PostInstall(install):
+
+    def __init__(self, *args, **kwargs):
+        super(PostInstall, self).__init__(*args, **kwargs)
+        atexit.register(partial(_post_install, self))
+
 
 setup(
     name=package_name,
@@ -25,5 +48,6 @@ setup(
     },
     scripts=[
         'scripts/install_aliases.sh'
-    ]
+    ],
+    cmdclass={'install': PostInstall}
 )

@@ -15,34 +15,20 @@
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-ALIAS_INSTALL_DIR=/usr/local/bin
+ALIAS_INSTALL_DIR=$HOME/.local/bin
+mkdir -p $ALIAS_INSTALL_DIR
 
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/pbcmd
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/bender
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/reset_battery
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/pump
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/valve
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/tether
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/reset_spring
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/sc_pack_rate
+cmds=(pbcmd bender reset_battery pump valve tether reset_spring sc_pack_rate)
+cmds+=(pc_Scale pc_Retract pc_VTargMax pc_ChargeCurrLim pc_Gain pc_StdDevTarg)
+cmds+=(pc_DrawCurrLim pc_BattSwitch pc_WindCurr pc_BiasCurr pc_PackRate)
+cmds+=(tf_SetPos tf_SetActualPos tf_SetMode tf_SetChargeMode tf_SetStateMachine)
+cmds+=(tf_SetCurrLim tf_WatchDog tf_Reset)
 
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/pc_Scale
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/pc_Retract
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/pc_VTargMax
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/pc_ChargeCurrLim
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/pc_Gain
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/pc_StdDevTarg
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/pc_DrawCurrLim
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/pc_BattSwitch
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/pc_WindCurr
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/pc_BiasCurr
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/pc_PackRate
+echo "installing pbcmd aliases to" $ALIAS_INSTALL_DIR
 
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/tf_SetPos
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/tf_SetActualPos
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/tf_SetMode
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/tf_SetChargeMode
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/tf_SetStateMachine
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/tf_SetCurrLim
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/tf_WatchDog
-ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/tf_Reset
+for index in "${!cmds[@]}"; do
+  echo "ln -sf" $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/"${cmds[$index]}"
+  ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/"${cmds[$index]}"
+done
+
+
