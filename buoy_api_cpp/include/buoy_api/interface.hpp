@@ -79,7 +79,8 @@ using std::placeholders::_1;
 std::map<int8_t, std::string> pbsrv_enum2str = {{0, "OK"},
   {-1, "BAD_SOCK"},
   {-2, "BAD_OPTS"},
-  {-3, "BAD_INPUT"}};
+  {-3, "BAD_INPUT"},
+  {-4, "BUSY"}};
 
 
 template<class ControllerImplCRTP>

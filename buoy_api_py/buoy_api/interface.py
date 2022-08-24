@@ -71,7 +71,8 @@ from rclpy.node import Node
 pbsrv_enum2str = {0: 'OK',
                   -1: 'BAD_SOCK',
                   -2: 'BAD_OPTS',
-                  -3: 'BAD_INPUT'}
+                  -3: 'BAD_INPUT',
+                  -4: 'BUSY'}
 
 
 class Interface(Node):
