@@ -258,12 +258,12 @@ class Interface(Node):
         self.sc_pack_rate_future_ = self.sc_pack_rate_client_.call_async(request)
         self.sc_pack_rate_future_.add_done_callback(self.default_service_response_callback)
 
-    def send_pump_command(self, duration_sec):
-        return asyncio.run(self._send_pump_command(duration_sec))
+    def send_pump_command(self, duration_mins):
+        return asyncio.run(self._send_pump_command(duration_mins))
 
-    async def _send_pump_command(self, duration_sec):
+    async def _send_pump_command(self, duration_mins):
         request = PumpCommand.Request()
-        request.duration_sec = int(duration_sec)
+        request.duration_mins = float(duration_mins)
 
         self.pump_future_ = self.pump_client_.call_async(request)
         self.pump_future_.add_done_callback(self.default_service_response_callback)

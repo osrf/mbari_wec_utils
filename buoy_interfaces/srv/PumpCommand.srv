@@ -1,6 +1,6 @@
 #PumpCommandRequest
-uint16 OFF=0
-uint16 duration_sec  # OFF, 1..127
+float32 OFF=0
+float32 duration_mins  # OFF, 1..10
 
 ---
 
