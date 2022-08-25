@@ -15,7 +15,6 @@
 # limitations under the License.
 
 from buoy_api import Interface
-from buoy_interfaces.srv import PCBiasCurrCommand
 import rclpy
 from scipy import interpolate
 
