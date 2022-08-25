@@ -67,17 +67,15 @@ class PBTorqueController(Interface):
         self.policy = PBTorqueControlPolicy()
         self.set_params()
 
-        self.set_pc_pack_rate()
+        self.set_pc_pack_rate_param()
 
     def power_callback(self, data):
-        request = PCWindCurrCommand.Request()
-        request.wind_curr = self.policy.winding_current_target(data.rpm, data.scale, data.retract)
+        wind_curr = self.policy.winding_current_target(data.rpm, data.scale, data.retract)
 
         self.get_logger().info(f'WindingCurrent: f({data.rpm}, {data.scale}, {data.retract}) = ' +
-                               f'{request.wind_curr}')
+                               f'{wind_curr}')
 
-        self.pc_wind_curr_future_ = self.pc_wind_curr_client_.call_async(request)
-        self.pc_wind_curr_future_.add_done_callback(self.service_response_callback)
+        self.send_pc_wind_curr_command(wind_curr, blocking=False)
 
     def set_params(self):
         self.declare_parameter('torque_constant', self.policy.Torque_constant)

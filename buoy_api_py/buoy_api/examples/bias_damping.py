@@ -73,16 +73,20 @@ class NonLinearBiasDamping(Interface):
         if bct is None:
             return
 
-        request = PCBiasCurrCommand.Request()
-        request.bias_curr = float(bct)
-
-        self.pc_bias_curr_future_ = self.pc_bias_curr_client_.call_async(request)
-        self.pc_bias_curr_future_.add_done_callback(self.default_service_response_callback)
+        self.send_pc_bias_curr_command(float(bct), blocking=False)
 
 
 def main():
+    # import threading
     rclpy.init()
     controller = NonLinearBiasDamping()
+    # executor = rclpy.executors.MultiThreadedExecutor()
+    # executor.add_node(controller)
+    # exe_t = threading.Thread(target=executor.spin, daemon=True)
+    # exe_t.start()
+    # rate = controller.create_rate(2)
+    # while rclpy.ok():
+    #     rate.sleep()
     rclpy.spin(controller)
     rclpy.shutdown()
 
