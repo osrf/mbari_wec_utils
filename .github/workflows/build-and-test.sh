@@ -20,27 +20,24 @@ apt-get install -y build-essential \
                    python3-colcon-common-extensions \
                    python3-colcon-common-extensions \
                    python3-flake8 \
-                   python3-pip \
+                   python3-flake8-blind-except \
+                   python3-flake8-builtins \
+                   python3-flake8-class-newline \
+                   python3-flake8-comprehensions \
+                   python3-flake8-deprecated \
+                   python3-flake8-docstrings \
+                   python3-flake8-import-order \
+                   python3-flake8-quotes \
+                   python3-pytest \
                    python3-pytest-cov \
+                   python3-pytest-repeat \
+                   python3-pytest-rerunfailures \
                    python3-rosdep \
                    python3-rosdep \
                    python3-setuptools \
+                   python3-setuptools \
                    python3-vcstool \
                    wget
-# TODO: get from apt when upgrading to Jammy
-python3 -m pip install -U \
-  flake8-blind-except \
-  flake8-builtins \
-  flake8-class-newline \
-  flake8-comprehensions \
-  flake8-deprecated \
-  flake8-docstrings \
-  flake8-import-order \
-  flake8-quotes \
-  pytest-repeat \
-  pytest-rerunfailures \
-  pytest \
-  setuptools
 
 cd $COLCON_WS_SRC
 cp -r $GITHUB_WORKSPACE $COLCON_WS_SRC
