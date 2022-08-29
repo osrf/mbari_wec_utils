@@ -15,18 +15,18 @@
 #ifndef BUOY_API__INTERFACE_HPP_
 #define BUOY_API__INTERFACE_HPP_
 
+#include <string>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <vector>
+
 #include <rclcpp/rclcpp.hpp>
 
 // Pack Rate Params
 #include <rclcpp/parameter_client.hpp>
 #include <rclcpp/parameter_value.hpp>
 #include <rclcpp/parameter.hpp>
-
-#include <string>
-#include <map>
-#include <memory>
-#include <mutex>
-#include <vector>
 
 // pbsrv commands
 // power microcontroller
