@@ -47,6 +47,21 @@ def _float_range(mini, maxi):
     return _float_range_checker
 
 
+def _float_or_off(mini, maxi):
+    def _float_or_off_checker(arg):
+        f = _float_range(mini, maxi)
+        try:
+            return f(arg)
+        except argparse.ArgumentTypeError as err:
+            if 'range' in err.args[0]:
+                raise err
+            if arg.lower() == 'off':
+                return arg.lower()
+            raise argparse.ArgumentTypeError("argument must be a float or 'off'")
+
+    return _float_or_off_checker
+
+
 def _int_or_off(arg):
     try:
         return int(arg)
@@ -59,8 +74,8 @@ def _int_or_off(arg):
 def pbcmd(parser):
     print("""pbcmd: Multi-call command Power Buoy dispatcher
 Supported commands (Simulation):
-*               pump  - Spring Controller pump  off or on for a time in minutes <= 127
-*              valve  - Spring Controller valve off or on for a time in seconds <= 127
+*               pump  - Spring Controller pump  off or on for a time in minutes <= 10
+*              valve  - Spring Controller valve off or on for a time in seconds <= 12
 *       sc_pack_rate  - Set the CANBUS packet rate from the spring controller
 *           pc_Scale  - Set the scale factor
 *         pc_Retract  - Set the retract factor
@@ -100,9 +115,8 @@ DO NOT enter reset_power and expect to get help. The command will execute!""")
 
 
 def pump(parser):
-    parser.add_argument('duration_minutes', type=_int_or_off,
-                        choices=tuple(['off'] + list(range(127))),
-                        help='(Minutes) [off, <= 127] ' +
+    parser.add_argument('duration_minutes', type=_float_or_off(0, 10),
+                        help='(Minutes) [off, <= 10] ' +
                              'Spring Controller pump off or on for a time in minutes',
                         metavar='duration_minutes')
     args = parser.parse_args()
@@ -113,7 +127,7 @@ def pump(parser):
     else:
         print(f'Executing pump to Spring Controller: {duration_minutes} minute(s)')
     _pbcmd = _PBCmd()
-    _pbcmd.send_pump_command(duration_minutes * 60)
+    _pbcmd.send_pump_command(duration_minutes)
     time.sleep(1)
     print('done!')
 

@@ -439,10 +439,10 @@ public:
     return valve_response_future;
   }
 
-  PumpServiceResponseFuture send_pump_command(const uint16_t & duration_sec)
+  PumpServiceResponseFuture send_pump_command(const float & duration_mins)
   {
     auto request = std::make_shared<buoy_interfaces::srv::PumpCommand::Request>();
-    request->duration_sec = duration_sec;
+    request->duration_mins = duration_mins;
 
     PumpServiceResponseFuture pump_response_future =
       pump_client_->async_send_request(request);
