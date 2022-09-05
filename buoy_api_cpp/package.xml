@@ -3,7 +3,7 @@
 <package format="3">
   <name>buoy_api_cpp</name>
   <version>0.0.0</version>
-  <description>Power Buoy API (cpp)</description>
+  <description>MBARI Power Buoy API (cpp)</description>
   <maintainer email="anderson@mbari.org">Michael Anderson</maintainer>
   <license>Apache 2.0</license>
 
@@ -11,6 +11,7 @@
 
   <depend>rclcpp</depend>
   <depend>buoy_interfaces</depend>
+  <depend>splinter</depend>
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 
