@@ -87,16 +87,8 @@ class NonLinearBiasDamping(Interface):
 
 
 def main():
-    # import threading
     rclpy.init()
     controller = NonLinearBiasDamping()
-    # executor = rclpy.executors.MultiThreadedExecutor()
-    # executor.add_node(controller)
-    # exe_t = threading.Thread(target=executor.spin, daemon=True)
-    # exe_t.start()
-    # rate = controller.create_rate(2)
-    # while rclpy.ok():
-    #     rate.sleep()
     rclpy.spin(controller)
     rclpy.shutdown()
 
