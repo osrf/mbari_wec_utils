@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.8)
 project(splinter)
 
 find_package(ament_cmake REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 include(ExternalProject)
 set(EXTERNAL_INSTALL_LOCATION ${CMAKE_SOURCE_DIR}/splinter)
@@ -10,6 +11,13 @@ ExternalProject_Add(splinter
     GIT_REPOSITORY https://github.com/bgrimstad/splinter
     GIT_TAG 2c877c0d7f68025764f7af048cc609e5c05080e0  # v3.0
     CMAKE_ARGS -DCMAKE_INSTALL_PREFIX=${EXTERNAL_INSTALL_LOCATION}
+      -DEIGEN_DIRECTORY=${EIGEN3_INCLUDE_DIRS}
+    PATCH_COMMAND
+      echo 'Fixing Usage of Eigen SparseVector::InnerIterator' &&
+      echo '  for the following file:' &&
+      echo '${CMAKE_BINARY_DIR}/splinter-prefix/src/splinter/src/bsplinebasis.cpp' &&
+      sed -i "s|for \(SparseMatrix::InnerIterator it\(Ji,k\)|for \(SparseVector::InnerIterator it\(Ji,k\)|g"
+        ${CMAKE_BINARY_DIR}/splinter-prefix/src/splinter/src/bsplinebasis.cpp
 )
 
 add_custom_target(touch_ignore_splinter ALL
@@ -65,32 +73,34 @@ add_custom_target(link_target_libs ALL
                   ${CMAKE_SOURCE_DIR}/lib)
 add_dependencies(link_target_libs splinter)
 
-add_custom_target(fix_includes ALL
-  COMMAND
-    echo 'Fixing Eigen include prefix: \#include <splinter/Eigen/...>' &&
-    echo '  for the following files:' &&
-    find ${EXTERNAL_INSTALL_LOCATION}/include/SPLINTER/
-      -type f -not -name '*.txt'
-      -not -path '*/doc/*'
-      -not -path '*/test/*'
-      -exec sed -i 's|include <Eigen|include <splinter/Eigen|g' {} +
-      -and -print
-)
-add_dependencies(fix_includes link_target_includes)
+# add_custom_target(fix_includes ALL
+#   COMMAND
+#     echo 'Fixing Eigen include prefix: \#include <splinter/Eigen/...>' &&
+#     echo '  for the following files:' &&
+#     find ${EXTERNAL_INSTALL_LOCATION}/include/SPLINTER/
+#       -type f -not -name '*.txt'
+#       -not -path '*/doc/*'
+#       -not -path '*/test/*'
+#       -exec sed -i 's|include <Eigen|include <splinter/Eigen|g' {} +
+#       -and -print
+# )
+#add_dependencies(fix_includes link_target_includes)
+
+include_directories(${EIGEN3_INCLUDE_DIRS})
 
 add_library(splinter1d SHARED src/splinter1d.cpp)
-target_link_libraries(splinter1d PUBLIC ${CMAKE_SOURCE_DIR}/lib/libsplinter-3-0.so)
+target_link_libraries(splinter1d PUBLIC ${CMAKE_SOURCE_DIR}/lib/libsplinter-3-0.so ${EIGEN3_LIBRARIES})
 target_include_directories(splinter1d PUBLIC
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-add_dependencies(splinter1d fix_includes)
+add_dependencies(splinter1d link_target_libs)
 
 add_library(splinter2d SHARED src/splinter2d.cpp)
-target_link_libraries(splinter2d PUBLIC ${CMAKE_SOURCE_DIR}/lib/libsplinter-3-0.so)
+target_link_libraries(splinter2d PUBLIC ${CMAKE_SOURCE_DIR}/lib/libsplinter-3-0.so ${EIGEN3_LIBRARIES})
 target_include_directories(splinter2d PUBLIC
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
-add_dependencies(splinter2d fix_includes)
+add_dependencies(splinter2d link_target_libs)
 
 install(TARGETS splinter1d
   EXPORT export_splinter1d
@@ -111,10 +121,10 @@ install(TARGETS splinter2d
 install(FILES lib/libsplinter-3-0.so
   DESTINATION lib)
 
-install(
-  DIRECTORY ${EXTERNAL_INSTALL_LOCATION}/include/SPLINTER/
-  DESTINATION include/splinter
-)
+#install(
+#  DIRECTORY ${EXTERNAL_INSTALL_LOCATION}/include/SPLINTER/
+#  DESTINATION include/splinter
+#)
 
 install(
   DIRECTORY include/splinter_ros/
@@ -122,7 +132,7 @@ install(
 )
 
 ament_export_targets(export_splinter1d export_splinter2d)
-ament_export_include_directories(include)
+#ament_export_include_directories(include)
 ament_export_libraries(lib/libsplinter-3-0.so)
 
 if(BUILD_TESTING)
