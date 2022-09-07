@@ -20,11 +20,6 @@ ExternalProject_Add(splinter
         ${CMAKE_BINARY_DIR}/splinter-prefix/src/splinter/src/bsplinebasis.cpp
 )
 
-add_custom_target(touch_ignore_splinter ALL
-                  COMMAND ${CMAKE_COMMAND} -E touch
-                  ${EXTERNAL_INSTALL_LOCATION}/AMENT_IGNORE)
-add_dependencies(touch_ignore_splinter splinter)
-
 add_custom_target(copy_readme ALL
                   COMMAND ${CMAKE_COMMAND} -E copy
                   ${CMAKE_BINARY_DIR}/splinter-prefix/src/splinter/README.md
@@ -57,34 +52,22 @@ add_custom_target(copy_docs ALL
                   ${CMAKE_SOURCE_DIR}/docs)
 add_dependencies(copy_docs mkdir_docs)
 
-add_custom_target(mkdir_include ALL
-                  COMMAND ${CMAKE_COMMAND} -E make_directory
-                  ${CMAKE_SOURCE_DIR}/include)
-add_dependencies(mkdir_include splinter)
+add_custom_target(rm_bundled_eigen ALL
+                  COMMAND ${CMAKE_COMMAND} -E remove_directory
+                  ${EXTERNAL_INSTALL_LOCATION}/include/SPLINTER/Eigen
+                  ${EXTERNAL_INSTALL_LOCATION}/include/SPLINTER/unsupported)
+add_dependencies(rm_bundled_eigen copy_docs)
 add_custom_target(link_target_includes ALL
                   COMMAND ${CMAKE_COMMAND} -E create_symlink
                   ${EXTERNAL_INSTALL_LOCATION}/include/SPLINTER
                   ${CMAKE_SOURCE_DIR}/include/splinter)
-add_dependencies(link_target_includes mkdir_include)
+add_dependencies(link_target_includes rm_bundled_eigen)
 
 add_custom_target(link_target_libs ALL
                   COMMAND ${CMAKE_COMMAND} -E create_symlink
                   ${EXTERNAL_INSTALL_LOCATION}/lib
                   ${CMAKE_SOURCE_DIR}/lib)
-add_dependencies(link_target_libs splinter)
-
-# add_custom_target(fix_includes ALL
-#   COMMAND
-#     echo 'Fixing Eigen include prefix: \#include <splinter/Eigen/...>' &&
-#     echo '  for the following files:' &&
-#     find ${EXTERNAL_INSTALL_LOCATION}/include/SPLINTER/
-#       -type f -not -name '*.txt'
-#       -not -path '*/doc/*'
-#       -not -path '*/test/*'
-#       -exec sed -i 's|include <Eigen|include <splinter/Eigen|g' {} +
-#       -and -print
-# )
-#add_dependencies(fix_includes link_target_includes)
+add_dependencies(link_target_libs link_target_includes)
 
 include_directories(${EIGEN3_INCLUDE_DIRS})
 
@@ -120,11 +103,6 @@ install(TARGETS splinter2d
 
 install(FILES lib/libsplinter-3-0.so
   DESTINATION lib)
-
-#install(
-#  DIRECTORY ${EXTERNAL_INSTALL_LOCATION}/include/SPLINTER/
-#  DESTINATION include/splinter
-#)
 
 install(
   DIRECTORY include/splinter_ros/

@@ -19,7 +19,9 @@
 / User-space to define control policy and param loading /
 ********************************************************/
 
-// #include <buoy_api/examples/torque_controller.hpp>
+#ifndef POLICY_ONLY
+#include <buoy_api/examples/torque_controller.hpp>
+#endif  // POLICY_ONLY
 
 // interp1d for rpm->winding current
 #include <splinter_ros/splinter1d.hpp>
@@ -107,9 +109,7 @@ std::ostream & operator<<(std::ostream & os, const PBTorqueControlPolicy & polic
   return os;
 }
 
-#if 0
 #ifndef POLICY_ONLY
-
 void PBTorqueController::set_params()
 {
   this->declare_parameter("torque_constant", policy_->Torque_constant);
@@ -133,5 +133,4 @@ void PBTorqueController::set_params()
   RCLCPP_INFO_STREAM(rclcpp::get_logger(this->get_name()), *policy_);
 }
 #endif  // POLICY_ONLY
-#endif
 #endif  // BUOY_API__EXAMPLES__TORQUE_CONTROL_POLICY_HPP_
