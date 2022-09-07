@@ -6,13 +6,13 @@
 
 #include <splinter_ros/splinter2d.hpp>
 
-#include <memory>
-#include <vector>
-
 // Interpolation library
 #include <splinter/datatable.h>
 #include <splinter/bspline.h>
 #include <splinter/bsplinebuilder.h>
+
+#include <memory>
+#include <vector>
 
 
 namespace splinter_ros
@@ -21,7 +21,8 @@ struct Splinter2dImplHelper
 {
   SPLINTER::DataTable samples;
 
-	explicit Splinter2dImplHelper(const std::vector<double> & _x,
+  explicit Splinter2dImplHelper(
+    const std::vector<double> & _x,
     const std::vector<double> & _y,
     const std::vector<std::vector<double>> & _z)
   {
@@ -42,10 +43,11 @@ struct Splinter2dImplHelper
 
 struct Splinter2dImpl
 {
-	Splinter2dImplHelper helper;
+  Splinter2dImplHelper helper;
   SPLINTER::BSpline splinter2d;
 
-  explicit Splinter2dImpl(const std::vector<double> & _x,
+  explicit Splinter2dImpl(
+    const std::vector<double> & _x,
     const std::vector<double> & _y,
     const std::vector<std::vector<double>> & _z)
   : helper(_x, _y, _z),
@@ -54,8 +56,9 @@ struct Splinter2dImpl
   {
   }
 
-  double eval(const double & _x,
-  	const double & _y) const
+  double eval(
+    const double & _x,
+    const double & _y) const
   {
     SPLINTER::DenseVector x(2);
     x(0) = _x;
@@ -64,21 +67,24 @@ struct Splinter2dImpl
   }
 };
 
-Splinter2d::Splinter2d(const std::vector<double> & x,
+Splinter2d::Splinter2d(
+  const std::vector<double> & x,
   const std::vector<double> & y,
   const std::vector<std::vector<double>> & z)
-  : impl_(std::make_shared<Splinter2dImpl>(x, y, z))
+: impl_(std::make_shared<Splinter2dImpl>(x, y, z))
 {
 }
 
-void Splinter2d::update(const std::vector<double> & x,
+void Splinter2d::update(
+  const std::vector<double> & x,
   const std::vector<double> & y,
   const std::vector<std::vector<double>> & z)
 {
   impl_ = std::make_shared<Splinter2dImpl>(x, y, z);
 }
 
-double Splinter2d::eval(const double & x,
+double Splinter2d::eval(
+  const double & x,
   const double & y) const
 {
   return impl_->eval(x, y);

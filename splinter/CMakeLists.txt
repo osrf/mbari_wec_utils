@@ -20,6 +20,11 @@ ExternalProject_Add(splinter
         ${CMAKE_BINARY_DIR}/splinter-prefix/src/splinter/src/bsplinebasis.cpp
 )
 
+add_custom_target(touch_ignore ALL
+                  COMMAND ${CMAKE_COMMAND} -E touch
+                  ${EXTERNAL_INSTALL_LOCATION}/include/SPLINTER/AMENT_IGNORE)
+add_dependencies(touch_ignore splinter)
+
 add_custom_target(copy_readme ALL
                   COMMAND ${CMAKE_COMMAND} -E copy
                   ${CMAKE_BINARY_DIR}/splinter-prefix/src/splinter/README.md
@@ -72,14 +77,14 @@ add_dependencies(link_target_libs link_target_includes)
 include_directories(${EIGEN3_INCLUDE_DIRS})
 
 add_library(splinter1d SHARED src/splinter1d.cpp)
-target_link_libraries(splinter1d PUBLIC ${CMAKE_SOURCE_DIR}/lib/libsplinter-3-0.so ${EIGEN3_LIBRARIES})
+target_link_libraries(splinter1d PUBLIC ${CMAKE_SOURCE_DIR}/lib/libsplinter-3-0.so)
 target_include_directories(splinter1d PUBLIC
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
 add_dependencies(splinter1d link_target_libs)
 
 add_library(splinter2d SHARED src/splinter2d.cpp)
-target_link_libraries(splinter2d PUBLIC ${CMAKE_SOURCE_DIR}/lib/libsplinter-3-0.so ${EIGEN3_LIBRARIES})
+target_link_libraries(splinter2d PUBLIC ${CMAKE_SOURCE_DIR}/lib/libsplinter-3-0.so)
 target_include_directories(splinter2d PUBLIC
   $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
@@ -110,15 +115,11 @@ install(
 )
 
 ament_export_targets(export_splinter1d export_splinter2d)
-#ament_export_include_directories(include)
 ament_export_libraries(lib/libsplinter-3-0.so)
 
 if(BUILD_TESTING)
-  # find_package(ament_lint_auto REQUIRED)
-  # set(ament_cmake_cpplint_FOUND TRUE)
-  # set(ament_cmake_uncrustify_FOUND TRUE)
-  # set(ament_cmake_cppcheck_FOUND TRUE)
-  # ament_lint_auto_find_test_dependencies()
+  find_package(ament_lint_auto REQUIRED)
+  ament_lint_auto_find_test_dependencies()
 endif()
 
 ament_package()

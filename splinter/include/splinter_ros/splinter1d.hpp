@@ -17,10 +17,12 @@ struct Splinter1dImpl;
 class Splinter1d
 {
 public:
-  explicit Splinter1d(const std::vector<double> & x,
+  explicit Splinter1d(
+    const std::vector<double> & x,
     const std::vector<double> & y);
 
-  void update(const std::vector<double> & x,
+  void update(
+    const std::vector<double> & x,
     const std::vector<double> & y);
 
   double eval(const double & x) const;

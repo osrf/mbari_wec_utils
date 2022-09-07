@@ -6,13 +6,13 @@
 
 #include <splinter_ros/splinter1d.hpp>
 
-#include <memory>
-#include <vector>
-
 // Interpolation library
 #include <splinter/datatable.h>
 #include <splinter/bspline.h>
 #include <splinter/bsplinebuilder.h>
+
+#include <memory>
+#include <vector>
 
 
 namespace splinter_ros
@@ -21,7 +21,8 @@ struct Splinter1dImplHelper
 {
   SPLINTER::DataTable samples;
 
-	explicit Splinter1dImplHelper(const std::vector<double> & _x,
+  explicit Splinter1dImplHelper(
+    const std::vector<double> & _x,
     const std::vector<double> & _y)
   {
     for (size_t idx = 0U; idx < _x.size(); ++idx) {
@@ -38,10 +39,11 @@ struct Splinter1dImplHelper
 
 struct Splinter1dImpl
 {
-	Splinter1dImplHelper helper;
+  Splinter1dImplHelper helper;
   SPLINTER::BSpline splinter1d;
 
-  explicit Splinter1dImpl(const std::vector<double> & _x,
+  explicit Splinter1dImpl(
+    const std::vector<double> & _x,
     const std::vector<double> & _y)
   : helper(_x, _y),
     splinter1d(SPLINTER::BSpline::Builder(helper.samples)
@@ -57,13 +59,15 @@ struct Splinter1dImpl
   }
 };
 
-Splinter1d::Splinter1d(const std::vector<double> & x,
+Splinter1d::Splinter1d(
+  const std::vector<double> & x,
   const std::vector<double> & y)
-  : impl_(std::make_shared<Splinter1dImpl>(x, y))
+: impl_(std::make_shared<Splinter1dImpl>(x, y))
 {
 }
 
-void Splinter1d::update(const std::vector<double> & x,
+void Splinter1d::update(
+  const std::vector<double> & x,
   const std::vector<double> & y)
 {
   impl_ = std::make_shared<Splinter1dImpl>(x, y);

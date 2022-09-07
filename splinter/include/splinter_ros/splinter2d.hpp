@@ -17,15 +17,18 @@ struct Splinter2dImpl;
 class Splinter2d
 {
 public:
-  explicit Splinter2d(const std::vector<double> & x,
+  explicit Splinter2d(
+    const std::vector<double> & x,
     const std::vector<double> & y,
     const std::vector<std::vector<double>> & z);
 
-  void update(const std::vector<double> & x,
+  void update(
+    const std::vector<double> & x,
     const std::vector<double> & y,
     const std::vector<std::vector<double>> & z);
 
-  double eval(const double & x,
+  double eval(
+    const double & x,
     const double & y) const;
 
 private:
