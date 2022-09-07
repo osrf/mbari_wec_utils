@@ -43,6 +43,15 @@ target_compile_features(torque_controller PUBLIC c_std_99 cxx_std_17)  # Require
 install(TARGETS torque_controller
   DESTINATION lib/${PROJECT_NAME})
 
+install(DIRECTORY
+  launch
+  DESTINATION share/${PROJECT_NAME}
+)
+
+install(DIRECTORY
+  config
+  DESTINATION share/${PROJECT_NAME}
+)
 
 ###########################################
 # for buoy_tests
@@ -64,9 +73,6 @@ install(DIRECTORY examples/include/buoy_api/
   DESTINATION include/buoy_api
 )
 
-# install(DIRECTORY include/JustInterp/
-#   DESTINATION include/JustInterp
-# )
 ###########################################
 
 if(BUILD_TESTING)

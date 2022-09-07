@@ -15,7 +15,6 @@
 # limitations under the License.
 
 from buoy_api import Interface
-from buoy_interfaces.srv import PCBiasCurrCommand
 import rclpy
 from scipy import interpolate
 
@@ -25,12 +24,12 @@ class NLBiasDampingPolicy(object):
     def __init__(self):
         self.breaks = [0.0, 2.03]  # TODO(andermi) find suitable defaults (or leave this)
         self.bias = [0.0, 0.0]  # TODO(andermi) find suitable defaults (or leave this)
-        self.deadzone = [0.75, 1.25]
+        self.deadzone = [-10.0, 90.0]  # TODO(andermi) find suitable defaults
         self.bias_interp1d = None
         self.update_params()
 
     def update_params(self):
-        if len(self.breaks) > 0 and len(self.bias) > 0:
+        if len(self.breaks) >= 2 and len(self.bias) >= 2:
             self.bias_interp1d = interpolate.interp1d(self.breaks, self.bias,
                                                       fill_value=(0.0, self.bias[-1]),
                                                       bounds_error=False)
@@ -45,6 +44,14 @@ class NLBiasDampingPolicy(object):
         else:
             return None
 
+    def __str__(self):
+        return """NLBiasDampingPolicy:
+\tposition_breaks: {breaks}
+\tbias: {bias}
+\tposition_deadzone: {deadzone}""".format(breaks=self.breaks,
+                                          bias=self.bias,
+                                          deadzone=self.deadzone)
+
 
 class NonLinearBiasDamping(Interface):
 
@@ -52,6 +59,7 @@ class NonLinearBiasDamping(Interface):
         super().__init__('pb_nl_bias_damping')
         self.policy = NLBiasDampingPolicy()
         self.set_params()
+        print(self.policy)
         self.set_sc_pack_rate_param()
 
     def set_params(self):
@@ -64,6 +72,8 @@ class NonLinearBiasDamping(Interface):
             position_break_params['position_breaks'].get_parameter_value().double_array_value
         self.policy.bias = \
             position_break_params['bias'].get_parameter_value().double_array_value
+        self.policy.deadzone = \
+            position_break_params['position_deadzone'].get_parameter_value().double_array_value
 
         self.policy.update_params()
 
@@ -73,11 +83,7 @@ class NonLinearBiasDamping(Interface):
         if bct is None:
             return
 
-        request = PCBiasCurrCommand.Request()
-        request.bias_curr = float(bct)
-
-        self.pc_bias_curr_future_ = self.pc_bias_curr_client_.call_async(request)
-        self.pc_bias_curr_future_.add_done_callback(self.default_service_response_callback)
+        self.send_pc_bias_curr_command(float(bct), blocking=False)
 
 
 def main():
