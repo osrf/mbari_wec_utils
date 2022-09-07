@@ -1,8 +1,11 @@
-
+// Copyright 2022 Open Source Robotics Foundation, Inc. and Monterey Bay Aquarium Research Institute
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 #include <splinter_ros/splinter1d.hpp>
 
-#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -31,35 +34,20 @@ struct Splinter1dImplHelper
       samples.addSample(x, y);
     }
   }
-
-  ~Splinter1dImplHelper() = default;
 };
 
 struct Splinter1dImpl
 {
 	Splinter1dImplHelper helper;
-  // SPLINTER::DataTable samples;
-  // std::unique_ptr<SPLINTER::BSpline> splinter1d;
   SPLINTER::BSpline splinter1d;
 
   explicit Splinter1dImpl(const std::vector<double> & _x,
     const std::vector<double> & _y)
   : helper(_x, _y),
-    // samples(helper.samples),
     splinter1d(SPLINTER::BSpline::Builder(helper.samples)
       .degree(1).build())
   {
-    // Build B-splines that interpolate the samples
-    // splinter1d = std::make_unique<SPLINTER::BSpline>(
-    // SPLINTER::BSpline::Builder(samples)
-    //   .degree(1).build());
   }
-
-  ~Splinter1dImpl() = default;
-
-  // ~Splinter1dImpl()
-  // {
-  // }
 
   double eval(const double & _x) const
   {
@@ -75,16 +63,9 @@ Splinter1d::Splinter1d(const std::vector<double> & x,
 {
 }
 
-// Splinter1d::~Splinter1d()
-// {
-// }
-
 void Splinter1d::update(const std::vector<double> & x,
   const std::vector<double> & y)
 {
-	// impl_.helper = Splinter1dImplHelper(x, y);
-  // impl_ = SPLINTER::BSpline::Builder(impl_.helper.samples)
-  //   .degree(1).build()
   impl_ = std::make_shared<Splinter1dImpl>(x, y);
 }
 

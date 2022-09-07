@@ -1,4 +1,8 @@
-
+// Copyright 2022 Open Source Robotics Foundation, Inc. and Monterey Bay Aquarium Research Institute
+//
+// This Source Code Form is subject to the terms of the Mozilla Public
+// License, v. 2.0. If a copy of the MPL was not distributed with this
+// file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 #include <splinter_ros/splinter2d.hpp>
 
@@ -13,12 +17,11 @@
 
 namespace splinter_ros
 {
-struct Splinter2dImpl
+struct Splinter2dImplHelper
 {
-  std::unique_ptr<SPLINTER::BSpline> splinter2d;
   SPLINTER::DataTable samples;
 
-  explicit Splinter2dImpl(const std::vector<double> & _x,
+	explicit Splinter2dImplHelper(const std::vector<double> & _x,
     const std::vector<double> & _y,
     const std::vector<std::vector<double>> & _z)
   {
@@ -34,34 +37,37 @@ struct Splinter2dImpl
         samples.addSample(x, y);
       }
     }
-    // Build B-splines that interpolate the samples
-    splinter2d = std::make_unique<SPLINTER::BSpline>(
-      SPLINTER::BSpline::Builder(samples)
-      .degree(1).build());
   }
+};
 
-  ~Splinter2dImpl()
+struct Splinter2dImpl
+{
+	Splinter2dImplHelper helper;
+  SPLINTER::BSpline splinter2d;
+
+  explicit Splinter2dImpl(const std::vector<double> & _x,
+    const std::vector<double> & _y,
+    const std::vector<std::vector<double>> & _z)
+  : helper(_x, _y, _z),
+    splinter2d(SPLINTER::BSpline::Builder(helper.samples)
+      .degree(1).build())
   {
   }
 
   double eval(const double & _x,
-    const double & _y) const
+  	const double & _y) const
   {
     SPLINTER::DenseVector x(2);
     x(0) = _x;
     x(1) = _y;
-    return splinter2d->eval(x);
+    return splinter2d.eval(x);
   }
 };
 
 Splinter2d::Splinter2d(const std::vector<double> & x,
   const std::vector<double> & y,
   const std::vector<std::vector<double>> & z)
-  : impl_(std::make_unique<Splinter2dImpl>(x, y, z))
-{
-}
-
-Splinter2d::~Splinter2d()
+  : impl_(std::make_shared<Splinter2dImpl>(x, y, z))
 {
 }
 
@@ -69,7 +75,7 @@ void Splinter2d::update(const std::vector<double> & x,
   const std::vector<double> & y,
   const std::vector<std::vector<double>> & z)
 {
-  impl_ = std::make_unique<Splinter2dImpl>(x, y, z);
+  impl_ = std::make_shared<Splinter2dImpl>(x, y, z);
 }
 
 double Splinter2d::eval(const double & x,
