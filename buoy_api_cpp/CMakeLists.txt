@@ -31,11 +31,11 @@ install(DIRECTORY include/buoy_api/
 
 ###########################################
 # Examples
-find_package(splinter REQUIRED)
+find_package(splinter_ros REQUIRED)
 
 add_executable(torque_controller examples/torque_controller.cpp)
 target_link_libraries(torque_controller PUBLIC buoy_api)
-ament_target_dependencies(torque_controller PUBLIC rclcpp buoy_interfaces splinter)
+ament_target_dependencies(torque_controller PUBLIC rclcpp buoy_interfaces splinter_ros)
 target_include_directories(torque_controller PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/examples/include>
   $<INSTALL_INTERFACE:include>)
@@ -58,6 +58,7 @@ install(DIRECTORY
 # for buoy_tests
 add_library(torque_policy_interface INTERFACE)
 target_compile_definitions(torque_policy_interface INTERFACE POLICY_ONLY)
+ament_target_dependencies(torque_policy_interface INTERFACE splinter_ros)
 target_include_directories(torque_policy_interface INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/examples/include>
   $<INSTALL_INTERFACE:include>
