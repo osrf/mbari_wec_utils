@@ -1,17 +1,16 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>buoy_api_cpp</name>
+  <name>splinter_ros</name>
   <version>0.0.0</version>
-  <description>MBARI Power Buoy API (cpp)</description>
-  <maintainer email="anderson@mbari.org">Michael Anderson</maintainer>
+  <description>ROS2 package wrapper for splinter: https://github.com/bgrimstad/splinter</description>
+  <maintainer email="anderson@mbari.org">andermi</maintainer>
   <license>Apache 2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
-  <depend>rclcpp</depend>
-  <depend>buoy_interfaces</depend>
-  <depend>splinter_ros</depend>
+  <depend>splinter_vendor</depend>
+
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
 

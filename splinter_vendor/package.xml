@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-model
+  href="http://download.ros.org/schema/package_format2.xsd"
+  schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="2">
+  <name>splinter_vendor</name>
+  <version>0.0.1</version>
+  <description>
+    Wrapper around splinter, it fetches and builds splinter locally.
+  </description>
+  <maintainer email="anderson@mbari.org">andermi</maintainer>
+  <license>Mozilla Public License Version 2.0</license>  
+
+  <url type="repository">https://github.com/bgrimstad/splinter</url>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>git</buildtool_depend>
+
+  <depend>eigen</depend>
+  <depend>eigen3_cmake_module</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,0 +1,26 @@
+From 6eb42bc62d880bba6f707f1bd181a9270b0cf53a Mon Sep 17 00:00:00 2001
+From: Michael Carroll <michael@openrobotics.org>
+Date: Thu, 8 Sep 2022 12:17:54 -0500
+Subject: [PATCH 3/3] Exclude installing Eigen from vendored version
+
+Signed-off-by: Michael Carroll <michael@openrobotics.org>
+---
+ CMakeLists.txt | 2 --
+ 1 file changed, 2 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 24614d0..4c2ba57 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -268,8 +268,6 @@ install(
+ install(
+     DIRECTORY
+     ${CMAKE_CURRENT_SOURCE_DIR}/include/
+-    ${EIGEN_DIRECTORY}/Eigen
+-    ${EIGEN_DIRECTORY}/unsupported
+     DESTINATION ${HEADER_INSTALL_DIRECTORY}/SPLINTER
+ )
+ # Install the shared library file
+-- 
+2.34.1
+
