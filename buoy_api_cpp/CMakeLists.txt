@@ -58,6 +58,7 @@ install(DIRECTORY
 # for buoy_tests
 add_library(torque_policy_interface INTERFACE)
 target_compile_definitions(torque_policy_interface INTERFACE POLICY_ONLY)
+ament_target_dependencies(torque_policy_interface INTERFACE splinter_ros)
 target_include_directories(torque_policy_interface INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/examples/include>
   $<INSTALL_INTERFACE:include>

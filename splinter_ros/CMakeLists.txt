@@ -26,7 +26,7 @@ install(TARGETS splinter1d splinter2d
   INCLUDES DESTINATION include
 )
 
-install(DIRECTORY include
+install(DIRECTORY include/
   DESTINATION include
 )
 

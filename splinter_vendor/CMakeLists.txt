@@ -5,7 +5,17 @@ project(splinter_vendor)
 find_package(ament_cmake REQUIRED)
 find_package(Eigen3 REQUIRED)
 
-ament_add_default_options()
+# TODO(anyone) implement when backported?
+# https://github.com/ament/ament_cmake/pull/390
+# ament_add_default_options()
+# for now, this takes its place:
+option(
+  BUILD_SHARED_LIBS
+    "Global flag to cause add_library() to create shared libraries if on. \
+    If set to true, this will cause all libraries to be built shared \
+    unless the library was explicitly added as a static library."
+  ON
+)
 
 macro(build_splinter)
   set(extra_cmake_args)
