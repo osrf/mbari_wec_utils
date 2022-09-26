@@ -85,6 +85,8 @@ endif()
 
 ament_export_targets("export_buoy_api")
 
+ament_export_dependencies(rclcpp buoy_interfaces)
+
 # for buoy_tests
 ament_export_targets(export_torque_policy_interface)
 

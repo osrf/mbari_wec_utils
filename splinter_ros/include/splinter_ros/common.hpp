@@ -12,38 +12,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#ifndef SPLINTER_ROS__SPLINTER1D_HPP_
-#define SPLINTER_ROS__SPLINTER1D_HPP_
-
-#include <memory>
-#include <vector>
-
-#include "common.hpp"
+#ifndef SPLINTER_ROS__COMMON_HPP_
+#define SPLINTER_ROS__COMMON_HPP_
 
 
 namespace splinter_ros
 {
-struct Splinter1dImpl;
-class Splinter1d
+enum FillMode
 {
-public:
-  explicit Splinter1d(
-    const std::vector<double> & x,
-    const std::vector<double> & y);
-
-  void update(
-    const std::vector<double> & x,
-    const std::vector<double> & y);
-
-  double eval(const double & _x,
-    const FillMode & fill_mode=NO_FILL,
-    const std::vector<double> & fill_value=std::vector<double>(2U, 0.0)) const;
-
-  double evalJacobian(const double & _x,
-    const FillMode & fill_mode=NO_FILL) const;
-
-private:
-  std::shared_ptr<Splinter1dImpl> impl_;
+  NO_FILL = 0,
+  USE_BOUNDS = 1,
+  FILL_VALUE = 2
 };
 }  // namespace splinter_ros
-#endif  // SPLINTER_ROS__SPLINTER1D_HPP_
+#endif  // SPLINTER_ROS__COMMON_HPP_
