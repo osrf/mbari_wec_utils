@@ -23,12 +23,12 @@
 #include <buoy_api/examples/torque_controller.hpp>
 #endif  // POLICY_ONLY
 
-// interp1d for rpm->winding current
-#include <splinter_ros/splinter1d.hpp>
-
 #include <algorithm>
 #include <memory>
 #include <vector>
+
+// interp1d for rpm->winding current
+#include <splinter_ros/splinter1d.hpp>
 
 
 struct PBTorqueControlPolicy
