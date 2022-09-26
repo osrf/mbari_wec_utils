@@ -20,6 +20,7 @@
 #include <SPLINTER/bsplinebuilder.h>
 #include <SPLINTER/utilities.h>
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -96,27 +97,28 @@ void Splinter1d::update(
   impl_ = std::make_shared<Splinter1dImpl>(x, y);
 }
 
-double Splinter1d::eval(const double & _x,
+double Splinter1d::eval(
+  const double & _x,
   const FillMode & fill_mode,
   const std::vector<double> & fill_value) const
 {
-  assert(fill_value.size() == 2U &&
+  assert(
+    fill_value.size() == 2U &&
     "fill_value must have 2 elements: lower, upper");
   double x = _x;
-  switch(fill_mode)
-  {
-  case FILL_VALUE:
-    if(_x < impl_->lower_bound[0U]) {
-      return fill_value[0U];
-    } else if(_x > impl_->upper_bound[0U]) {
-      return fill_value[1U];
-    }
-    break;
-  case USE_BOUNDS:
-    x = std::min(std::max(_x, impl_->lower_bound[0U]), impl_->upper_bound[0U]);
-  case NO_FILL:
-  default:
-    break;
+  switch (fill_mode) {
+    case FILL_VALUE:
+      if (_x < impl_->lower_bound[0U]) {
+        return fill_value[0U];
+      } else if (_x > impl_->upper_bound[0U]) {
+        return fill_value[1U];
+      }
+      break;
+    case USE_BOUNDS:
+      x = std::min(std::max(_x, impl_->lower_bound[0U]), impl_->upper_bound[0U]);
+    case NO_FILL:
+    default:
+      break;
   }
 
   return impl_->eval(x);
@@ -127,15 +129,15 @@ double Splinter1d::evalJacobian(
   const FillMode & fill_mode) const
 {
   double x = _x;
-  switch(fill_mode)
-  {
-  case FILL_VALUE:
-    std::cerr << "FILL_VALUE not implemented for Jacobian -- falling back on USE_BOUNDS" << std::endl;
-  case USE_BOUNDS:
-    x = std::min(std::max(_x, impl_->lower_bound[0U]), impl_->upper_bound[0U]);
-  case NO_FILL:
-  default:
-    break;
+  switch (fill_mode) {
+    case FILL_VALUE:
+      std::cerr << "FILL_VALUE not implemented for Jacobian -- falling back on USE_BOUNDS" <<
+        std::endl;
+    case USE_BOUNDS:
+      x = std::min(std::max(_x, impl_->lower_bound[0U]), impl_->upper_bound[0U]);
+    case NO_FILL:
+    default:
+      break;
   }
 
   return impl_->evalJacobian(x);

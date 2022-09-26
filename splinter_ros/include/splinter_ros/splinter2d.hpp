@@ -40,12 +40,12 @@ public:
   double eval(
     const double & x,
     const double & y,
-    const FillMode & fill_mode=NO_FILL) const;
+    const FillMode & fill_mode = NO_FILL) const;
 
   std::vector<double> evalJacobian(
     const double & _x,
     const double & _y,
-    const FillMode & fill_mode=NO_FILL) const;
+    const FillMode & fill_mode = NO_FILL) const;
 
 private:
   std::shared_ptr<Splinter2dImpl> impl_;

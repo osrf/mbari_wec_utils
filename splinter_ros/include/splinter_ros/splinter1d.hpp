@@ -35,12 +35,14 @@ public:
     const std::vector<double> & x,
     const std::vector<double> & y);
 
-  double eval(const double & _x,
-    const FillMode & fill_mode=NO_FILL,
-    const std::vector<double> & fill_value=std::vector<double>(2U, 0.0)) const;
+  double eval(
+    const double & _x,
+    const FillMode & fill_mode = NO_FILL,
+    const std::vector<double> & fill_value = std::vector<double>(2U, 0.0)) const;
 
-  double evalJacobian(const double & _x,
-    const FillMode & fill_mode=NO_FILL) const;
+  double evalJacobian(
+    const double & _x,
+    const FillMode & fill_mode = NO_FILL) const;
 
 private:
   std::shared_ptr<Splinter1dImpl> impl_;

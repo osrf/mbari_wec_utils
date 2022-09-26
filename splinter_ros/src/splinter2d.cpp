@@ -20,6 +20,7 @@
 #include <SPLINTER/bsplinebuilder.h>
 #include <SPLINTER/utilities.h>
 
+#include <algorithm>
 #include <memory>
 #include <vector>
 
@@ -116,16 +117,15 @@ double Splinter2d::eval(
 {
   double x = _x;
   double y = _y;
-  switch(fill_mode)
-  {
-  case FILL_VALUE:
-    std::cerr << "FILL_VALUE not implemented for 2D -- falling back on USE_BOUNDS" << std::endl;
-  case USE_BOUNDS:
-    x = std::min(std::max(_x, impl_->lower_bound[0U]), impl_->upper_bound[0U]);
-    y = std::min(std::max(_y, impl_->lower_bound[1U]), impl_->upper_bound[1U]);
-  case NO_FILL:
-  default:
-    break;
+  switch (fill_mode) {
+    case FILL_VALUE:
+      std::cerr << "FILL_VALUE not implemented for 2D -- falling back on USE_BOUNDS" << std::endl;
+    case USE_BOUNDS:
+      x = std::min(std::max(_x, impl_->lower_bound[0U]), impl_->upper_bound[0U]);
+      y = std::min(std::max(_y, impl_->lower_bound[1U]), impl_->upper_bound[1U]);
+    case NO_FILL:
+    default:
+      break;
   }
 
   return impl_->eval(x, y);
@@ -138,16 +138,16 @@ std::vector<double> Splinter2d::evalJacobian(
 {
   double x = _x;
   double y = _y;
-  switch(fill_mode)
-  {
-  case FILL_VALUE:
-    std::cerr << "FILL_VALUE not implemented for Jacobian -- falling back on USE_BOUNDS" << std::endl;
-  case USE_BOUNDS:
-    x = std::min(std::max(_x, impl_->lower_bound[0U]), impl_->upper_bound[0U]);
-    y = std::min(std::max(_y, impl_->lower_bound[1U]), impl_->upper_bound[1U]);
-  case NO_FILL:
-  default:
-    break;
+  switch (fill_mode) {
+    case FILL_VALUE:
+      std::cerr << "FILL_VALUE not implemented for Jacobian -- falling back on USE_BOUNDS" <<
+        std::endl;
+    case USE_BOUNDS:
+      x = std::min(std::max(_x, impl_->lower_bound[0U]), impl_->upper_bound[0U]);
+      y = std::min(std::max(_y, impl_->lower_bound[1U]), impl_->upper_bound[1U]);
+    case NO_FILL:
+    default:
+      break;
   }
 
   return impl_->evalJacobian(x, y);
