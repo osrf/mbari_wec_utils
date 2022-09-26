@@ -1,0 +1,26 @@
+From 9916a01eb452c2f123658c93daf4f35a5d11403c Mon Sep 17 00:00:00 2001
+From: Michael Carroll <michael@openrobotics.org>
+Date: Thu, 8 Sep 2022 12:16:54 -0500
+Subject: [PATCH 2/3] Bump CMake minimum version to suppress warnings
+
+Signed-off-by: Michael Carroll <michael@openrobotics.org>
+---
+ CMakeLists.txt | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a1d3154..24614d0 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -6,7 +6,7 @@
+ # file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ 
+ project(SPLINTER CXX)
+-cmake_minimum_required(VERSION 2.8)
++cmake_minimum_required(VERSION 3.5)
+ string(TOLOWER ${PROJECT_NAME} PROJECT_NAME_LOWER)
+ 
+ # Read the SPLINTER version from version file
+-- 
+2.34.1
+

@@ -51,6 +51,8 @@ source /opt/ros/$ROS_DISTRO/setup.bash
 cd $COLCON_WS
 colcon build --event-handlers console_direct+
 
+source $COLCON_WS/install/local_setup.bash
+
 # Test
 colcon test --event-handlers console_direct+
 colcon test-result
