@@ -57,9 +57,17 @@ struct Splinter1dImpl
   explicit Splinter1dImpl(
     const std::vector<double> & _x,
     const std::vector<double> & _y)
+  : Splinter1dImpl(_x, _y, 1U)
+  {
+  }
+
+  explicit Splinter1dImpl(
+    const std::vector<double> & _x,
+    const std::vector<double> & _y,
+    const uint16_t & _order)
   : helper(_x, _y),
     splinter1d(SPLINTER::BSpline::Builder(helper.samples)
-      .degree(1).build()),
+      .degree(_order).build()),
     lower_bound(splinter1d.getDomainLowerBound()),
     upper_bound(splinter1d.getDomainUpperBound())
   {

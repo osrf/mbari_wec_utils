@@ -32,6 +32,12 @@ public:
     const std::vector<double> & y,
     const std::vector<std::vector<double>> & z);
 
+  explicit Splinter2d(
+    const std::vector<double> & x,
+    const std::vector<double> & y,
+    const std::vector<std::vector<double>> & z,
+    const uint16_t & _order);
+
   void update(
     const std::vector<double> & x,
     const std::vector<double> & y,

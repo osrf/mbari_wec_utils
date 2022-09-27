@@ -62,9 +62,18 @@ struct Splinter2dImpl
     const std::vector<double> & _x,
     const std::vector<double> & _y,
     const std::vector<std::vector<double>> & _z)
+  : Splinter2dImpl(_x, _y, _z, 1U)
+  {
+  }
+
+  explicit Splinter2dImpl(
+    const std::vector<double> & _x,
+    const std::vector<double> & _y,
+    const std::vector<std::vector<double>> & _z,
+    const uint16_t & _order)
   : helper(_x, _y, _z),
     splinter2d(SPLINTER::BSpline::Builder(helper.samples)
-      .degree(1).build()),
+      .degree(_order).build()),
     lower_bound(splinter2d.getDomainLowerBound()),
     upper_bound(splinter2d.getDomainUpperBound())
   {

@@ -31,6 +31,11 @@ public:
     const std::vector<double> & x,
     const std::vector<double> & y);
 
+  explicit Splinter1d(
+    const std::vector<double> & x,
+    const std::vector<double> & y,
+    const uint16_t & _order);
+
   void update(
     const std::vector<double> & x,
     const std::vector<double> & y);
