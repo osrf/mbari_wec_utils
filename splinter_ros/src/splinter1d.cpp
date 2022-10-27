@@ -18,7 +18,10 @@
 #include <SPLINTER/datatable.h>
 #include <SPLINTER/bspline.h>
 #include <SPLINTER/bsplinebuilder.h>
+#include <SPLINTER/utilities.h>
 
+#include <algorithm>
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -49,13 +52,25 @@ struct Splinter1dImpl
 {
   Splinter1dImplHelper helper;
   SPLINTER::BSpline splinter1d;
+  std::vector<double> lower_bound;
+  std::vector<double> upper_bound;
 
   explicit Splinter1dImpl(
     const std::vector<double> & _x,
     const std::vector<double> & _y)
+  : Splinter1dImpl(_x, _y, 1U)
+  {
+  }
+
+  explicit Splinter1dImpl(
+    const std::vector<double> & _x,
+    const std::vector<double> & _y,
+    const uint16_t & _order)
   : helper(_x, _y),
     splinter1d(SPLINTER::BSpline::Builder(helper.samples)
-      .degree(1).build())
+      .degree(_order).build()),
+    lower_bound(splinter1d.getDomainLowerBound()),
+    upper_bound(splinter1d.getDomainUpperBound())
   {
   }
 
@@ -64,6 +79,16 @@ struct Splinter1dImpl
     SPLINTER::DenseVector x(1);
     x(0) = _x;
     return splinter1d.eval(x);
+  }
+
+  double evalJacobian(const double & _x) const
+  {
+    SPLINTER::DenseVector x(1);
+    x(0) = _x;
+    SPLINTER::DenseMatrix jacobian_dm = splinter1d.evalJacobian(x);
+    std::vector<std::vector<double>> jacobian_vv = \
+      SPLINTER::denseMatrixToVectorVector(jacobian_dm);
+    return jacobian_vv[0U][0U];
   }
 };
 
@@ -81,8 +106,49 @@ void Splinter1d::update(
   impl_ = std::make_shared<Splinter1dImpl>(x, y);
 }
 
-double Splinter1d::eval(const double & x) const
+double Splinter1d::eval(
+  const double & _x,
+  const FillMode & fill_mode,
+  const std::vector<double> & fill_value) const
 {
+  assert(
+    fill_value.size() == 2U &&
+    "fill_value must have 2 elements: lower, upper");
+  double x = _x;
+  switch (fill_mode) {
+    case FILL_VALUE:
+      if (_x < impl_->lower_bound[0U]) {
+        return fill_value[0U];
+      } else if (_x > impl_->upper_bound[0U]) {
+        return fill_value[1U];
+      }
+      break;
+    case USE_BOUNDS:
+      x = std::min(std::max(_x, impl_->lower_bound[0U]), impl_->upper_bound[0U]);
+    case NO_FILL:
+    default:
+      break;
+  }
+
   return impl_->eval(x);
+}
+
+double Splinter1d::evalJacobian(
+  const double & _x,
+  const FillMode & fill_mode) const
+{
+  double x = _x;
+  switch (fill_mode) {
+    case FILL_VALUE:
+      std::cerr << "FILL_VALUE not implemented for Jacobian -- falling back on USE_BOUNDS" <<
+        std::endl;
+    case USE_BOUNDS:
+      x = std::min(std::max(_x, impl_->lower_bound[0U]), impl_->upper_bound[0U]);
+    case NO_FILL:
+    default:
+      break;
+  }
+
+  return impl_->evalJacobian(x);
 }
 }  // namespace splinter_ros

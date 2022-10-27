@@ -46,6 +46,7 @@ macro(build_splinter)
       ${CMAKE_CURRENT_SOURCE_DIR}/0001-Update-for-newer-Eigen-API-version.patch
       ${CMAKE_CURRENT_SOURCE_DIR}/0002-Bump-CMake-minimum-version-to-suppress-warnings.patch
       ${CMAKE_CURRENT_SOURCE_DIR}/0003-Exclude-installing-Eigen-from-vendored-version.patch
+      ${CMAKE_CURRENT_SOURCE_DIR}/0004-Fix-Utilities-Include.patch
   )
 
   # The external project will install to the build folder, but we'll install that on make install.
