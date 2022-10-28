@@ -9,6 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(buoy_interfaces REQUIRED)
+find_package(buoy_gazebo REQUIRED)  # for interp1d
 
 add_library(buoy_api INTERFACE)
 
@@ -31,11 +32,10 @@ install(DIRECTORY include/buoy_api/
 
 ###########################################
 # Examples
-find_package(splinter_ros REQUIRED)
 
 add_executable(torque_controller examples/torque_controller.cpp)
 target_link_libraries(torque_controller PUBLIC buoy_api)
-ament_target_dependencies(torque_controller PUBLIC rclcpp buoy_interfaces splinter_ros)
+ament_target_dependencies(torque_controller PUBLIC rclcpp buoy_interfaces buoy_gazebo)
 target_include_directories(torque_controller PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/examples/include>
   $<INSTALL_INTERFACE:include>)
@@ -58,7 +58,7 @@ install(DIRECTORY
 # for buoy_tests
 add_library(torque_policy_interface INTERFACE)
 target_compile_definitions(torque_policy_interface INTERFACE POLICY_ONLY)
-ament_target_dependencies(torque_policy_interface INTERFACE splinter_ros)
+ament_target_dependencies(torque_policy_interface INTERFACE buoy_gazebo)
 target_include_directories(torque_policy_interface INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/examples/include>
   $<INSTALL_INTERFACE:include>
