@@ -9,7 +9,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(buoy_interfaces REQUIRED)
-find_package(buoy_gazebo REQUIRED)  # for interp1d
+find_package(simple_interp REQUIRED)  # for interp1d
 
 add_library(buoy_api INTERFACE)
 
@@ -35,7 +35,7 @@ install(DIRECTORY include/buoy_api/
 
 add_executable(torque_controller examples/torque_controller.cpp)
 target_link_libraries(torque_controller PUBLIC buoy_api)
-ament_target_dependencies(torque_controller PUBLIC rclcpp buoy_interfaces buoy_gazebo)
+ament_target_dependencies(torque_controller PUBLIC rclcpp buoy_interfaces simple_interp)
 target_include_directories(torque_controller PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/examples/include>
   $<INSTALL_INTERFACE:include>)
@@ -58,7 +58,7 @@ install(DIRECTORY
 # for buoy_tests
 add_library(torque_policy_interface INTERFACE)
 target_compile_definitions(torque_policy_interface INTERFACE POLICY_ONLY)
-ament_target_dependencies(torque_policy_interface INTERFACE buoy_gazebo)
+ament_target_dependencies(torque_policy_interface INTERFACE simple_interp)
 target_include_directories(torque_policy_interface INTERFACE
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/examples/include>
   $<INSTALL_INTERFACE:include>
@@ -84,8 +84,6 @@ if(BUILD_TESTING)
 endif()
 
 ament_export_targets("export_buoy_api")
-
-ament_export_dependencies(rclcpp buoy_interfaces)
 
 # for buoy_tests
 ament_export_targets(export_torque_policy_interface)

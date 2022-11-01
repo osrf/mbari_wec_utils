@@ -24,7 +24,7 @@
 #endif  // POLICY_ONLY
 
 // interp1d for rpm->winding current
-#include <buoy_gazebo/buoy_utils/Interp1d.hpp>
+#include <simple_interp/interp1d.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -42,7 +42,7 @@ struct PBTorqueControlPolicy
   std::vector<double> I_Spec;  // Amps
 
   // interpolator for rpm -> winding current
-  buoy_utils::Interp1d winding_current;
+  simple_interp::Interp1d winding_current;
 
   PBTorqueControlPolicy()
   : Torque_constant(0.438F),
