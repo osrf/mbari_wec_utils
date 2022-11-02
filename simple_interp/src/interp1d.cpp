@@ -12,10 +12,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "simple_interp/interp1d.hpp"
+#include <simple_interp/interp1d.hpp>
 
 #include <algorithm>
 #include <cassert>
+#include <iostream>
 #include <vector>
 #include <utility>
 
@@ -83,12 +84,28 @@ double Interp1d::eval(const double & x) const
     return table_.back().second;
   }
 
-  // check if x is in the previous bin
+  // check if x is in the previous bin +/- 1 and shortcut the search
   bool x_in_latest_bin{false};
   if (latest_bin_initialized_) {
     x_in_latest_bin =
       ((latest_upper_edge_ - 1U)->first < x) &&
       (x <= latest_upper_edge_->first);
+
+    if (!x_in_latest_bin && latest_upper_edge_ + 1 != table_.end()) {
+      // try up one bin
+      x_in_latest_bin =
+        (latest_upper_edge_->first < x) &&
+        (x <= (latest_upper_edge_ + 1U)->first);
+      latest_upper_edge_ = latest_upper_edge_ + 1U;
+    }
+
+    if (!x_in_latest_bin && latest_upper_edge_ - 1U != table_.begin()) {
+      // now try down one bin
+      x_in_latest_bin =
+        ((latest_upper_edge_ - 2U)->first < x) &&
+        (x <= (latest_upper_edge_ - 1U)->first);
+      latest_upper_edge_ = latest_upper_edge_ - 1U;
+    }
   }
 
   // search for correct bin otherwise shortcut with same bin
@@ -106,7 +123,9 @@ double Interp1d::eval(const double & x) const
     }
 
     latest_upper_edge_ = citx;
-    if (!latest_bin_initialized_) {latest_bin_initialized_ = true;}
+    if (!latest_bin_initialized_) {
+      latest_bin_initialized_ = true;
+    }
   }
 
   // compute linear interpolation
@@ -115,6 +134,8 @@ double Interp1d::eval(const double & x) const
   const double & x0 = (latest_upper_edge_ - 1U)->first;
   const double & y0 = (latest_upper_edge_ - 1U)->second;
   const double frac = (x - x0) / (x1 - x0);
-  return (y0 * (1.0 - frac)) + (y1 * frac);
+  const double y = (y0 * (1.0 - frac)) + (y1 * frac);
+
+  return y;
 }
 }  // namespace simple_interp

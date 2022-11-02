@@ -7,25 +7,24 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
-find_package(ament_cmake_ros REQUIRED)
 
-add_library(interp1d src/interp1d.cpp)
-target_compile_features(interp1d PUBLIC c_std_99 cxx_std_17)  # Require C99 and C++17
-target_include_directories(interp1d PUBLIC
+add_library(${PROJECT_NAME} SHARED src/interp1d.cpp)
+
+target_include_directories(${PROJECT_NAME} PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
-  $<INSTALL_INTERFACE:include>)
-
-
-install(
-  DIRECTORY include/
-  DESTINATION include
+  $<INSTALL_INTERFACE:include>
 )
+
+install(DIRECTORY include/${PROJECT_NAME}/
+  DESTINATION include/${PROJECT_NAME}
+)
+
 install(
-  TARGETS interp1d
-  EXPORT export_${PROJECT_NAME}
+  TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
+  INCLUDES DESTINATION include
 )
 
 if(BUILD_TESTING)
@@ -33,14 +32,6 @@ if(BUILD_TESTING)
   ament_lint_auto_find_test_dependencies()
 endif()
 
-ament_export_include_directories(
-  include
-)
-ament_export_libraries(
-  interp1d
-)
-ament_export_targets(
-  export_${PROJECT_NAME}
-)
+ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)
 
 ament_package()
