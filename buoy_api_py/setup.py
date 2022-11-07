@@ -27,7 +27,7 @@ setup(
     entry_points={
         'console_scripts': [
             'torque_controller = buoy_api.examples.torque_controller:main',
-            'bias_damping = buoy_api.examples.bias_damping:main'
+            'bias_damping = buoy_api.examples.bias_damping:main',
         ],
     },
 )

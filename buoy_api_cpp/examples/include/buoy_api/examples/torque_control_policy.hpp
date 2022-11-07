@@ -23,13 +23,16 @@
 #include <buoy_api/examples/torque_controller.hpp>
 #endif  // POLICY_ONLY
 
+
 #include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <iterator>
 #include <memory>
 #include <vector>
 
 // interp1d for rpm->winding current
-#include <splinter_ros/splinter1d.hpp>
-
+#include <simple_interp/interp1d.hpp>
 
 struct PBTorqueControlPolicy
 {
@@ -39,13 +42,13 @@ struct PBTorqueControlPolicy
   std::vector<double> I_Spec;  // Amps
 
   // interpolator for rpm -> winding current
-  splinter_ros::Splinter1d winding_current;
+  simple_interp::Interp1d winding_current;
 
   PBTorqueControlPolicy()
   : Torque_constant(0.438F),
     N_Spec{0.0F, 300.0F, 600.0F, 1000.0F, 1700.0F, 4400.0F, 6790.0F},
-    Torque_Spec{0.0F, 0.0F, 0.8F, 2.9F, 5.6F, 9.8F, 16.6F},   // Matches old boost converter targets
-                                                              // that have been deployed.
+    Torque_Spec{0.0F, 0.0F, 0.8F, 2.9F, 5.6F, 9.8F, 16.6F},  // Matches old boost converter targets
+                                                             // that have been deployed.
     I_Spec(Torque_Spec.size(), 0.0F),
     winding_current(N_Spec, I_Spec)
   {
@@ -70,13 +73,9 @@ struct PBTorqueControlPolicy
     double N = fabs(rpm);
     double I = 0.0F;
 
-    if (N >= N_Spec.back()) {
-      I = I_Spec.back();
-    } else {
-      I = winding_current.eval(N);
-    }
-
+    I = winding_current.eval(N);
     I *= scale_factor;
+
     if (rpm > 0.0F) {
       I *= -retract_factor;
     }

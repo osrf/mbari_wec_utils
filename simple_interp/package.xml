@@ -1,15 +1,13 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>splinter_ros</name>
+  <name>simple_interp</name>
   <version>0.0.0</version>
-  <description>ROS2 package wrapper for splinter: https://github.com/bgrimstad/splinter</description>
-  <maintainer email="anderson@mbari.org">andermi</maintainer>
-  <license>Apache 2.0</license>
+  <description>simple 1D interpolation</description>
+  <maintainer email="anderson@mbari.org">Michael Anderson</maintainer>
+  <license>apache2</license>
 
-  <buildtool_depend>ament_cmake</buildtool_depend>
-
-  <depend>splinter_vendor</depend>
+  <buildtool_depend>ament_cmake_ros</buildtool_depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
