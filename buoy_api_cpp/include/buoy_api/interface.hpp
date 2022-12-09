@@ -90,11 +90,14 @@ public:
   using CRTP = Interface;  // syntactic sugar for friend class
                            // see https://stackoverflow.com/a/58435857/9686600
   explicit Interface(const std::string & node_name)
-  : Interface(node_name, false)
+  : Interface(node_name, false, true)
   {
   }
 
-  explicit Interface(const std::string & node_name, bool _wait_for_services)
+  explicit Interface(
+    const std::string & node_name,
+    const bool _wait_for_services,
+    const bool _check_for_services)
   : Node(node_name)
   {
     pc_pack_rate_param_client_ =
@@ -162,10 +165,12 @@ public:
       this->create_client<buoy_interfaces::srv::TFResetCommand>("/tf_reset_command");
 
     setup_subscribers();
-    bool found = false;
-    do {
-      found = wait_for_services();
-    } while (rclcpp::ok() && !found && _wait_for_services);
+    if (_check_for_services) {
+      bool found = false;
+      do {
+        found = wait_for_services();
+      } while (rclcpp::ok() && !found && _wait_for_services);
+    }
   }
 
   bool wait_for_services()

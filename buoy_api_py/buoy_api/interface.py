@@ -77,7 +77,7 @@ pbsrv_enum2str = {0: 'OK',
 
 class Interface(Node):
 
-    def __init__(self, node_name, wait_for_services=False, **kwargs):
+    def __init__(self, node_name, wait_for_services=False, check_for_services=True, **kwargs):
         super().__init__(node_name, **kwargs)
         self.pc_pack_rate_param_client_ = self.create_client(SetParameters,
                                                              '/power_controller/set_parameters')
@@ -149,10 +149,11 @@ class Interface(Node):
         self.tf_reset_future_ = None
 
         self.setup_subscribers()
-        found = self.wait_for_services()
-        if not found and wait_for_services:
-            while rclpy.ok() and not self.wait_for_services():
-                pass
+        if check_for_services:
+            found = self.wait_for_services()
+            if not found and wait_for_services:
+                while rclpy.ok() and not self.wait_for_services():
+                    pass
 
     def wait_for_services(self):
         # TODO(andermi)
@@ -350,9 +351,7 @@ class Interface(Node):
     # generic service callback
     def default_service_response_callback(self, future):
         resp = future.result()
-        if resp.result.value == resp.result.OK:
-            self.get_logger().info('Command Successful')
-        else:
+        if resp.result.value != resp.result.OK:
             self.get_logger().error(
               f'Command Failed: received error code [[ {pbsrv_enum2str[resp.result.value]} ]]')
             # TODO(andermi): should we shutdown?
