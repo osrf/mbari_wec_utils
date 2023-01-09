@@ -79,7 +79,7 @@ class NonLinearBiasDamping(Interface):
 
     def spring_callback(self, data):
         bct = self.policy.bias_current_target(data.range_finder)
-        self.get_logger().info(f'Bias Damping: f({data.range_finder}) = {bct}')
+        self.get_logger().debug(f'Bias Damping: f({data.range_finder}) = {bct}')
         if bct is None:
             return
 

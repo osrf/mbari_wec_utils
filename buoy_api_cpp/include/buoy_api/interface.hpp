@@ -678,11 +678,11 @@ protected:
     CallbackType callback = [this](ServiceResponseFuture future)
       {
         if (future.get()->result.value == future.get()->result.OK) {
-          RCLCPP_INFO(
+          RCLCPP_DEBUG(
             rclcpp::get_logger(this->get_name()),
             "Command Successful");
         } else {
-          RCLCPP_INFO(
+          RCLCPP_ERROR(
             rclcpp::get_logger(this->get_name()),
             "Command Failed: received error code [[ %s ]]",
             pbsrv_enum2str[future.get()->result.value].c_str());
