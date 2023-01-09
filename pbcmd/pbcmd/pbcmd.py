@@ -14,7 +14,6 @@
 
 import argparse
 import threading
-import time
 
 from buoy_api import Interface
 
@@ -25,7 +24,7 @@ class _PBCmd(Interface):
 
     def __init__(self):
         rclpy.init()
-        super().__init__('pbcmd')
+        super().__init__('pbcmd', check_for_services=False)
         self.spin_thread = threading.Thread(target=rclpy.spin, args=(self,))
         self.spin_thread.daemon = True
         self.spin_thread.start()
@@ -128,8 +127,6 @@ def pump(parser):
         print(f'Executing pump to Spring Controller: {duration_minutes} minute(s)')
     _pbcmd = _PBCmd()
     _pbcmd.send_pump_command(duration_minutes)
-    time.sleep(1)
-    print('done!')
 
 
 def valve(parser):
@@ -147,8 +144,6 @@ def valve(parser):
         print(f'Executing valve to Spring Controller: {duration_sec} second(s)')
     _pbcmd = _PBCmd()
     _pbcmd.send_valve_command(duration_sec)
-    time.sleep(1)
-    print('done!')
 
 
 def sc_pack_rate(parser):
@@ -162,8 +157,6 @@ def sc_pack_rate(parser):
           f'from the Spring Controller: {args.rate_hz} Hz')
     _pbcmd = _PBCmd()
     _pbcmd.set_sc_pack_rate_param(args.rate_hz)
-    time.sleep(1)
-    print('done!')
 
 
 def pc_PackRate(parser):
@@ -177,8 +170,6 @@ def pc_PackRate(parser):
           f'from the Power Controller: {args.rate_hz} Hz')
     _pbcmd = _PBCmd()
     _pbcmd.set_pc_pack_rate_param(args.rate_hz)
-    time.sleep(1)
-    print('done!')
 
 
 def pc_Scale(parser):
@@ -191,8 +182,6 @@ def pc_Scale(parser):
           f'Power Controller winding current: {args.scale}')
     _pbcmd = _PBCmd()
     _pbcmd.send_pc_scale_command(args.scale)
-    time.sleep(1)
-    print('done!')
 
 
 def pc_Retract(parser):
@@ -205,8 +194,6 @@ def pc_Retract(parser):
           f'Power Controller winding current: {args.retract}')
     _pbcmd = _PBCmd()
     _pbcmd.send_pc_retract_command(args.retract)
-    time.sleep(1)
-    print('done!')
 
 
 def pc_WindCurr(parser):
@@ -219,8 +206,6 @@ def pc_WindCurr(parser):
           f'Power Controller: {args.wind_curr}')
     _pbcmd = _PBCmd()
     _pbcmd.send_pc_wind_curr_command(args.wind_curr)
-    time.sleep(1)
-    print('done!')
 
 
 def pc_BiasCurr(parser):
@@ -233,8 +218,6 @@ def pc_BiasCurr(parser):
           f'Power Controller winding current: {args.bias_curr}')
     _pbcmd = _PBCmd()
     _pbcmd.send_pc_bias_curr_command(args.bias_curr)
-    time.sleep(1)
-    print('done!')
 
 
 def main():
