@@ -15,18 +15,18 @@
 #ifndef BUOY_API__INTERFACE_HPP_
 #define BUOY_API__INTERFACE_HPP_
 
+#include <string>
+#include <map>
+#include <memory>
+#include <mutex>
+#include <vector>
+
 #include <rclcpp/rclcpp.hpp>
 
 // Pack Rate Params
 #include <rclcpp/parameter_client.hpp>
 #include <rclcpp/parameter_value.hpp>
 #include <rclcpp/parameter.hpp>
-
-#include <string>
-#include <map>
-#include <memory>
-#include <mutex>
-#include <vector>
 
 // pbsrv commands
 // power microcontroller
@@ -683,11 +683,11 @@ protected:
     CallbackType callback = [this](ServiceResponseFuture future)
       {
         if (future.get()->result.value == future.get()->result.OK) {
-          RCLCPP_INFO(
+          RCLCPP_DEBUG(
             rclcpp::get_logger(this->get_name()),
             "Command Successful");
         } else {
-          RCLCPP_INFO(
+          RCLCPP_ERROR(
             rclcpp::get_logger(this->get_name()),
             "Command Failed: received error code [[ %s ]]",
             pbsrv_enum2str[future.get()->result.value].c_str());

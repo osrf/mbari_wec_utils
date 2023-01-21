@@ -23,8 +23,6 @@
 #include <buoy_api/examples/torque_controller.hpp>
 #endif  // POLICY_ONLY
 
-// interp1d for rpm->winding current
-#include <simple_interp/interp1d.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -33,6 +31,8 @@
 #include <memory>
 #include <vector>
 
+// interp1d for rpm->winding current
+#include <simple_interp/interp1d.hpp>
 
 struct PBTorqueControlPolicy
 {

@@ -351,7 +351,9 @@ class Interface(Node):
     # generic service callback
     def default_service_response_callback(self, future):
         resp = future.result()
-        if resp.result.value != resp.result.OK:
+        if resp.result.value == resp.result.OK:
+            self.get_logger().debug('Command Successful')
+        else:
             self.get_logger().error(
               f'Command Failed: received error code [[ {pbsrv_enum2str[resp.result.value]} ]]')
             # TODO(andermi): should we shutdown?
