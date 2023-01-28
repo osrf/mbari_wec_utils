@@ -170,6 +170,7 @@ public:
       do {
         found = wait_for_services();
       } while (rclcpp::ok() && !found && _wait_for_services);
+      RCLCPP_INFO(rclcpp::get_logger(this->get_name()), "Found all required services.");
     }
   }
 
@@ -715,7 +716,7 @@ private:
       }
       RCLCPP_INFO(
         rclcpp::get_logger(this->get_name()),
-        "%s not available, still waiting...",
+        "%s not available",
         service.c_str());
     }
     return count < _count;
