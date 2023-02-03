@@ -154,7 +154,7 @@ class Interface(Node):
             if not found and wait_for_services:
                 while rclpy.ok() and not self.wait_for_services():
                     pass
-            self.get_logger().info("Found all required services.")
+            self.get_logger().info('Found all required services.')
 
     def wait_for_services(self):
         # TODO(andermi)
