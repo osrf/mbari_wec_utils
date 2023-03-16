@@ -120,7 +120,7 @@ class WECLogger(Interface):
         # Calculate float value epoch seconds and write the record preamble/header
         nanos = (data.header.stamp.sec * 1e9) + data.header.stamp.nanosec
         timestamp = (1.0*nanos) / 1e9    # convert from nanoseconds to seconds
-        self.logfile.write(f'{source_id}, {timestamp}, ')
+        self.logfile.write(f'{source_id}, {timestamp:.3f}, ')
 
         # Pass the data to writers, let them decide what to write
         self.write_pc(data)
@@ -204,11 +204,11 @@ PC Bias Curr (A), PC Charge Curr (A), PC Draw Curr (A), \
     # Just write the commas unless data is the correct type
     def write_pc(self, data):
         if (type(data) is PCRecord):
-            self.logfile.write(f'{data.rpm}, {data.voltage}, {data.wcurrent}, ' +
-            f'{data.bcurrent}, {data.status}, {data.loaddc}, {data.target_v}, ' +
-            f'{data.target_a}, {data.diff_press}, {data.sd_rpm}, {data.scale}, ' +
-            f'{data.retract}, {data.torque}, {data.bias_current}, ' +
-            f'{data.charge_curr_limit}, {data.draw_curr_limit}, ')
+            self.logfile.write(f'{data.rpm:.1f}, {data.voltage:.1f}, {data.wcurrent:.2f}, ' +
+            f'{data.bcurrent:.2f}, {data.status}, {data.loaddc:.2f}, {data.target_v:.1f}, ' +
+            f'{data.target_a:.2f}, {data.diff_press:.3f}, {data.sd_rpm:.1f}, {data.scale:.2f}, ' +
+            f'{data.retract:.2f}, {data.torque:.2f}, {data.bias_current:.2f}, ' +
+            f'{data.charge_curr_limit:.2f}, {data.draw_curr_limit:.2f}, ')
         else:
             self.logfile.write("," * self.pc_header.count(','))
 
@@ -226,9 +226,9 @@ BC_Hydrogen, BC Status, \
     # Just write the commas unless data is the correct type
     def write_bc(self, data):
         if (type(data) is BCRecord):
-            self.logfile.write(f'{data.voltage}, {data.ips}, ' +
-            f'{data.vbalance}, {data.vstopcharge}, {data.gfault}, ' +
-            f'{data.hydrogen}, {data.status}, ')
+            self.logfile.write(f'{data.voltage:.1f}, {data.ips:.2f}, ' +
+            f'{data.vbalance:.2f}, {data.vstopcharge:.2f}, {data.gfault:.2f}, ' +
+            f'{data.hydrogen:.2f}, {data.status}, ')
         else:
             self.logfile.write("," * self.bc_header.count(','))
 
@@ -257,12 +257,12 @@ XB North Vel, XB East Vel, XB Down Vel, XB Lat, XB Long, XB Alt, XB Temp, \
                                                         imu.orientation.z,
                                                         imu.orientation.w])
             self.logfile.write(
-            f'{math.degrees(roll)}, {math.degrees(pitch)}, {math.degrees(yaw)}, ' +
-            f'{imu.angular_velocity.x}, {imu.angular_velocity.y}, {imu.angular_velocity.z}, ' +
-            f'{imu.linear_acceleration.x}, {imu.linear_acceleration.y}, {imu.linear_acceleration.z}, ' +
-            f'{ned.z}, {ned.y}, {ned.z}, ' +
-            f'{gps.latitude}, {gps.longitude}, {gps.altitude}, ' +
-            f'{tmp.temperature}, ')
+            f'{math.degrees(roll):.3f}, {math.degrees(pitch):.3f}, {math.degrees(yaw):.3f}, ' +
+            f'{imu.angular_velocity.x:.3f}, {imu.angular_velocity.y:.3f}, {imu.angular_velocity.z:.3f}, ' +
+            f'{imu.linear_acceleration.x:.3f}, {imu.linear_acceleration.y:.3f}, {imu.linear_acceleration.z:.3f}, ' +
+            f'{ned.z:.3f}, {ned.y:.3f}, {ned.z:.3f}, ' +
+            f'{gps.latitude:.5f}, {gps.longitude:.5f}, {gps.altitude:.3f}, ' +
+            f'{tmp.temperature:.3f}, ')
         else:
             self.logfile.write("," * self.xb_header.count(','))
 
@@ -273,16 +273,16 @@ XB North Vel, XB East Vel, XB Down Vel, XB Lat, XB Long, XB Alt, XB Temp, \
     def write_sc_header(self):
         self.sc_header = """\
 SC Load Cell (lbs), SC Range Finder (in), \
-SC Upper PSI,SC Lower PSI, SC Status, CTD Time, CTD Salinity, CTD Temp, \
+SC Upper PSI, SC Lower PSI, SC Status, CTD Time, CTD Salinity, CTD Temp, \
 """
         self.logfile.write(self.sc_header)
 
     # SC record section
     def write_sc(self, data):
         if (type(data) is SCRecord):
-            self.logfile.write(f'{data.load_cell}, {data.range_finder}, ' +
-            f'{data.upper_psi}, {data.lower_psi}, {data.status}, {data.epoch}, ' +
-            f'{data.salinity}, {data.temperature}, ')
+            self.logfile.write(f'{data.load_cell}, {data.range_finder:.2f}, ' +
+            f'{data.upper_psi:.2f}, {data.lower_psi:.2f}, {data.status}, {data.epoch}, ' +
+            f'{data.salinity:.6f}, {data.temperature:.3f}, ')
         else:
             self.logfile.write("," * self.sc_header.count(','))
 
@@ -305,13 +305,13 @@ TF Maxon status, TF Motor curren mA, TF Encoder counts, \
         if (type(data) is TFRecord):
             imu = data.imu
             mag = data.mag
-            self.logfile.write(f'{data.power_timeouts}, {data.tether_voltage}, ' +
-            f'{data.battery_voltage}, {data.pressure}, ' +
-            f'{imu.orientation.x}, {imu.orientation.y}, {imu.orientation.z}, {imu.orientation.w}, ' +
-            f'{mag.magnetic_field.x}, {mag.magnetic_field.y}, {mag.magnetic_field.z}, {data.status}, ' +
-            f'{imu.linear_acceleration.x}, {imu.linear_acceleration.y}, {imu.linear_acceleration.z}, ' +
+            self.logfile.write(f'{data.power_timeouts}, {data.tether_voltage:.3f}, ' +
+            f'{data.battery_voltage:.3f}, {data.pressure:.3f}, ' +
+            f'{imu.orientation.x:.3f}, {imu.orientation.y:.3f}, {imu.orientation.z:.3f}, {imu.orientation.w:.3f}, ' +
+            f'{mag.magnetic_field.x:.3f}, {mag.magnetic_field.y:.3f}, {mag.magnetic_field.z:.3f}, {data.status}, ' +
+            f'{imu.linear_acceleration.x:.3f}, {imu.linear_acceleration.y:.3f}, {imu.linear_acceleration.z:.3f}, ' +
             f'{data.vpe_status}, ' +
-            f'{imu.linear_acceleration.x}, {imu.linear_acceleration.y}, {imu.linear_acceleration.z}, ' +
+            f'{imu.linear_acceleration.x:.3f}, {imu.linear_acceleration.y:.3f}, {imu.linear_acceleration.z:.3f}, ' +
             f'{data.comms_timeouts}, {data.motor_status}, {data.motor_current}, {data.encoder}, ')
         else:
             self.logfile.write("," * self.tf_header.count(','))
