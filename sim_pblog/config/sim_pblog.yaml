@@ -1,0 +1,4 @@
+/sim_pblog:
+  ros__parameters:
+    foo: 1.0
+
