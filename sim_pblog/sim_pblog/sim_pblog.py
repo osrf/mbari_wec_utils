@@ -16,8 +16,8 @@
 
 from datetime import datetime
 import gzip
-import os
 import math
+import os
 
 from buoy_api import Interface
 from buoy_interfaces.msg import BCRecord
