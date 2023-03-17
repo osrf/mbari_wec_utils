@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 
-# Copyright 2022 Open Source Robotics Foundation, Inc. and Monterey Bay Aquarium Research Institute
+# Copyright 2022 Open Source Robotics Foundation,Inc. and Monterey Bay Aquarium Research Institute
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,21 +14,20 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from datetime import datetime
 import gzip
 import os
-
-from datetime import datetime
 import math
-
-from tf_transformations import euler_from_quaternion
 
 from buoy_api import Interface
 from buoy_interfaces.msg import BCRecord
 from buoy_interfaces.msg import PCRecord
 from buoy_interfaces.msg import SCRecord
-from buoy_interfaces.msg import XBRecord
 from buoy_interfaces.msg import TFRecord
+from buoy_interfaces.msg import XBRecord
 import rclpy
+
+from tf_transformations import euler_from_quaternion
 
 WECLOGHOME = 'WEC_LOG_DIR'
 ALTLOGHOME = '/tmp'          # assume we always have write permission to /tmp
@@ -157,10 +156,10 @@ class WECLogger(Interface):
         # Use WEC_LOG_DIR env variable for base of log tree
         wec_log_dir = os.getenv(WECLOGHOME)
         if (None is wec_log_dir):
-            self.get_logger().info(f'WEC_LOG_DIR env variable not set, using {ALTLOGHOME} as log home')
+            self.get_logger().info(f'WEC_LOG_DIR env variable not set, using {ALTLOGHOME}')
             wec_log_dir = ALTLOGHOME
         elif (False is os.access(wec_log_dir, os.W_OK)):
-            self.get_logger().info(f'No write access to {wec_log_dir}, using {ALTLOGHOME} as log home')
+            self.get_logger().info(f'No write access to {wec_log_dir}, using {ALTLOGHOME}')
             wec_log_dir = ALTLOGHOME
 
         # Use today's date to create directory name, e.g., 2023-03-23.002
@@ -202,12 +201,14 @@ class WECLogger(Interface):
     def write_pc(self, data):
         if (type(data) is PCRecord):
             self.logfile.write(f'{data.rpm:.1f}, {data.voltage:.1f}, {data.wcurrent:.2f}, '
-                               + f'{data.bcurrent:.2f}, {data.status}, {data.loaddc:.2f}, {data.target_v:.1f}, '
-                               + f'{data.target_a:.2f}, {data.diff_press:.3f}, {data.sd_rpm:.1f}, {data.scale:.2f}, '
-                               + f'{data.retract:.2f}, {data.torque:.2f}, {data.bias_current:.2f}, '
+                               + f'{data.bcurrent:.2f}, {data.status}, {data.loaddc:.2f}, '
+                               + f'{data.target_v:.1f}, {data.target_a:.2f}, '
+                               + f'{data.diff_press:.3f}, {data.sd_rpm:.1f}, {data.scale:.2f}, '
+                               + f'{data.retract:.2f}, {data.torque:.2f}, '
+                               + f'{data.bias_current:.2f}, '
                                + f'{data.charge_curr_limit:.2f}, {data.draw_curr_limit:.2f}, ')
         else:
-            self.logfile.write("," * self.pc_header.count(','))
+            self.logfile.write(',' * self.pc_header.count(','))
 
     #            Battery Controller write functions
     # BC header section
@@ -223,10 +224,10 @@ class WECLogger(Interface):
     def write_bc(self, data):
         if (type(data) is BCRecord):
             self.logfile.write(f'{data.voltage:.1f}, {data.ips:.2f}, '
-                               + f'{data.vbalance:.2f}, {data.vstopcharge:.2f}, {data.gfault:.2f}, '
-                               + f'{data.hydrogen:.2f}, {data.status}, ')
+                               + f'{data.vbalance:.2f}, {data.vstopcharge:.2f}, '
+                               + f'{data.gfault:.2f}, {data.hydrogen:.2f}, {data.status}, ')
         else:
-            self.logfile.write("," * self.bc_header.count(','))
+            self.logfile.write(',' * self.pc_header.count(','))
 
     #            Crossbow AHRS Controller write functions
     # XB header section
@@ -253,13 +254,15 @@ class WECLogger(Interface):
                                                         imu.orientation.w])
             self.logfile.write(
                 f'{math.degrees(roll):.3f}, {math.degrees(pitch):.3f}, {math.degrees(yaw):.3f}, '
-                + f'{imu.angular_velocity.x:.3f}, {imu.angular_velocity.y:.3f}, {imu.angular_velocity.z:.3f}, '
-                + f'{imu.linear_acceleration.x:.3f}, {imu.linear_acceleration.y:.3f}, {imu.linear_acceleration.z:.3f}, '
+                + f'{imu.angular_velocity.x:.3f}, {imu.angular_velocity.y:.3f}, '
+                + f'{imu.angular_velocity.z:.3f}, '
+                + f'{imu.linear_acceleration.x:.3f}, {imu.linear_acceleration.y:.3f}, '
+                + f'{imu.linear_acceleration.z:.3f}, '
                 + f'{ned.z:.3f}, {ned.y:.3f}, {ned.z:.3f}, '
                 + f'{gps.latitude:.5f}, {gps.longitude:.5f}, {gps.altitude:.3f}, '
                 + f'{tmp.temperature:.3f}, ')
         else:
-            self.logfile.write("," * self.xb_header.count(','))
+            self.logfile.write(',' * self.pc_header.count(','))
 
     #            Spring Controller write functions
     # SC header section
@@ -275,10 +278,11 @@ class WECLogger(Interface):
     def write_sc(self, data):
         if (type(data) is SCRecord):
             self.logfile.write(f'{data.load_cell}, {data.range_finder:.2f}, '
-                               + f'{data.upper_psi:.2f}, {data.lower_psi:.2f}, {data.status}, {data.epoch}, '
+                               + f'{data.upper_psi:.2f}, {data.lower_psi:.2f}, '
+                               + f'{data.status}, {data.epoch}, '
                                + f'{data.salinity:.6f}, {data.temperature:.3f}, ')
         else:
-            self.logfile.write("," * self.sc_header.count(','))
+            self.logfile.write(',' * self.pc_header.count(','))
 
     #            Trefoil Controller write functions
     # TF header section
@@ -302,41 +306,42 @@ class WECLogger(Interface):
             mag = data.mag
             self.logfile.write(f'{data.power_timeouts}, {data.tether_voltage:.3f}, '
                                + f'{data.battery_voltage:.3f}, {data.pressure:.3f}, '
-                               + f'{imu.orientation.x:.3f}, {imu.orientation.y:.3f}, {imu.orientation.z:.3f}, {imu.orientation.w:.3f}, '
-                               + f'{mag.magnetic_field.x:.3f}, {mag.magnetic_field.y:.3f}, {mag.magnetic_field.z:.3f}, {data.status}, '
-                               + f'{imu.linear_acceleration.x:.3f}, {imu.linear_acceleration.y:.3f}, {imu.linear_acceleration.z:.3f}, '
+                               + f'{imu.orientation.x:.3f}, {imu.orientation.y:.3f}, '
+                               + f'{imu.orientation.z:.3f}, {imu.orientation.w:.3f}, '
+                               + f'{mag.magnetic_field.x:.3f}, {mag.magnetic_field.y:.3f}, '
+                               + f'{mag.magnetic_field.z:.3f}, {data.status}, '
+                               + f'{imu.angular_velocity.x:.3f}, '
+                               + f'{imu.angular_velocity.y:.3f}, '
+                               + f'{imu.angular_velocity.z:.3f}, '
                                + f'{data.vpe_status}, '
-                               + f'{imu.linear_acceleration.x:.3f}, {imu.linear_acceleration.y:.3f}, {imu.linear_acceleration.z:.3f}, '
-                               + f'{data.comms_timeouts}, {data.motor_status}, {data.motor_current}, {data.encoder}, ')
+                               + f'{imu.linear_acceleration.x:.3f}, '
+                               + f'{imu.linear_acceleration.y:.3f}, '
+                               + f'{imu.linear_acceleration.z:.3f}, '
+                               + f'{data.comms_timeouts}, {data.motor_status}, '
+                               + f'{data.motor_current}, {data.encoder}, ')
         else:
-            self.logfile.write("," * self.tf_header.count(','))
+            self.logfile.write(',' * self.tf_header.count(','))
 
     # Delete any unused callback
     def ahrs_callback(self, data):
-        """Callback for '/ahrs_data' topic from XBowAHRS"""
         self.write_record(CrossbowID, data)
 
     def battery_callback(self, data):
-        """Callback for '/battery_data' topic from Battery Controller"""
         self.write_record(BatteryConID, data)
 
     def spring_callback(self, data):
-        """Callback for '/spring_data' topic from Spring Controller"""
         self.write_record(SpringConID, data)
 
     def power_callback(self, data):
-        """Callback for '/power_data' topic from Power Controller"""
         self.write_record(PowerConID, data)
 
     def trefoil_callback(self, data):
-        """Callback for '/trefoil_data' topic from Trefoil Controller"""
         self.write_record(TrefoilConID, data)
 
     def powerbuoy_callback(self, data):
-        """Callback for '/powerbuoy_data' topic -- Aggregated data from all topics"""
+        pass
 
     def set_params(self):
-        """Use ROS2 declare_parameter and get_parameter to set policy params"""
         pass
 
 
