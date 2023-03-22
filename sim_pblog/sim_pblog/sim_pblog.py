@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from datetime import datetime
+from datetime import datetime, timedelta
 import gzip
 import math
 import os
@@ -61,12 +61,14 @@ class WECLogger(Interface):
         self.logdir = None
         self.logfile = None
         self.logfilename = None
-        self.logtime = None
+        self.logfiletime = datetime.fromtimestamp(0)
         self.pc_header = ''
         self.bc_header = ''
         self.xb_header = ''
         self.sc_header = ''
         self.tf_header = ''
+        self.start_time = datetime.now()
+        self.logger_time = self.start_time
         self.logfile_setup()
 
     def __del__(self):
@@ -85,10 +87,11 @@ class WECLogger(Interface):
         if (self.logfile is not None):
             self.close_zip_logfile()
 
-        # Open new file in logdir using the date & time (2023.03.23T13.09.54.csv)
+        # Open new file in logdir using the logger_time (2023.03.23T13.09.54.csv)
         self.logfilename = self.logdir \
-            + '/' + datetime.now().strftime('%Y.%m.%dT%I.%M.%S') + '.csv'
+            + '/' + self.logger_time.strftime('%Y.%m.%dT%I.%M.%S') + '.csv'
         self.logfile = open(self.logfilename, mode='w', encoding='utf-8')
+        self.write_header()
 
         # Point a link called 'latest' to the new directory
         # Renaming a temporary link works as 'ln -sf'
@@ -98,14 +101,13 @@ class WECLogger(Interface):
         os.rename(templink, latest)
 
         self.get_logger().info(f'New log file: {self.logfilename}')
-        self.write_header()
 
-    # Write CSV header line by writing each controller section
+    # Write CSV header by writing each controller header section
     def write_header(self):
         # Preamble/Header section column names first
         self.logfile.write('Source ID, Timestamp (epoch seconds),')
 
-        # Write each header section - order matters
+        # Write each header section - order matters!
         self.write_pc_header()
         self.write_bc_header()
         self.write_xb_header()
@@ -113,14 +115,20 @@ class WECLogger(Interface):
         self.write_tf_header()
         self.write_eol()
 
-    # Write a complete record line by writing each controller section
+    # Write a complete data record by writing each controller data section
     def write_record(self, source_id, data):
-        # Calculate float value epoch seconds and write the record preamble/header
-        nanos = (data.header.stamp.sec * 1e9) + data.header.stamp.nanosec
-        timestamp = (1.0*nanos) / 1e9    # convert from nanoseconds to seconds
-        self.logfile.write(f'{source_id}, {timestamp:.3f}, ')
+        self.update_logger_time(data)
 
-        # Pass data and decisoin of what to write to writers - order matters
+        # Create a fresh logfile when interval time has passed since the
+        # current logfile was created
+        if (self.logger_time > (self.logfiletime + timedelta(seconds=NEWFILEINTERVAL))):
+            self.logfiletime = self.logger_time
+            self.logfile_setup()
+
+        # Use epoch seconds from logger_time to write the record preamble/header
+        self.logfile.write(f'{source_id}, {self.logger_time.timestamp():.3f}, ')
+
+        # Pass data and delegate writing to section writers - order matters!
         self.write_pc(data)
         self.write_bc(data)
         self.write_xb(data)
@@ -128,12 +136,18 @@ class WECLogger(Interface):
         self.write_tf(data)
         self.write_eol()
 
-        # Create a fresh logfile when interval time has passed
-        if (self.logtime is None):
-            self.logtime = timestamp
-        elif (timestamp > self.logtime + NEWFILEINTERVAL):
-            self.logfile_setup()
-            self.logtime = timestamp
+    # Increment logger_time using timestamp in data header
+    def update_logger_time(self, data):
+        # Timestamps in the data messages contain the time since the
+        # start of the simulation beginning at zero
+        micros = (1.0 * data.header.stamp.nanosec) / 1000.   # convert to micros
+        delta = timedelta(seconds=data.header.stamp.sec, microseconds=micros)
+        # Calculated logger time
+        newtime = self.start_time + delta
+        # Occasionally data messages arrive out of time sequence
+        # Ensure logfile timestamps are always increasing
+        if (newtime > self.logger_time):
+            self.logger_time = newtime
 
     def write_eol(self):
         self.logfile.write('\n')
@@ -162,8 +176,8 @@ class WECLogger(Interface):
             self.get_logger().info(f'No write access to {wec_log_dir}, using {ALTLOGHOME}')
             wec_log_dir = ALTLOGHOME
 
-        # Use today's date to create directory name, e.g., 2023-03-23.002
-        now = datetime.today().strftime('%Y-%m-%d')
+        # Use logger_time date to create directory name, e.g., 2023-03-23.002
+        now = self.logger_time.strftime('%Y-%m-%d')
         count = 0
         dirname = wec_log_dir + '/' + now + '.{nnn:03}'.format(nnn=count)
         while (os.path.exists(dirname)):
