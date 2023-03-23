@@ -201,12 +201,11 @@ class WECLogger(Interface):
     # PC header section
 
     def write_pc_header(self):
-        self.pc_header = """
- PC RPM, PC Bus Voltage (V), PC Winding Curr (A), PC Battery Curr (A), PC Status,
- PC Load Dump Current (A), PC Target Voltage (V), PC Target Curr (A),
- PC Diff PSI, PC RPM Std Dev, PC Scale, PC Retract, PC Aux Torque (mV),
- PC Bias Curr (A), PC Charge Curr (A), PC Draw Curr (A),
-"""
+        self.pc_header = """ \
+PC RPM, PC Bus Voltage (V), PC Winding Curr (A), PC Battery Curr (A), PC Status, \
+PC Load Dump Current (A), PC Target Voltage (V), PC Target Curr (A), \
+PC Diff PSI, PC RPM Std Dev, PC Scale, PC Retract, PC Aux Torque (mV), \
+PC Bias Curr (A), PC Charge Curr (A), PC Draw Curr (A), """
         self.logfile.write(self.pc_header)
 
     # PC record section
@@ -227,10 +226,9 @@ class WECLogger(Interface):
     #            Battery Controller write functions
     # BC header section
     def write_bc_header(self):
-        self.bc_header = """
- BC Voltage, BC Ips, BC V Balance, BC V Stopcharge, BC Ground Fault,
- BC_Hydrogen, BC Status,
-"""
+        self.bc_header = """ \
+BC Voltage, BC Ips, BC V Balance, BC V Stopcharge, BC Ground Fault, \
+BC_Hydrogen, BC Status, """
         self.logfile.write(self.bc_header)
 
     # BC record section
@@ -246,11 +244,10 @@ class WECLogger(Interface):
     #            Crossbow AHRS Controller write functions
     # XB header section
     def write_xb_header(self):
-        self.xb_header = """
- XB Roll XB Angle (deg), XB Pitch Angle (deg), XB Yaw Angle (deg),
- XB X Rate, XB Y Rate, XB Z Rate, XB X Accel, XB Y Accel, XB Z Accel,
- XB North Vel, XB East Vel, XB Down Vel, XB Lat, XB Long, XB Alt, XB Temp,
-"""
+        self.xb_header = """ \
+XB Roll XB Angle (deg), XB Pitch Angle (deg), XB Yaw Angle (deg), \
+XB X Rate, XB Y Rate, XB Z Rate, XB X Accel, XB Y Accel, XB Z Accel, \
+XB North Vel, XB East Vel, XB Down Vel, XB Lat, XB Long, XB Alt, XB Temp, """
         self.logfile.write(self.xb_header)
 
     # XB record section
@@ -282,10 +279,9 @@ class WECLogger(Interface):
     # SC header section
     # Just write the commas unless data is the correct type
     def write_sc_header(self):
-        self.sc_header = """
- SC Load Cell (lbs), SC Range Finder (in),
- SC Upper PSI, SC Lower PSI, SC Status, CTD Time, CTD Salinity, CTD Temp,
-"""
+        self.sc_header = """ \
+SC Load Cell (lbs), SC Range Finder (in), \
+SC Upper PSI, SC Lower PSI, SC Status, CTD Time, CTD Salinity, CTD Temp, """
         self.logfile.write(self.sc_header)
 
     # SC record section
@@ -302,13 +298,12 @@ class WECLogger(Interface):
     # TF header section
 
     def write_tf_header(self):
-        self.tf_header = """
- TF Power-Loss Timeouts, TF Tether Volt, TF Batt Volt, TF Pressure psi,
- TF Qtn 1, TF Qtn 2, TF Qtn 3, TF Qtn 4, TF Mag 1 gauss, TF Mag 2, TF Mag 3, TF Status,
- TF Ang Rate 1 rad/sec, TF Ang Rate 2,  TF Ang Rate 3, TF VPE status,
- TF Accel 1 m/sec^2, TF Accel 2, TF Accel 3, TF Comms-Loss Timeouts,
- TF Maxon status, TF Motor curren mA, TF Encoder counts,
-"""
+        self.tf_header = """ \
+TF Power-Loss Timeouts, TF Tether Volt, TF Batt Volt, TF Pressure psi, \
+TF Qtn 1, TF Qtn 2, TF Qtn 3, TF Qtn 4, TF Mag 1 gauss, TF Mag 2, TF Mag 3, TF Status, \
+TF Ang Rate 1 rad/sec, TF Ang Rate 2,  TF Ang Rate 3, TF VPE status, \
+TF Accel 1 m/sec^2, TF Accel 2, TF Accel 3, TF Comms-Loss Timeouts, \
+TF Maxon status, TF Motor curren mA, TF Encoder counts, """
         self.logfile.write(self.tf_header)
 
     # TF record section
