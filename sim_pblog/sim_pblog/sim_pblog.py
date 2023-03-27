@@ -29,10 +29,6 @@ import rclpy
 
 from tf_transformations import euler_from_quaternion
 
-WECLOGHOME = 'WEC_LOG_DIR'
-ALTLOGHOME = '/tmp'          # assume we always have write permission to /tmp
-NEWFILEINTERVAL = 60 * 60    # limit the 'size' of each log file to one hour
-
 # Controller IDs used as the first value in each record
 BatteryConID = 0
 SpringConID = 1
@@ -58,6 +54,7 @@ class WECLogger(Interface):
 
     def __init__(self):
         super().__init__('sim_pblog')
+        self.loghome = '/tmp'           # TODO: needs to come from cfg or param
         self.logdir = None
         self.logfile = None
         self.logfilename = None
@@ -69,6 +66,7 @@ class WECLogger(Interface):
         self.tf_header = ''
         self.start_time = datetime.now()
         self.logger_time = self.start_time
+        self.logfileinterval = 60 * 60  # in seconds TODO: needs to come from cfg or param
         self.logfile_setup()
 
     def __del__(self):
@@ -119,9 +117,8 @@ class WECLogger(Interface):
     def write_record(self, source_id, data):
         self.update_logger_time(data)
 
-        # Create a fresh logfile when interval time has passed since the
-        # current logfile was created
-        if (self.logger_time > (self.logfiletime + timedelta(seconds=NEWFILEINTERVAL))):
+        # Create a fresh logfile when interval time has passed
+        if (self.logger_time > (self.logfiletime + timedelta(seconds=self.logfileinterval))):
             self.logfiletime = self.logger_time
             self.logfile_setup()
 
@@ -167,31 +164,24 @@ class WECLogger(Interface):
     # Example: "2023-03-31.005 would be created on the 6th run on March 31st
 
     def logdir_setup(self):
-        # Use WEC_LOG_DIR env variable for base of log tree
-        wec_log_dir = os.getenv(WECLOGHOME)
-        if (None is wec_log_dir):
-            self.get_logger().info(f'WEC_LOG_DIR env variable not set, using {ALTLOGHOME}')
-            wec_log_dir = ALTLOGHOME
-        elif (False is os.access(wec_log_dir, os.W_OK)):
-            self.get_logger().info(f'No write access to {wec_log_dir}, using {ALTLOGHOME}')
-            wec_log_dir = ALTLOGHOME
+        self.get_logger().info(f'Using {self.loghome} as logging home')
 
         # Use logger_time date to create directory name, e.g., 2023-03-23.002
         now = self.logger_time.strftime('%Y-%m-%d')
         count = 0
-        dirname = wec_log_dir + '/' + now + '.{nnn:03}'.format(nnn=count)
+        dirname = self.loghome + '/' + now + '.{nnn:03}'.format(nnn=count)
         while (os.path.exists(dirname)):
             count = count + 1
-            dirname = wec_log_dir + '/' + now + '.{nnn:03}'.format(nnn=count)
+            dirname = self.loghome + '/' + now + '.{nnn:03}'.format(nnn=count)
 
         if (False is os.path.exists(dirname)):
             os.makedirs(dirname)
 
         # Point a link called 'latest' to the new directory
         # Renaming a temporary link works as 'ln -sf'
-        templink = wec_log_dir + '/' + '__bogus__'
+        templink = self.loghome + '/' + '__templn__'
         os.symlink(dirname, templink)
-        latest = wec_log_dir + '/' + 'latest'
+        latest = self.loghome + '/' + 'latest'
         os.rename(templink, latest)
 
         self.get_logger().info(f'New log directory: {dirname}')
