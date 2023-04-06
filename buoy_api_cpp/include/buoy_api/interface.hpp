@@ -159,7 +159,7 @@ public:
     tf_set_state_machine_client_ =
       this->create_client<buoy_interfaces::srv::TFSetStateMachineCommand>(
       "/tf_set_state_machine_command");
-    tf_watch_dog_client_ =
+    tf_watchdog_client_ =
       this->create_client<buoy_interfaces::srv::TFWatchDogCommand>("/tf_watchdog_command");
     tf_reset_client_ =
       this->create_client<buoy_interfaces::srv::TFResetCommand>("/tf_reset_command");
@@ -208,7 +208,7 @@ public:
     found &= wait_for_service(tf_set_charge_mode_client_, "/tf_set_charge_mode_command");
     found &= wait_for_service(tf_set_curr_lim_client_, "/tf_set_curr_lim_command");
     found &= wait_for_service(tf_set_state_machine_client_, "/tf_set_state_machine_command");
-    found &= wait_for_service(tf_watch_dog_client_, "/tf_watchdog_command");
+    found &= wait_for_service(tf_watchdog_client_, "/tf_watchdog_command");
     found &= wait_for_service(tf_reset_client_, "/tf_reset_command");
 
     if (!found) {
@@ -674,7 +674,7 @@ protected:
   rclcpp::Client<buoy_interfaces::srv::TFSetCurrLimCommand>::SharedPtr tf_set_curr_lim_client_;
   rclcpp::Client<buoy_interfaces::srv::TFSetStateMachineCommand>::SharedPtr
     tf_set_state_machine_client_;
-  rclcpp::Client<buoy_interfaces::srv::TFWatchDogCommand>::SharedPtr tf_watch_dog_client_;
+  rclcpp::Client<buoy_interfaces::srv::TFWatchDogCommand>::SharedPtr tf_watchdog_client_;
   rclcpp::Client<buoy_interfaces::srv::TFResetCommand>::SharedPtr tf_reset_client_;
 
   // generic service callback
