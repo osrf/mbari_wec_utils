@@ -87,7 +87,7 @@ There are no currently copyrighted source files in this package.
 ### Direct Runtime ROS Dependencies [5.i]/[5.ii]
 
 `buoy_api_py` has the following runtime ROS dependencies, which are at **Quality Level 5**:
-* `buoy_interfaces` [QUALITY DECLARATION](https://github.com/osrf/buoy_msgs/tree/main/buoy_interfaces/QUALITY_DECLARATION.md)
+* `buoy_interfaces` [QUALITY DECLARATION](https://github.com/osrf/mbari_wec_utils/tree/main/buoy_interfaces/QUALITY_DECLARATION.md)
 
 It has several "buildtool" dependencies, which do not affect the resulting quality of the package, because they do not contribute to the public library API.
 

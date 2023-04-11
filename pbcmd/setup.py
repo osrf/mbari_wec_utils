@@ -47,7 +47,8 @@ setup(
         ],
     },
     scripts=[
-        'scripts/install_aliases.sh'
+        'scripts/install_aliases.sh',
+        'scripts/uninstall_aliases.sh'
     ],
     cmdclass={'install': PostInstall}
 )

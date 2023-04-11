@@ -116,7 +116,7 @@ class Interface(Node):
                                                           '/tf_set_curr_lim_command')
         self.tf_set_state_machine_client_ = self.create_client(TFSetStateMachineCommand,
                                                                '/tf_set_state_machine_command')
-        self.tf_watch_dog_client_ = self.create_client(TFWatchDogCommand, '/tf_watch_dog_command')
+        self.tf_watchdog_client_ = self.create_client(TFWatchDogCommand, '/tf_watchdog_command')
         self.tf_reset_client_ = self.create_client(TFResetCommand, '/tf_reset_command')
 
         self.pc_pack_rate_param_future_ = None
@@ -145,7 +145,7 @@ class Interface(Node):
         self.tf_set_charge_mode_future_ = None
         self.tf_set_curr_lim_future_ = None
         self.tf_set_state_machine_future_ = None
-        self.tf_watch_dog_future_ = None
+        self.tf_watchdog_future_ = None
         self.tf_reset_future_ = None
 
         self.setup_subscribers()
@@ -197,11 +197,11 @@ class Interface(Node):
         found &= self.wait_for_service(self.tf_set_curr_lim_client_, '/tf_set_curr_lim_command')
         found &= self.wait_for_service(self.tf_set_state_machine_client_,
                                        '/tf_set_state_machine_command')
-        found &= self.wait_for_service(self.tf_watch_dog_client_, '/tf_watch_dog_command')
+        found &= self.wait_for_service(self.tf_watchdog_client_, '/tf_watchdog_command')
         found &= self.wait_for_service(self.tf_reset_client_, '/tf_reset_command')
 
         if not found:
-            self.get_logger().error('Did not find required services')
+            self.get_logger().warn('Did not find all services')
         return found
 
     # if user has shadowed a callback in their user-derived class, this will use their
