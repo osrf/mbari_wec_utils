@@ -14,20 +14,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import atexit
 from datetime import datetime, timedelta
 import gzip
 import math
 import os
 
 from buoy_api import Interface
+
 from buoy_interfaces.msg import BCRecord
 from buoy_interfaces.msg import PCRecord
 from buoy_interfaces.msg import SCRecord
 from buoy_interfaces.msg import TFRecord
 from buoy_interfaces.msg import XBRecord
+
 import rclpy
 
 from tf_transformations import euler_from_quaternion
+
 
 # Controller IDs used as the first value in each record
 BatteryConID = 0
@@ -75,9 +79,7 @@ class WECLogger(Interface):
         self.tf_header = ''
 
         self.logfile_setup()
-
-    def __del__(self):
-        self.close_zip_logfile()
+        atexit.register(self.close_zip_logfile)
 
     # Create and open a new log file
     # The system time is used to create a unique CSV log file name
@@ -154,13 +156,21 @@ class WECLogger(Interface):
 
     # Close the current log file and zip it
     def close_zip_logfile(self):
-        if (self.logfile is not None):
+        if self.logfile is not None and not self.logfile.closed:
             self.logfile.close()
             with open(self.logfilename, 'rb') as logf:
                 with gzip.open(f'{self.logfilename}.gz', 'wb') as gzfile:
-                    self.get_logger().info(f'{self.logfilename} -> {self.logfilename}.gz')
                     gzfile.writelines(logf)
-                    os.remove(self.logfilename)
+                    self.get_logger().info(f'{self.logfilename} -> {self.logfilename}.gz')
+            os.remove(self.logfilename)
+
+            # Point a link called 'latest' to the new directory
+            # Renaming a temporary link works as 'ln -sf'
+            csv_gz = os.path.basename(self.logfilename) + '.gz'
+            templink = os.path.join(self.logdir, '__bogus__')
+            os.symlink(csv_gz, templink)
+            latest = os.path.join(self.logdir, 'latest_csv')
+            os.rename(templink, latest)
 
     # Create a new directory for log files created for this instance of logger
     # The system date is used to create a unique directory name for this run
@@ -361,8 +371,6 @@ def main():
     rclpy.init(args=extras)
     pblog = WECLogger(args.loghome if args.loghome else loghome_arg.default,
                       args.logdir if args.logdir else logdir_arg.default)
-    pblog.get_logger().info(f'{args = }')
-    pblog.get_logger().info(f'{sys.argv = }')
     rclpy.spin(pblog)
     rclpy.shutdown()
 
