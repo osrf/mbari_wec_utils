@@ -361,7 +361,6 @@ TF Maxon status, TF Motor curren mA, TF Encoder counts, """
 
 
 def main():
-    import sys
     import argparse
     parser = argparse.ArgumentParser()
     loghome_arg = parser.add_argument('--loghome', default='/tmp', help='root log directory')
