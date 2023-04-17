@@ -1,6 +1,4 @@
-# buoy_msgs
-
-TODO(anyone)
+# mbari_wec_utils
 
 Packages in this repo provide interfaces, API, examples for MBARI Power Buoy.
 

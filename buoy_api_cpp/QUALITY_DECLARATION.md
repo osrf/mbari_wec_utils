@@ -1,6 +1,6 @@
 This document is a declaration of software quality for the `buoy_api_cpp` package, based on the guidelines in [REP-2004](https://www.ros.org/reps/rep-2004.html).
 
-# buoy_msgs Quality Declaration
+# mbari_wec_utils Quality Declaration
 
 The package `buoy_api_cpp` claims to be in the **Quality Level 5** category.
 
@@ -87,7 +87,7 @@ There are no currently copyrighted source files in this package.
 ### Direct Runtime ROS Dependencies [5.i]/[5.ii]
 
 `buoy_api_cpp` has the following runtime ROS dependencies, which are at **Quality Level 5**:
-* `buoy_interfaces` [QUALITY DECLARATION](https://github.com/osrf/buoy_msgs/tree/main/buoy_interfaces/QUALITY_DECLARATION.md)
+* `buoy_interfaces` [QUALITY DECLARATION](https://github.com/osrf/mbari_wec_utils/tree/main/buoy_interfaces/QUALITY_DECLARATION.md)
 
 It has several "buildtool" dependencies, which do not affect the resulting quality of the package, because they do not contribute to the public library API.
 
