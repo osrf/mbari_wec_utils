@@ -18,6 +18,14 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 ALIAS_INSTALL_DIR=$HOME/.local/bin
 mkdir -p $ALIAS_INSTALL_DIR
 
+# Ensure ~/.profile exists to pick up
+# ~/.local/bin for all the pbcmd aliases
+SKEL_PROFILE=/etc/skel/.profile
+HOME_PROFILE=$HOME/.profile
+if [ ! -f "$HOME_PROFILE" ]; then
+    cp -v $SKEL_PROFILE $HOME_PROFILE
+fi
+
 cmds=(pbcmd bender reset_battery pump valve tether reset_spring sc_pack_rate)
 cmds+=(pc_Scale pc_Retract pc_VTargMax pc_ChargeCurrLim pc_Gain pc_StdDevTarg)
 cmds+=(pc_DrawCurrLim pc_BattSwitch pc_WindCurr pc_BiasCurr pc_PackRate)
@@ -27,8 +35,8 @@ cmds+=(tf_SetCurrLim tf_WatchDog tf_Reset)
 echo "installing pbcmd aliases to" $ALIAS_INSTALL_DIR
 
 for index in "${!cmds[@]}"; do
-  echo "ln -sf" $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/"${cmds[$index]}"
-  ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/"${cmds[$index]}"
+    echo "ln -sf" $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/"${cmds[$index]}"
+    ln -sf $SCRIPT_DIR/pbcmd $ALIAS_INSTALL_DIR/"${cmds[$index]}"
 done
 
 
