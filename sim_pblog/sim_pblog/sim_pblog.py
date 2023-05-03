@@ -36,8 +36,8 @@ from tf_transformations import euler_from_quaternion
 BatteryConID = 0
 SpringConID = 1
 PowerConID = 2
+CrossbowID = 3
 TrefoilConID = 4
-CrossbowID = 5
 
 # WECLogger - duplicate legacy pblog behavior substituting ROS2 topics for CANBus
 # Description:
@@ -94,9 +94,9 @@ class WECLogger(Interface):
 
         # Point a link called 'latest' to the new directory
         # Renaming a temporary link works as 'ln -sf'
-        templink = os.path.join(self.logdir, '__bogus__')
+        templink = os.path.join(self.logdir, '__templn__')
         os.symlink(csv, templink)
-        latest = os.path.join(self.logdir, 'latest_csv')
+        latest = os.path.join(self.logdir, 'latest')
         os.rename(templink, latest)
 
         self.get_logger().info(f'New log file: {self.logfilename}')
@@ -163,9 +163,9 @@ class WECLogger(Interface):
             # Point a link called 'latest' to the new directory
             # Renaming a temporary link works as 'ln -sf'
             csv_gz = os.path.basename(self.logfilename) + '.gz'
-            templink = os.path.join(self.logdir, '__bogus__')
+            templink = os.path.join(self.logdir, '__templn__')
             os.symlink(csv_gz, templink)
-            latest = os.path.join(self.logdir, 'latest_csv')
+            latest = os.path.join(self.logdir, 'latest')
             os.rename(templink, latest)
 
     # Create a new directory for log files created for this instance of logger
@@ -191,7 +191,7 @@ class WECLogger(Interface):
         if not os.path.exists(dirname):
             os.makedirs(dirname)
 
-        # Point a link called 'latest' to the new directory
+        # Point a link called 'latest_csv' to the new directory
         # Renaming a temporary link works as 'ln -sf'
         templink = os.path.join(self.loghome, '__templn__')
         os.symlink(basename, templink)
