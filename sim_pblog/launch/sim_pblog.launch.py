@@ -28,7 +28,7 @@ package_name = 'sim_pblog'
 
 def generate_launch_description():
     loghome_launch_arg = DeclareLaunchArgument(
-        'loghome', default_value=[''],
+        'loghome', default_value=['~/.pblogs'],
         description='root log directory'
     )
 

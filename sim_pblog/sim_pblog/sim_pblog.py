@@ -14,11 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import atexit
 from datetime import datetime, timedelta
 import gzip
 import math
 import os
+import sys
 
 from buoy_api import Interface
 
@@ -61,7 +61,7 @@ class WECLogger(Interface):
         self.start_time = datetime.now()
         self.logger_time = self.start_time
 
-        self.loghome = loghome
+        self.loghome = os.path.expanduser(loghome)
         # Create new log folder at the start of this instance of the logger
         self.logdir = self.logdir_setup(logdir)
         self.logfile = None
@@ -77,9 +77,6 @@ class WECLogger(Interface):
         self.xb_header = ''
         self.sc_header = ''
         self.tf_header = ''
-
-        self.logfile_setup()
-        atexit.register(self.close_zip_logfile)
 
     # Create and open a new log file
     # The system time is used to create a unique CSV log file name
@@ -363,7 +360,7 @@ TF Maxon status, TF Motor curren mA, TF Encoder counts, """
 def main():
     import argparse
     parser = argparse.ArgumentParser()
-    loghome_arg = parser.add_argument('--loghome', default='/tmp', help='root log directory')
+    loghome_arg = parser.add_argument('--loghome', default='~/.pblogs', help='root log directory')
     logdir_arg = parser.add_argument('--logdir', help='specific log directory in loghome')
     args, extras = parser.parse_known_args()
 
