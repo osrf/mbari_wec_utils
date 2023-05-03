@@ -4,7 +4,10 @@
   <name>pbcmd</name>
   <version>0.0.0</version>
   <description>Replicates cli for physical MBARI Power Buoy</description>
+
+  <maintainer email="hamilton@mbari.org">Andrew Hamilton</maintainer>
   <maintainer email="anderson@mbari.org">Michael Anderson</maintainer>
+
   <license>Apache 2.0</license>
 
   <depend>buoy_api_py</depend>
