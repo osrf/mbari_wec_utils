@@ -18,7 +18,6 @@ from datetime import datetime, timedelta
 import gzip
 import math
 import os
-import sys
 
 from buoy_api import Interface
 
