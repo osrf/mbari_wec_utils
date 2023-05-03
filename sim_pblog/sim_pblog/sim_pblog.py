@@ -20,21 +20,24 @@ import math
 import os
 
 from buoy_api import Interface
+
 from buoy_interfaces.msg import BCRecord
 from buoy_interfaces.msg import PCRecord
 from buoy_interfaces.msg import SCRecord
 from buoy_interfaces.msg import TFRecord
 from buoy_interfaces.msg import XBRecord
+
 import rclpy
 
 from tf_transformations import euler_from_quaternion
+
 
 # Controller IDs used as the first value in each record
 BatteryConID = 0
 SpringConID = 1
 PowerConID = 2
+CrossbowID = 3
 TrefoilConID = 4
-CrossbowID = 5
 
 # WECLogger - duplicate legacy pblog behavior substituting ROS2 topics for CANBus
 # Description:
@@ -52,50 +55,48 @@ CrossbowID = 5
 
 class WECLogger(Interface):
 
-    def __init__(self):
-        super().__init__('sim_pblog')
-        self.loghome = '/tmp'           # TODO: needs to come from cfg or param
-        self.logdir = None
+    def __init__(self, loghome, logdir=None):
+        super().__init__('sim_pblog', check_for_services=False)
+        self.start_time = datetime.now()
+        self.logger_time = self.start_time
+
+        self.loghome = os.path.expanduser(loghome)
+        # Create new log folder at the start of this instance of the logger
+        self.logdir = self.logdir_setup(logdir)
         self.logfile = None
         self.logfilename = None
         self.logfiletime = datetime.fromtimestamp(0)
+
+        self.logfileinterval_sec = 60 * 60  # in seconds
+        # Get params from config if available to set self.logfileinterval_sec
+        self.set_params()
+
         self.pc_header = ''
         self.bc_header = ''
         self.xb_header = ''
         self.sc_header = ''
         self.tf_header = ''
-        self.start_time = datetime.now()
-        self.logger_time = self.start_time
-        self.logfileinterval = 60 * 60  # in seconds TODO: needs to come from cfg or param
-        self.logfile_setup()
-
-    def __del__(self):
-        self.close_zip_logfile()
 
     # Create and open a new log file
     # The system time is used to create a unique CSV log file name
     # Example: "2023.03.31T23-59-59.csv" would be created just before midnight on March 31st
 
     def logfile_setup(self):
-        # Create new log folder at the start of this instance of the logger
-        if (self.logdir is None):
-            self.logdir = self.logdir_setup()
-
         # close existing log file and zip it shut
         if (self.logfile is not None):
             self.close_zip_logfile()
 
         # Open new file in logdir using the logger_time (2023.03.23T13.09.54.csv)
-        self.logfilename = self.logdir \
-            + '/' + self.logger_time.strftime('%Y.%m.%dT%I.%M.%S') + '.csv'
+        csv = self.logger_time.strftime('%Y.%m.%dT%I.%M.%S') + '.csv'
+        self.logfilename = os.path.join(self.logdir, csv)
         self.logfile = open(self.logfilename, mode='w', encoding='utf-8')
         self.write_header()
 
         # Point a link called 'latest' to the new directory
         # Renaming a temporary link works as 'ln -sf'
-        templink = self.logdir + '/' + '__bogus__'
-        os.symlink(self.logfilename, templink)
-        latest = self.logdir + '/' + 'latest'
+        templink = os.path.join(self.logdir, '__templn__')
+        os.symlink(csv, templink)
+        latest = os.path.join(self.logdir, 'latest')
         os.rename(templink, latest)
 
         self.get_logger().info(f'New log file: {self.logfilename}')
@@ -118,7 +119,7 @@ class WECLogger(Interface):
         self.update_logger_time(data)
 
         # Create a fresh logfile when interval time has passed
-        if (self.logger_time > (self.logfiletime + timedelta(seconds=self.logfileinterval))):
+        if (self.logger_time > (self.logfiletime + timedelta(seconds=self.logfileinterval_sec))):
             self.logfiletime = self.logger_time
             self.logfile_setup()
 
@@ -151,37 +152,50 @@ class WECLogger(Interface):
 
     # Close the current log file and zip it
     def close_zip_logfile(self):
-        if (self.logfile is not None):
+        if self.logfile is not None and not self.logfile.closed:
             self.logfile.close()
             with open(self.logfilename, 'rb') as logf:
                 with gzip.open(f'{self.logfilename}.gz', 'wb') as gzfile:
-                    self.get_logger().info(f'{self.logfilename} -> {self.logfilename}.gz')
                     gzfile.writelines(logf)
-                    os.remove(self.logfilename)
+                    self.get_logger().info(f'{self.logfilename} -> {self.logfilename}.gz')
+            os.remove(self.logfilename)
+
+            # Point a link called 'latest' to the new directory
+            # Renaming a temporary link works as 'ln -sf'
+            csv_gz = os.path.basename(self.logfilename) + '.gz'
+            templink = os.path.join(self.logdir, '__templn__')
+            os.symlink(csv_gz, templink)
+            latest = os.path.join(self.logdir, 'latest')
+            os.rename(templink, latest)
 
     # Create a new directory for log files created for this instance of logger
     # The system date is used to create a unique directory name for this run
     # Example: "2023-03-31.005 would be created on the 6th run on March 31st
 
-    def logdir_setup(self):
+    def logdir_setup(self, basename=None):
         self.get_logger().info(f'Using {self.loghome} as logging home')
 
-        # Use logger_time date to create directory name, e.g., 2023-03-23.002
-        now = self.logger_time.strftime('%Y-%m-%d')
-        count = 0
-        dirname = self.loghome + '/' + now + '.{nnn:03}'.format(nnn=count)
-        while (os.path.exists(dirname)):
-            count = count + 1
-            dirname = self.loghome + '/' + now + '.{nnn:03}'.format(nnn=count)
+        if basename:
+            dirname = os.path.join(self.loghome, basename)
+        else:
+            # Use logger_time date to create directory name, e.g., 2023-03-23.002
+            now = self.logger_time.strftime('%Y-%m-%d')
+            count = 0
+            basename = now + '.{nnn:03}'.format(nnn=count)
+            dirname = os.path.join(self.loghome, basename)
+            while os.path.exists(dirname):
+                count = count + 1
+                basename = now + '.{nnn:03}'.format(nnn=count)
+                dirname = os.path.join(self.loghome, basename)
 
-        if (False is os.path.exists(dirname)):
+        if not os.path.exists(dirname):
             os.makedirs(dirname)
 
-        # Point a link called 'latest' to the new directory
+        # Point a link called 'latest_csv' to the new directory
         # Renaming a temporary link works as 'ln -sf'
-        templink = self.loghome + '/' + '__templn__'
-        os.symlink(dirname, templink)
-        latest = self.loghome + '/' + 'latest'
+        templink = os.path.join(self.loghome, '__templn__')
+        os.symlink(basename, templink)
+        latest = os.path.join(self.loghome, 'latest_csv')
         os.rename(templink, latest)
 
         self.get_logger().info(f'New log directory: {dirname}')
@@ -321,7 +335,6 @@ TF Maxon status, TF Motor curren mA, TF Encoder counts, """
         else:
             self.logfile.write(',' * self.tf_header.count(','))
 
-    # Delete any unused callback
     def ahrs_callback(self, data):
         self.write_record(CrossbowID, data)
 
@@ -337,16 +350,22 @@ TF Maxon status, TF Motor curren mA, TF Encoder counts, """
     def trefoil_callback(self, data):
         self.write_record(TrefoilConID, data)
 
-    def powerbuoy_callback(self, data):
-        pass
-
     def set_params(self):
-        pass
+        self.declare_parameter('logfileinterval_mins', int(self.logfileinterval_sec / 60))
+        self.logfileinterval_sec = \
+            60 * self.get_parameter('logfileinterval_mins').get_parameter_value().integer_value
 
 
 def main():
-    rclpy.init()
-    pblog = WECLogger()
+    import argparse
+    parser = argparse.ArgumentParser()
+    loghome_arg = parser.add_argument('--loghome', default='~/.pblogs', help='root log directory')
+    logdir_arg = parser.add_argument('--logdir', help='specific log directory in loghome')
+    args, extras = parser.parse_known_args()
+
+    rclpy.init(args=extras)
+    pblog = WECLogger(args.loghome if args.loghome else loghome_arg.default,
+                      args.logdir if args.logdir else logdir_arg.default)
     rclpy.spin(pblog)
     rclpy.shutdown()
 

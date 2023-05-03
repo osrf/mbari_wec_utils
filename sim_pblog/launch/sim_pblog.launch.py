@@ -15,7 +15,11 @@
 import os
 
 from ament_index_python.packages import get_package_share_directory
+
 from launch import LaunchDescription
+from launch.actions import DeclareLaunchArgument
+from launch.substitutions import LaunchConfiguration
+
 from launch_ros.actions import Node
 
 
@@ -23,20 +27,36 @@ package_name = 'sim_pblog'
 
 
 def generate_launch_description():
-    ld = LaunchDescription()
+    loghome_launch_arg = DeclareLaunchArgument(
+        'loghome', default_value=['~/.pblogs'],
+        description='root log directory'
+    )
+
+    logdir_launch_arg = DeclareLaunchArgument(
+        'logdir', default_value=[''],
+        description='specific log directory in loghome'
+    )
+
     config = os.path.join(
         get_package_share_directory(package_name),
         'config',
         'sim_pblog.yaml'
-        )
+    )
 
     node = Node(
         package=package_name,
         name='sim_pblog',
         executable='sim_pblog',
+        arguments=[
+            '--loghome', LaunchConfiguration('loghome'),
+            '--logdir', LaunchConfiguration('logdir')
+        ],
         parameters=[config]
     )
 
+    ld = LaunchDescription()
+    ld.add_action(loghome_launch_arg)
+    ld.add_action(logdir_launch_arg)
     ld.add_action(node)
 
     return ld
