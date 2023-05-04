@@ -243,7 +243,7 @@ BC_Hydrogen, BC Status, """
                                + f'{data.vbalance:.2f}, {data.vstopcharge:.2f}, '
                                + f'{data.gfault:.2f}, {data.hydrogen:.2f}, {data.status}, ')
         else:
-            self.logfile.write(',' * self.pc_header.count(','))
+            self.logfile.write(',' * self.bc_header.count(','))
 
     #            Crossbow AHRS Controller write functions
     # XB header section
@@ -277,7 +277,7 @@ XB North Vel, XB East Vel, XB Down Vel, XB Lat, XB Long, XB Alt, XB Temp, """
                 + f'{gps.latitude:.5f}, {gps.longitude:.5f}, {gps.altitude:.3f}, '
                 + f'{tmp.temperature:.3f}, ')
         else:
-            self.logfile.write(',' * self.pc_header.count(','))
+            self.logfile.write(',' * self.xb_header.count(','))
 
     #            Spring Controller write functions
     # SC header section
@@ -296,7 +296,7 @@ SC Upper PSI, SC Lower PSI, SC Status, CTD Time, CTD Salinity, CTD Temp, """
                                + f'{data.status}, {data.epoch}, '
                                + f'{data.salinity:.6f}, {data.temperature:.3f}, ')
         else:
-            self.logfile.write(',' * self.pc_header.count(','))
+            self.logfile.write(',' * self.sc_header.count(','))
 
     #            Trefoil Controller write functions
     # TF header section
