@@ -228,6 +228,10 @@ class Interface(Node):
                 sub = self.create_subscription(msg_type, topic, cb, 10)
                 self.subs_.append(sub)
 
+    # Setup node clock to use sim time from /clock
+    def use_sim_time(self, enable=True):
+        self.set_parameters([Parameter('use_sim_time', Parameter.Type.BOOL, enable)])
+
     # set publish rate of PC Microcontroller telemetry
     def set_pc_pack_rate_param(self, rate_hz=50.0):
         request = SetParameters.Request()
