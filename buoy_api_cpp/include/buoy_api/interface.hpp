@@ -320,6 +320,15 @@ public:
     }
   }
 
+  // Setup node clock to use sim time from /clock
+  void use_sim_time(bool enable = true)
+  {
+    this->set_parameter(
+      rclcpp::Parameter(
+        "use_sim_time",
+        enable));
+  }
+
   // set publish rate of PC Microcontroller telemetry
   void set_pc_pack_rate(const uint8_t & rate_hz = 50)
   {
