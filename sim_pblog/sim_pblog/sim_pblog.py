@@ -28,6 +28,7 @@ from buoy_interfaces.msg import TFRecord
 from buoy_interfaces.msg import XBRecord
 
 import rclpy
+from rclpy.time import Time
 
 from tf_transformations import euler_from_quaternion
 
@@ -138,8 +139,9 @@ class WECLogger(Interface):
     def update_logger_time(self, data):
         # Timestamps in the data messages contain the time since the
         # start of the simulation beginning at zero
-        micros = (1.0 * data.header.stamp.nanosec) / 1000.   # convert to micros
-        delta = timedelta(seconds=data.header.stamp.sec, microseconds=micros)
+        msg_sec, msg_nsec = Time.from_msg(data.header.stamp).seconds_nanoseconds()
+        msg_micros = (1.0 * msg_nsec) / 1000.  # convert to micros
+        delta = timedelta(seconds=msg_sec, microseconds=msg_micros)
         # Calculated logger time
         newtime = self.start_time + delta
         # Occasionally data messages arrive out of time sequence
