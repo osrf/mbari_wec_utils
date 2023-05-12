@@ -233,36 +233,56 @@ class Interface(Node):
         self.set_parameters([Parameter('use_sim_time', Parameter.Type.BOOL, enable)])
 
     # set publish rate of PC Microcontroller telemetry
-    def set_pc_pack_rate_param(self, rate_hz=50.0):
+    def set_pc_pack_rate_param(self, rate_hz=50.0, blocking=True):
+        return asyncio.run(self._set_pc_pack_rate_param(rate_hz, blocking))
+
+    async def _set_pc_pack_rate_param(self, rate_hz=50.0, blocking=True):
         request = SetParameters.Request()
         request.parameters = [Parameter(name='publish_rate',
                                         value=float(rate_hz)).to_parameter_msg()]
         self.pc_pack_rate_param_future_ = self.pc_pack_rate_param_client_.call_async(request)
         self.pc_pack_rate_param_future_.add_done_callback(self.param_response_callback)
+        if blocking:
+            await self.pc_pack_rate_param_future_
 
     # set publish rate of SC Microcontroller telemetry
-    def set_sc_pack_rate_param(self, rate_hz=50.0):
+    def set_sc_pack_rate_param(self, rate_hz=50.0, blocking=True):
+        return asyncio.run(self._set_sc_pack_rate_param(rate_hz, blocking))
+
+    async def set_sc_pack_rate_param(self, rate_hz=50.0, blocking=True):
         request = SetParameters.Request()
         request.parameters = [Parameter(name='publish_rate',
                                         value=float(rate_hz)).to_parameter_msg()]
         self.sc_pack_rate_param_future_ = self.sc_pack_rate_param_client_.call_async(request)
         self.sc_pack_rate_param_future_.add_done_callback(self.param_response_callback)
+        if blocking:
+            await self.sc_pack_rate_param_future_
 
     # set publish rate of PC Microcontroller telemetry
-    def set_pc_pack_rate(self, rate_hz=50):
+    def set_pc_pack_rate(self, rate_hz=50, blocking=True):
+        return asyncio.run(self._set_pc_pack_rate(rate_hz, blocking))
+
+    async def _set_pc_pack_rate(self, rate_hz=50, blocking=True):
         request = PCPackRateCommand.Request()
         request.rate_hz = int(rate_hz)
 
         self.pc_pack_rate_future_ = self.pc_pack_rate_client_.call_async(request)
         self.pc_pack_rate_future_.add_done_callback(self.default_service_response_callback)
+        if blocking:
+            await self.pc_pack_rate_future_
 
     # set publish rate of SC Microcontroller telemetry
-    def set_sc_pack_rate(self, rate_hz=50):
+    def set_sc_pack_rate(self, rate_hz=50, blocking=True):
+        return asyncio.run(self._set_sc_pack_rate(rate_hz, blocking))
+
+    async def _set_sc_pack_rate(self, rate_hz=50, blocking=True):
         request = SCPackRateCommand.Request()
         request.rate_hz = int(rate_hz)
 
         self.sc_pack_rate_future_ = self.sc_pack_rate_client_.call_async(request)
         self.sc_pack_rate_future_.add_done_callback(self.default_service_response_callback)
+        if blocking:
+            await self.sc_pack_rate_future_
 
     def send_pump_command(self, duration_mins, blocking=True):
         return asyncio.run(self._send_pump_command(duration_mins, blocking))
