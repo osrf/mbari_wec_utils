@@ -249,7 +249,7 @@ class Interface(Node):
     def set_sc_pack_rate_param(self, rate_hz=50.0, blocking=True):
         return asyncio.run(self._set_sc_pack_rate_param(rate_hz, blocking))
 
-    async def set_sc_pack_rate_param(self, rate_hz=50.0, blocking=True):
+    async def _set_sc_pack_rate_param(self, rate_hz=50.0, blocking=True):
         request = SetParameters.Request()
         request.parameters = [Parameter(name='publish_rate',
                                         value=float(rate_hz)).to_parameter_msg()]
