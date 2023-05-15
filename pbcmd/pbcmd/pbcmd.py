@@ -156,7 +156,7 @@ def sc_pack_rate(parser):
     print('Executing sc_pack_rate to Set the CANBUS packet rate ' +
           f'from the Spring Controller: {args.rate_hz} Hz')
     _pbcmd = _PBCmd()
-    _pbcmd.set_sc_pack_rate_param(args.rate_hz)
+    _pbcmd.set_sc_pack_rate(args.rate_hz)
 
 
 def pc_PackRate(parser):
@@ -169,7 +169,7 @@ def pc_PackRate(parser):
     print('Executing pc_PackRate to Set the CANBUS packet rate ' +
           f'from the Power Controller: {args.rate_hz} Hz')
     _pbcmd = _PBCmd()
-    _pbcmd.set_pc_pack_rate_param(args.rate_hz)
+    _pbcmd.set_pc_pack_rate(args.rate_hz)
 
 
 def pc_Scale(parser):
