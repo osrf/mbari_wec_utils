@@ -36,13 +36,13 @@ from tf_transformations import euler_from_quaternion
 
 
 # Close the current log file and zip it
-def close_zip_logfile(logfile, logfilename):
+def close_zip_logfile(logfile, logfilename, logger):
     if logfile is not None and not logfile.closed:
         logfile.close()
         with open(logfilename, 'rb') as logf:
             with gzip.open(f'{logfilename}.gz', 'wb') as gzfile:
                 gzfile.writelines(logf)
-                self.get_logger().info(f'{logfilename} -> {logfilename}.gz')
+                logger.info(f'{logfilename} -> {logfilename}.gz')
         os.remove(logfilename)
 
         # Point a link called 'latest' to the new directory
@@ -109,7 +109,7 @@ class WECLogger(Interface):
     def logfile_setup(self):
         # close existing log file and zip it shut
         if (self.logfile is not None):
-            self.zip_pool.apply_async(close_zip_logfile, (self.logfile, self.logfilename,))
+            self.zip_pool.apply_async(close_zip_logfile, (self.logfile, self.logfilename, self.get_logger(),))
 
         # Open new file in logdir using the logger_time (2023.03.23T13.09.54.csv)
         csv = self.logger_time.strftime('%Y.%m.%dT%I.%M.%S') + '.csv'
