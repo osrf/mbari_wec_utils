@@ -14,9 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import atexit
 from datetime import datetime, timedelta
 import gzip
 import math
+from multiprocessing import get_context, cpu_count
 import os
 
 from buoy_api import Interface
@@ -31,6 +33,25 @@ import rclpy
 from rclpy.time import Time
 
 from tf_transformations import euler_from_quaternion
+
+
+# Close the current log file and zip it
+def close_zip_logfile(logfile, logfilename):
+    if logfile is not None and not logfile.closed:
+        logfile.close()
+        with open(logfilename, 'rb') as logf:
+            with gzip.open(f'{logfilename}.gz', 'wb') as gzfile:
+                gzfile.writelines(logf)
+                self.get_logger().info(f'{logfilename} -> {logfilename}.gz')
+        os.remove(logfilename)
+
+        # Point a link called 'latest' to the new directory
+        # Renaming a temporary link works as 'ln -sf'
+        # csv_gz = os.path.basename(self.logfilename) + '.gz'
+        # templink = os.path.join(self.logdir, '__templn__')
+        # os.symlink(csv_gz, templink)
+        # latest = os.path.join(self.logdir, 'latest')
+        # os.rename(templink, latest)
 
 
 # Controller IDs used as the first value in each record
@@ -58,6 +79,7 @@ class WECLogger(Interface):
 
     def __init__(self, loghome, logdir=None):
         super().__init__('sim_pblog', check_for_services=False)
+        self.zip_pool = get_context('spawn').Pool(processes=cpu_count())
         self.start_time = datetime.now()
         self.logger_time = self.start_time
 
@@ -78,6 +100,8 @@ class WECLogger(Interface):
         self.sc_header = ''
         self.tf_header = ''
 
+        atexit.register(self.zip_pool.terminate)
+
     # Create and open a new log file
     # The system time is used to create a unique CSV log file name
     # Example: "2023.03.31T23-59-59.csv" would be created just before midnight on March 31st
@@ -85,7 +109,7 @@ class WECLogger(Interface):
     def logfile_setup(self):
         # close existing log file and zip it shut
         if (self.logfile is not None):
-            self.close_zip_logfile()
+            self.zip_pool.apply_async(close_zip_logfile, (self.logfile, self.logfilename,))
 
         # Open new file in logdir using the logger_time (2023.03.23T13.09.54.csv)
         csv = self.logger_time.strftime('%Y.%m.%dT%I.%M.%S') + '.csv'
@@ -167,11 +191,11 @@ class WECLogger(Interface):
 
             # Point a link called 'latest' to the new directory
             # Renaming a temporary link works as 'ln -sf'
-            csv_gz = os.path.basename(self.logfilename) + '.gz'
-            templink = os.path.join(self.logdir, '__templn__')
-            os.symlink(csv_gz, templink)
-            latest = os.path.join(self.logdir, 'latest')
-            os.rename(templink, latest)
+            # csv_gz = os.path.basename(self.logfilename) + '.gz'
+            # templink = os.path.join(self.logdir, '__templn__')
+            # os.symlink(csv_gz, templink)
+            # latest = os.path.join(self.logdir, 'latest')
+            # os.rename(templink, latest)
 
     # Create a new directory for log files created for this instance of logger
     # The system date is used to create a unique directory name for this run
