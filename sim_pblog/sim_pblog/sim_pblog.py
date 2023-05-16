@@ -90,7 +90,7 @@ class WECLogger(Interface):
         # Open new file in logdir using the logger_time (2023.03.23T13.09.54.csv)
         csv = self.logger_time.strftime('%Y.%m.%dT%I.%M.%S') + '.csv'
         self.logfilename = os.path.join(self.logdir, csv)
-        self.logfile = open(self.logfilename, mode='w', encoding='utf-8')
+        self.logfile = open(self.logfilename, mode='w', encoding='utf-8', buffering=1)  # line buffer
         self.write_header()
 
         # Point a link called 'latest' to the new directory
