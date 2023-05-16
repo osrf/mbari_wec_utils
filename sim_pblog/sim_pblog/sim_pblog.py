@@ -18,7 +18,7 @@ import atexit
 from datetime import datetime, timedelta
 import gzip
 import math
-from multiprocessing import get_context, cpu_count
+from multiprocessing import cpu_count, get_context
 import os
 
 from buoy_api import Interface
