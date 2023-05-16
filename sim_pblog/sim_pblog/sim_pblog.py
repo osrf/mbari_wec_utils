@@ -109,7 +109,10 @@ class WECLogger(Interface):
     def logfile_setup(self):
         # close existing log file and zip it shut
         if (self.logfile is not None):
-            self.zip_pool.apply_async(close_zip_logfile, (self.logfile, self.logfilename, self.get_logger(),))
+            self.zip_pool.apply_async(close_zip_logfile,
+                                      (self.logfile,
+                                       self.logfilename,
+                                       self.get_logger(),))
 
         # Open new file in logdir using the logger_time (2023.03.23T13.09.54.csv)
         csv = self.logger_time.strftime('%Y.%m.%dT%I.%M.%S') + '.csv'
