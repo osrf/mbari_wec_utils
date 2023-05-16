@@ -200,7 +200,7 @@ class WECLogger(Interface):
         # Renaming a temporary link works as 'ln -sf'
         templink = os.path.join(self.loghome, '__templn__')
         os.symlink(basename, templink)
-        latest = os.path.join(self.loghome, 'latest_csv')
+        latest = os.path.join(self.loghome, 'latest_csv_dir')
         os.rename(templink, latest)
 
         self.get_logger().info(f'New log directory: {dirname}')
