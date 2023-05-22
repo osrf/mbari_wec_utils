@@ -61,6 +61,10 @@ PowerConID = 2
 CrossbowID = 3
 TrefoilConID = 4
 
+# For unit conversions
+Meters2Inches = 39.37008  # in = m * Meters2Inches
+Newtons2Pounds = 0.22481  # lbs = n * Newtons2Pounds
+
 # WECLogger - duplicate legacy pblog behavior substituting ROS2 topics for CANBus
 # Description:
 #     Init phase: (1) Subscribe to all WEC controllers (e.g., power controller,
@@ -323,7 +327,9 @@ SC Upper PSI, SC Lower PSI, SC Status, CTD Time, CTD Salinity, CTD Temp, """
     # SC record section
     def write_sc(self, data):
         if (type(data) is SCRecord):
-            self.logfile.write(f'{data.load_cell}, {data.range_finder:.2f}, '
+            range_inches = data.range_finder * Meters2Inches
+            load_lbs = data.load_cell * Newtons2Pounds
+            self.logfile.write(f'{load_lbs:.2f}, {range_inches:.2f}, '
                                + f'{data.upper_psi:.2f}, {data.lower_psi:.2f}, '
                                + f'{data.status}, {data.epoch}, '
                                + f'{data.salinity:.6f}, {data.temperature:.3f}, ')
