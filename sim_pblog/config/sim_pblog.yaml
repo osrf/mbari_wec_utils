@@ -1,0 +1,4 @@
+/sim_pblog:
+  ros__parameters:
+    logfileinterval_mins: 60
+
