@@ -66,7 +66,7 @@ class PBTorqueController(Interface):
         self.policy = PBTorqueControlPolicy()
         self.set_params()
 
-        self.set_pc_pack_rate_param()
+        self.set_pc_pack_rate(blocking=False)
 
     def power_callback(self, data):
         wind_curr = self.policy.winding_current_target(data.rpm, data.scale, data.retract)

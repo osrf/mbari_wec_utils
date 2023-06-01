@@ -60,7 +60,7 @@ class NonLinearBiasDamping(Interface):
         self.policy = NLBiasDampingPolicy()
         self.set_params()
         print(self.policy)
-        self.set_sc_pack_rate_param()
+        self.set_sc_pack_rate(blocking=False)
 
     def set_params(self):
         self.declare_parameter('bias_damping.position_breaks', self.policy.breaks)
