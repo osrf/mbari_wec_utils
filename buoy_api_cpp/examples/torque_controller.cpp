@@ -25,7 +25,7 @@ PBTorqueController::PBTorqueController(const std::string & node_name)
   policy_.reset(new PBTorqueControlPolicy());
   set_params();
 
-  set_pc_pack_rate_param();
+  set_pc_pack_rate();
 }
 
 void PBTorqueController::power_callback(const buoy_interfaces::msg::PCRecord & data)
