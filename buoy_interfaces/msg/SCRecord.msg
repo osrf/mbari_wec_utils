@@ -1,14 +1,15 @@
 #Spring Controller
 
+# All SI units
 std_msgs/Header header  # time
 int16 seq_num
-int16 load_cell
-float32 range_finder
-float32 upper_psi
-float32 lower_psi
+int16 load_cell  # N
+float32 range_finder  # m
+float32 upper_pressure  # Pa
+float32 lower_pressure  # Pa
 int64 epoch
-float32 salinity
-float32 temperature
+float32 salinity  # UNUSED
+float32 temperature  # C, UNUSED
 
 uint16 RELIEF_VALVE_REQUEST=1  # Request to open/close valve
 uint16 RELIEF_VALVE_STATUS=128  # Status of Relief valve open/close
