@@ -18,7 +18,7 @@ import atexit
 from datetime import datetime, timedelta
 import gzip
 import math
-from multiprocessing import cpu_count, get_context
+from multiprocessing import get_context
 import os
 
 from buoy_api import Interface
@@ -83,7 +83,7 @@ class WECLogger(Interface):
 
     def __init__(self, loghome, logdir=None):
         super().__init__('sim_pblog', check_for_services=False)
-        self.zip_pool = get_context('spawn').Pool(processes=cpu_count())
+        self.zip_pool = get_context('spawn').Pool(processes=1)  # one thread to gzip
         self.start_time = datetime.now()
         self.logger_time = self.start_time
 
@@ -404,7 +404,10 @@ def main():
     rclpy.init(args=extras)
     pblog = WECLogger(args.loghome if args.loghome else loghome_arg.default,
                       args.logdir if args.logdir else logdir_arg.default)
-    rclpy.spin(pblog)
+    import time
+    while rclpy.ok():
+        rclpy.spin_once(pblog)
+        time.sleep(1./100.)
     rclpy.shutdown()
 
 
