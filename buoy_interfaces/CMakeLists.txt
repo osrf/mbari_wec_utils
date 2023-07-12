@@ -25,6 +25,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "srv/BenderCommand.srv"
   "srv/BusCommand.srv"
   "srv/GainCommand.srv"
+  "srv/IncWaveHeight.srv"
   "srv/PCBattSwitchCommand.srv"
   "srv/PCBiasCurrCommand.srv"
   "srv/PCChargeCurrLimCommand.srv"
