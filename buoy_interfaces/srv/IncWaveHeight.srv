@@ -10,7 +10,6 @@ bool use_buoy_origin
 
 # IncWaveHeight Response
 
-# position = x, y, height
-# orientation = normal vector (slope of wave) at position
-geometry_msgs/Pose[] poses
+builtin_interfaces/Time stamp
+IncWaveHeight[] heights
 bool valid
