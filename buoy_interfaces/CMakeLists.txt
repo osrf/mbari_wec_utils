@@ -24,6 +24,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/PCRecord.msg"
   "msg/SCRecord.msg"
   "msg/TFRecord.msg"
+  "msg/WaveBodyInteractions.msg"
   "msg/XBRecord.msg"
   "srv/BCResetCommand.srv"
   "srv/BenderCommand.srv"
