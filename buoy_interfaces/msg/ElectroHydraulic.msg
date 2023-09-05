@@ -1,5 +1,6 @@
 float64 inst_power  # Watts
 float64 rpm
+float64 force  # Newtons
 
 float64 motor_drive_i2r_loss
 float64 motor_drive_switching_loss
