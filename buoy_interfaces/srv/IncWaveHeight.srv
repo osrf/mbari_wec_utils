@@ -1,15 +1,18 @@
 # IncWaveHeight Request
 
-# x, y to evaluate height
-geometry_msgs/Point[] points
+# relative_time in decimal seconds to evaluate height at time relative to now (0)
+# (Note: may be in future)
+float64 relative_time
 
 # x, y is relative to buoy origin; otherwise world origin
 bool use_buoy_origin
+
+# x, y to evaluate height
+geometry_msgs/Point[] points
 
 ---
 
 # IncWaveHeight Response
 
-builtin_interfaces/Time stamp
 IncWaveHeight[] heights
 bool valid
