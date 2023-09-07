@@ -1,15 +1,24 @@
 # IncWaveHeight Request
 
-# x, y to evaluate height
-geometry_msgs/Point[] points
+# relative_time in decimal seconds to evaluate height at time relative to now (0)
+# (Note: may be in future for wave prediction)
+float64[] relative_time
+
+# absolute_time in epoch decimal seconds (from 01/01/1970 or sim start) to evaluate height
+# (Note: may be in future for wave prediction)
+float64[] absolute_time
+
+bool use_relative_time
 
 # x, y is relative to buoy origin; otherwise world origin
 bool use_buoy_origin
+
+# x, y to evaluate height above waterplane
+geometry_msgs/Point[] points
 
 ---
 
 # IncWaveHeight Response
 
-builtin_interfaces/Time stamp
 IncWaveHeight[] heights
 bool valid
