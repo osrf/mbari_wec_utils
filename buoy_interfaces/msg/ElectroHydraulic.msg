@@ -1,3 +1,4 @@
+float64 shaft_mech_power  # Watts
 float64 inst_power  # Watts
 float64 rpm
 float64 force  # Newtons
