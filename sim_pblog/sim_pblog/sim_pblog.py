@@ -407,7 +407,7 @@ def main():
     import time
     while rclpy.ok():
         rclpy.spin_once(pblog)
-        time.sleep(1./100.)
+        time.sleep(1./1000.)
     rclpy.shutdown()
 
 
