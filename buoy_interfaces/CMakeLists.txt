@@ -13,7 +13,9 @@ find_package(sensor_msgs REQUIRED)
 find_package(std_msgs REQUIRED)
 
 rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/AirSpring.msg"
   "msg/BCRecord.msg"
+  "msg/ElectroHydraulic.msg"
   "msg/IncWaveHeight.msg"
   "msg/LatentData.msg"
   "msg/PBCommandResponse.msg"
@@ -22,6 +24,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/PCRecord.msg"
   "msg/SCRecord.msg"
   "msg/TFRecord.msg"
+  "msg/WaveBodyInteractions.msg"
   "msg/XBRecord.msg"
   "srv/BCResetCommand.srv"
   "srv/BenderCommand.srv"
