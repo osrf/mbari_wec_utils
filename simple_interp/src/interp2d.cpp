@@ -230,7 +230,8 @@ double Interp2d::eval(
   }
 
   if (!x_oob && !y_oob) {
-    // compute 2D linear interpolation
+    // compute 2D linear interpolation using
+    // `repeated linear interpolation` method of bilinear interpolation
     const std::size_t x0_col_idx = (x_latest_upper_edge_ - 1U) - x_.cbegin();
     const std::size_t x1_col_idx = x_latest_upper_edge_ - x_.cbegin();
     const std::size_t y0_row_idx = (y_latest_upper_edge_ - 1U) - y_.cbegin();
@@ -250,6 +251,7 @@ double Interp2d::eval(
     const double & z01 = std::get<2>(Q01);
     const double & z11 = std::get<2>(Q11);
 
+    // repeated linear interpolation method
     const double xx0 = (x - x0) / (x1 - x0);
     const double xx1 = (x1 - x) / (x1 - x0);
     const double fxy0 = xx1 * z00 + xx0 * z10;
