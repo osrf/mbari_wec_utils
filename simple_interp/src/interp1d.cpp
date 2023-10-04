@@ -109,6 +109,8 @@ double Interp1d::eval(const double & x) const
   }
 
   // search for correct bin otherwise shortcut with same bin
+  // modified from:
+  //   https://stackoverflow.com/questions/8933077/finding-which-bin-a-values-fall-into
   if (!x_in_latest_bin) {
     const double dummy_y{0.0};
     table_t::const_iterator citx =
