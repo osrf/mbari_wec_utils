@@ -104,5 +104,5 @@ TEST_F(SimpleInterp2dTest, Interp2d)
   EXPECT_EQ(-2.5, interp2d(0.0, -0.5));
   EXPECT_EQ(-2.5, interp2d(-1.0, -0.5));  // x oob and reduces to z = interp1d(y)
   EXPECT_EQ(-3.5, interp2d(0.5, -1.0));
-  EXPECT_EQ(-3.5, interp2d(0.5, -2.0));  // y oob and reduces to z = interp1d(z)
+  EXPECT_EQ(-3.5, interp2d(0.5, -2.0));  // y oob and reduces to z = interp1d(x)
 }
