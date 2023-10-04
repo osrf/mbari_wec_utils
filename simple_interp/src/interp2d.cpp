@@ -12,9 +12,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include <simple_interp/interp2d.hpp>
-#include <simple_interp/interp1d.hpp>
-
 #include <algorithm>
 #include <cassert>
 #include <iostream>
@@ -22,12 +19,16 @@
 #include <utility>
 #include <vector>
 
+#include <simple_interp/interp1d.hpp>
+#include <simple_interp/interp2d.hpp>
+
 
 namespace simple_interp
 {
-Interp2d::Interp2d(const std::vector<double> & x,
-                   const std::vector<double> & y,
-                   const std::vector<double> & z)
+Interp2d::Interp2d(
+  const std::vector<double> & x,
+  const std::vector<double> & y,
+  const std::vector<double> & z)
 : x_(x),
   y_(y),
   table_{Interp2d::make_table(x, y, z)}
@@ -49,9 +50,10 @@ Interp2d::Interp2d(const table_t & table, const std::size_t & stride)
   }
 }
 
-void Interp2d::update(const std::vector<double> & x,
-                      const std::vector<double> & y,
-                      const std::vector<double> & z)
+void Interp2d::update(
+  const std::vector<double> & x,
+  const std::vector<double> & y,
+  const std::vector<double> & z)
 {
   x_ = x;
   y_ = y;
@@ -70,9 +72,11 @@ Interp2d::table_t Interp2d::make_table(
   for (auto row_citx = y.cbegin(); row_citx != y.cend(); ++row_citx) {
     for (auto col_citx = x.cbegin(); col_citx != x.cend(); ++col_citx) {
       if (z_citx != z.cend()) {
-        table.push_back(std::make_tuple(*col_citx,  // x
-                                        *row_citx,  // y
-                                        *z_citx));  // z
+        table.push_back(
+          std::make_tuple(
+            *col_citx,  // x
+            *row_citx,  // y
+            *(z_citx++)));  // z
       }
     }
   }
@@ -91,24 +95,27 @@ double Interp2d::eval(
 }
 
 // static: one-shot eval with table data
-double Interp2d::eval(const Interp2d::table_t & table,
-                      const std::size_t & stride,
-                      const double & x,
-                      const double & y)
+double Interp2d::eval(
+  const Interp2d::table_t & table,
+  const std::size_t & stride,
+  const double & x,
+  const double & y)
 {
   return Interp2d(table, stride).eval(x, y);
 }
 
 // operator version of eval with class instance
-double Interp2d::operator()(const double & x,
-                            const double & y) const
+double Interp2d::operator()(
+  const double & x,
+  const double & y) const
 {
   return this->eval(x, y);
 }
 
 // eval with class instance
-double Interp2d::eval(const double & x,
-                      const double & y) const
+double Interp2d::eval(
+  const double & x,
+  const double & y) const
 {
   // use bounds of data table and short-cut
   bool x_oob = false;
@@ -233,23 +240,24 @@ double Interp2d::eval(const double & x,
     const double & y0 = y_[y0_row_idx];
     const double & y1 = y_[y1_row_idx];
 
-    const point_t & pt00 = table_[x0_col_idx + x_.size() * y0_row_idx];
-    const point_t & pt10 = table_[x1_col_idx + x_.size() * y0_row_idx];
-    const point_t & pt01 = table_[x0_col_idx + x_.size() * y1_row_idx];
-    const point_t & pt11 = table_[x1_col_idx + x_.size() * y1_row_idx];
+    const point_t & Q00 = table_[x0_col_idx + x_.size() * y0_row_idx];
+    const point_t & Q10 = table_[x1_col_idx + x_.size() * y0_row_idx];
+    const point_t & Q01 = table_[x0_col_idx + x_.size() * y1_row_idx];
+    const point_t & Q11 = table_[x1_col_idx + x_.size() * y1_row_idx];
 
-    const double & z00 = std::get<2>(pt00);
-    const double & z10 = std::get<2>(pt10);
-    const double & z01 = std::get<2>(pt01);
-    const double & z11 = std::get<2>(pt11);
+    const double & z00 = std::get<2>(Q00);
+    const double & z10 = std::get<2>(Q10);
+    const double & z01 = std::get<2>(Q01);
+    const double & z11 = std::get<2>(Q11);
 
-    const double xx = (x - x0) / (x1 - x0);
-    const double yy = (y - y0) / (y1 - y0);
+    const double xx0 = (x - x0) / (x1 - x0);
+    const double xx1 = (x1 - x) / (x1 - x0);
+    const double fxy0 = xx1 * z00 + xx0 * z10;
+    const double fxy1 = xx1 * z01 + xx0 * z11;
+    const double yy0 = (y - y0) / (y1 - y0);
+    const double yy1 = (y1 - y) / (y1 - y0);
 
-    return z00 * ( 1 - xx ) * ( 1 - yy ) +
-           z10 * xx * ( 1 - yy ) +
-           z01 * ( 1 - xx ) * yy +
-           z11 * xx * yy;
+    return yy1 * fxy0 + yy0 * fxy1;
   } else if (x_oob && !y_oob) {
     // compute 1D linear interpolation along y since x is on edge
     std::size_t y_row_idx = 0U;

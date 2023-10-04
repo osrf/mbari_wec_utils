@@ -7,6 +7,8 @@ endif()
 
 # find dependencies
 find_package(ament_cmake REQUIRED)
+find_package(ament_cmake_gtest REQUIRED)
+ament_find_gtest()
 
 add_library(${PROJECT_NAME} SHARED src/interp1d.cpp src/interp2d.cpp)
 
@@ -30,6 +32,14 @@ install(
 if(BUILD_TESTING)
   find_package(ament_lint_auto REQUIRED)
   ament_lint_auto_find_test_dependencies()
+
+  ament_add_gtest_executable(test_${PROJECT_NAME}
+    tests/test_${PROJECT_NAME}.cpp
+  )
+
+  target_link_libraries(test_${PROJECT_NAME} ${PROJECT_NAME})
+
+  ament_add_gtest_test(test_${PROJECT_NAME})
 endif()
 
 ament_export_targets(${PROJECT_NAME} HAS_LIBRARY_TARGET)

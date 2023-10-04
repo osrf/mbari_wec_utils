@@ -30,19 +30,23 @@ public:
   typedef std::tuple<double, double, double> point_t;
   typedef std::vector<point_t> table_t;
 
-  Interp2d(const std::vector<double> & x,
-           const std::vector<double> & y,
-           const std::vector<double> & z);
-  explicit Interp2d(const table_t & table,
-                    const std::size_t & stride);
+  Interp2d(
+    const std::vector<double> & x,
+    const std::vector<double> & y,
+    const std::vector<double> & z);
+  explicit Interp2d(
+    const table_t & table,
+    const std::size_t & stride);
 
-  void update(const std::vector<double> & x,
-              const std::vector<double> & y,
-              const std::vector<double> & z);
+  void update(
+    const std::vector<double> & x,
+    const std::vector<double> & y,
+    const std::vector<double> & z);
 
-  static table_t make_table(const std::vector<double> & x,
-                            const std::vector<double> & y,
-                            const std::vector<double> & z);
+  static table_t make_table(
+    const std::vector<double> & x,
+    const std::vector<double> & y,
+    const std::vector<double> & z);
 
   // one-shot eval with vector data
   static double eval(
@@ -52,10 +56,11 @@ public:
     const double & x_eval,
     const double & y_eval);
   // one-shot eval with table data
-  static double eval(const table_t & table,
-                     const std::size_t & stride,
-                     const double & x,
-                     const double & y);
+  static double eval(
+    const table_t & table,
+    const std::size_t & stride,
+    const double & x,
+    const double & y);
   // operator version of eval with class instance
   double operator()(const double & x, const double & y) const;
   // eval with class instance
