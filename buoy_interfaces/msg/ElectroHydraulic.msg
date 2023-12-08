@@ -7,7 +7,7 @@ float64 supplied_hydraulic_power  # Watts
 
 float64 hydraulic_motor_loss
 float64 relief_valve_loss
-float64 shaft_mech_power  # Watts
+float64 motor_emf_power  # Watts
 
 float64 motor_drive_i2r_loss
 float64 motor_drive_switching_loss

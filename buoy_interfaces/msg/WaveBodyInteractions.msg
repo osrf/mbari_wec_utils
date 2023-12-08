@@ -1,4 +1,3 @@
-
 # Motion
 geometry_msgs/Pose pose  # position/orientation
 geometry_msgs/Twist twist  # linear/angular rates
