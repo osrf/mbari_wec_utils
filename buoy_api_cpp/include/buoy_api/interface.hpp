@@ -71,6 +71,9 @@
 #include "buoy_interfaces/msg/tf_record.hpp"  // trefoil
 #include "buoy_interfaces/msg/pb_record.hpp"  // consolidated
 
+// NOTE: ONLY AVAILABLE IN SIM
+#include "buoy_interfaces/msg/latent_data.hpp"  // wave heights, forces, losses, power, etc
+
 
 namespace buoy_api
 {
@@ -318,6 +321,23 @@ public:
           &ControllerImplCRTP::powerbuoy_callback,
           static_cast<ControllerImplCRTP *>(this), _1));
     }
+
+    // NOTE: ONLY AVAILABLE IN SIM
+    if (&ControllerImplCRTP::powerbuoy_callback == &Interface::powerbuoy_callback) {
+    } else {
+      RCLCPP_INFO_STREAM(
+        rclcpp::get_logger(this->get_name()),
+        "Subscribing to LatentData on '/latent_data'");
+      RCLCPP_WARN_STREAM(
+        rclcpp::get_logger(this->get_name()),
+        "NOTE: LatentData on '/latent_data' is only available in sim");
+      latent_data_sub_ =
+        this->create_subscription<buoy_interfaces::msg::LatentData>(
+        "/latent_data", 1,
+        std::bind(
+          &ControllerImplCRTP::latentdata_callback,
+          static_cast<ControllerImplCRTP *>(this), _1));
+    }
   }
 
   // Setup node clock to use sim time from /clock
@@ -520,6 +540,9 @@ protected:
   void power_callback(const buoy_interfaces::msg::PCRecord &) {}
   void trefoil_callback(const buoy_interfaces::msg::TFRecord &) {}
   void powerbuoy_callback(const buoy_interfaces::msg::PBRecord &) {}
+
+  // NOTE: ONLY AVAILABLE IN SIM
+  void latentdata_callback(const buoy_interfaces::msg::LatentData &) {}
 
   // abbrv callback types
   using BenderServiceCallback = rclcpp::Client<buoy_interfaces::srv::BenderCommand>::CallbackType;
@@ -740,6 +763,9 @@ private:
   rclcpp::Subscription<buoy_interfaces::msg::TFRecord>::SharedPtr trefoil_data_sub_;
   rclcpp::Subscription<buoy_interfaces::msg::TFRecord>::SharedPtr tf_record_sub_;
   rclcpp::Subscription<buoy_interfaces::msg::PBRecord>::SharedPtr powerbuoy_data_sub_;
+
+  // NOTE: ONLY AVAILABLE IN SIM
+  rclcpp::Subscription<buoy_interfaces::msg::LatentData>::SharedPtr latent_data_sub_;
 };
 
 }  // namespace buoy_api
