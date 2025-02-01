@@ -8,7 +8,6 @@ Complete examples starting from template repositories may be found here:
 
 And tutorials may be found [here](https://osrf.github.io/mbari_wec/release/v1.1.0/tutorials).
 
-
 For more information about ROS 2 interfaces, see [docs.ros.org](https://docs.ros.org/en/rolling/Concepts/About-ROS-Interfaces.html).
 
 ## Messages (.msg)
