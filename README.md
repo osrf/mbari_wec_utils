@@ -1,6 +1,12 @@
 # mbari_wec_utils
 
-Packages in this repo provide interfaces, API, examples for MBARI Power Buoy.
+Packages in this repo provide interfaces, API, examples for [MBARI WEC](https://github.com/osrf/mbari_wec/tree/main).
+
+Complete examples starting from template repositories may be found here:
+[Python linear damper](https://github.com/mbari-org/mbari_wec_template_py/tree/linear_damper_example)
+[C++ linear damper](https://github.com/mbari-org/mbari_wec_template_cpp/tree/linear_damper_example)
+
+And tutorials may be found [here](https://osrf.github.io/mbari_wec/main/tutorials).
 
 For more information about ROS 2 interfaces, see [docs.ros.org](https://docs.ros.org/en/rolling/Concepts/About-ROS-Interfaces.html).
 
