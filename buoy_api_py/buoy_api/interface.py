@@ -76,8 +76,37 @@ pbsrv_enum2str = {0: 'OK',
 
 
 class Interface(Node):
+    """
+    ROS2 Interface node for commanding and subscribing to buoy controllers and sensors.
+
+    Provides service clients and functions to send commands to and recieve telemetry from the
+    MBARI WEC controllers:
+        - AHRS
+        - Power
+        - Spring
+        - Battery
+        - Trefoil
+
+    If user has overridden one of these callbacks in their user-derived class, this will
+    subscribe to the correct topic and use their callback implementation. If user did not define
+    one, a subscriber for that topic will not be set up:
+        - self.ahrs_callback
+        - self.battery_callback
+        - self.spring_callback
+        - self.power_callback
+        - self.trefoil_callback
+        - self.powerbuoy_callback
+    """
 
     def __init__(self, node_name, wait_for_services=False, check_for_services=True, **kwargs):
+        """
+        Initialize the Interface node.
+
+        :param str node_name: name of the ROS2 node
+        :param bool check_for_services: if True, attempt to verify service availability before use
+        :param bool wait_for_services: if True and if check_for_services, block until all services are available
+        :param kwargs: additional keyword arguments forwarded to ROS 2 Node
+        """
         super().__init__(node_name, **kwargs)
         self.pc_pack_rate_param_client_ = self.create_client(SetParameters,
                                                              '/power_controller/set_parameters')
@@ -204,8 +233,6 @@ class Interface(Node):
             self.get_logger().warn('Did not find all services')
         return found
 
-    # if user has shadowed a callback in their user-derived class, this will use their
-    # implementation if they did not define one, the subscriber will not be set up
     def setup_subscribers(self):
         self.subs_ = []
         sub_info = []
@@ -228,12 +255,21 @@ class Interface(Node):
                 sub = self.create_subscription(msg_type, topic, cb, 10)
                 self.subs_.append(sub)
 
-    # Setup node clock to use sim time from /clock
     def use_sim_time(self, enable=True):
+        """
+        Enable/Disable using sim time in Node clock from /clock.
+
+        :param bool enable: True to use /clock, False to use system time
+        """
         self.set_parameters([Parameter('use_sim_time', Parameter.Type.BOOL, enable)])
 
-    # set publish rate of PC Microcontroller telemetry
     def set_pc_pack_rate_param(self, rate_hz=50.0, blocking=True):
+        """
+        Set publish rate of PC Microcontroller telemetry.
+
+        :param float rate_hz: desired publish rate in Hz
+        :param bool blocking: if True, wait for the service call to complete
+        """
         return asyncio.run(self._set_pc_pack_rate_param(rate_hz, blocking))
 
     async def _set_pc_pack_rate_param(self, rate_hz=50.0, blocking=True):
@@ -245,8 +281,13 @@ class Interface(Node):
         if blocking:
             await self.pc_pack_rate_param_future_
 
-    # set publish rate of SC Microcontroller telemetry
     def set_sc_pack_rate_param(self, rate_hz=50.0, blocking=True):
+        """
+        Set publish rate of SC Microcontroller telemetry.
+
+        :param float rate_hz: desired publish rate in Hz
+        :param bool blocking: if True, wait for the service call to complete
+        """
         return asyncio.run(self._set_sc_pack_rate_param(rate_hz, blocking))
 
     async def _set_sc_pack_rate_param(self, rate_hz=50.0, blocking=True):
@@ -260,6 +301,12 @@ class Interface(Node):
 
     # set publish rate of PC Microcontroller telemetry
     def set_pc_pack_rate(self, rate_hz=50, blocking=True):
+        """
+        Set publish rate of PC Microcontroller telemetry.
+
+        :param float rate_hz: desired publish rate in Hz
+        :param bool blocking: if True, wait for the service call to complete
+        """
         return asyncio.run(self._set_pc_pack_rate(rate_hz, blocking))
 
     async def _set_pc_pack_rate(self, rate_hz=50, blocking=True):
@@ -273,6 +320,12 @@ class Interface(Node):
 
     # set publish rate of SC Microcontroller telemetry
     def set_sc_pack_rate(self, rate_hz=50, blocking=True):
+        """
+        Set publish rate of SC Microcontroller telemetry.
+
+        :param float rate_hz: desired publish rate in Hz
+        :param bool blocking: if True, wait for the service call to complete
+        """
         return asyncio.run(self._set_sc_pack_rate(rate_hz, blocking))
 
     async def _set_sc_pack_rate(self, rate_hz=50, blocking=True):
@@ -285,6 +338,12 @@ class Interface(Node):
             await self.sc_pack_rate_future_
 
     def send_pump_command(self, duration_mins, blocking=True):
+        """
+        Turn pump on for a duration in minutes to raise mean piston position.
+
+        :param float duration_mins: pump on duration in minutes
+        :param bool blocking: if True, wait for the service call to complete
+        """
         return asyncio.run(self._send_pump_command(duration_mins, blocking))
 
     async def _send_pump_command(self, duration_mins, blocking=True):
@@ -297,6 +356,12 @@ class Interface(Node):
             await self.pump_future_
 
     def send_valve_command(self, duration_sec, blocking=True):
+        """
+        Turn valve on for a duration in seconds to lower mean piston position.
+
+        :param float duration_sec: valve on duration in seconds
+        :param bool blocking: if True, wait for the service call to complete
+        """
         return asyncio.run(self._send_valve_command(duration_sec, blocking))
 
     async def _send_valve_command(self, duration_sec, blocking=True):
@@ -309,6 +374,12 @@ class Interface(Node):
             await self.valve_future_
 
     def send_pc_wind_curr_command(self, wind_curr, blocking=True):
+        """
+        Set winding current setpoint to control piston damping.
+
+        :param float wind_curr: wind current setpoint in Amps
+        :param bool blocking: if True, wait for the service call to complete
+        """
         return asyncio.run(self._send_pc_wind_curr_command(wind_curr, blocking))
 
     async def _send_pc_wind_curr_command(self, wind_curr, blocking=True):
@@ -321,6 +392,14 @@ class Interface(Node):
             await self.pc_wind_curr_future_
 
     def send_pc_bias_curr_command(self, bias_curr, blocking=True):
+        """
+        Set bias current setpoint to control piston damping offset.
+
+        A High bias in either direction will move the piston back and forth
+
+        :param float bias_curr: bias current setpoint in Amps
+        :param bool blocking: if True, wait for the service call to complete
+        """
         return asyncio.run(self._send_pc_bias_curr_command(bias_curr, blocking))
 
     async def _send_pc_bias_curr_command(self, bias_curr, blocking=True):
@@ -333,6 +412,12 @@ class Interface(Node):
             await self.pc_bias_curr_future_
 
     def send_pc_scale_command(self, scale, blocking=True):
+        """
+        Set damping gain.
+
+        :param float scale: damping gain
+        :param bool blocking: if True, wait for the service call to complete
+        """
         return asyncio.run(self._send_pc_scale_command(scale, blocking))
 
     async def _send_pc_scale_command(self, scale, blocking=True):
@@ -345,6 +430,12 @@ class Interface(Node):
             await self.pc_scale_future_
 
     def send_pc_retract_command(self, retract, blocking=True):
+        """
+        Set additional damping gain in the piston retract direction.
+
+        :param float retract: additional damping gain for retraction
+        :param bool blocking: if True, wait for the service call to complete
+        """
         return asyncio.run(self._send_pc_retract_command(retract, blocking))
 
     async def _send_pc_retract_command(self, retract, blocking=True):
@@ -357,13 +448,61 @@ class Interface(Node):
             await self.pc_retract_future_
 
     # set_params and callbacks optionally defined by user
-    def set_params(self): pass
-    def ahrs_callback(self, data): pass
-    def battery_callback(self, data): pass
-    def spring_callback(self, data): pass
-    def power_callback(self, data): pass
-    def trefoil_callback(self, data): pass
-    def powerbuoy_callback(self, data): pass
+    def set_params(self):
+        """
+        Set user-defined Node params (e.g. custom controller gains).
+        """
+        pass
+
+    def ahrs_callback(self, data):
+        """
+        Override this function to subscribe to /ahrs_data to receive XBRecord telemetry.
+
+        :param data: incoming XBRecord
+        """
+        pass
+
+    def battery_callback(self, data):
+        """
+        Override this function to subscribe to /battery_data to receive BCRecord telemetry.
+
+        :param data: incoming BCRecord
+        """
+        pass
+
+    def spring_callback(self, data):
+        """
+        Override this function to subscribe to /spring_data to receive SCRecord telemetry.
+
+        :param data: incoming SCRecord
+        """
+        pass
+
+    def power_callback(self, data):
+        """
+        Override this function to subscribe to /power_data to receive PCRecord telemetry.
+
+        :param data: incoming PCRecord
+        """
+        pass
+
+    def trefoil_callback(self, data):
+        """
+        Override this function to subscribe to /trefoil_data to receive TFRecord telemetry.
+
+        :param data: incoming TFRecord
+        """
+        pass
+
+    def powerbuoy_callback(self, data):
+        """
+        Override this function to subscribe to /powerbuoy_data to receive PBRecord telemetry.
+
+        PBRecord contains a slice of all microcontroller's telemetry data
+
+        :param data: incoming PBRecord
+        """
+        pass
 
     def param_response_callback(self, future):
         resp = future.result()
