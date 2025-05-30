@@ -83,6 +83,80 @@ std::map<int8_t, std::string> pbsrv_enum2str = {{0, "OK"},
   {-4, "BUSY"}};
 
 
+/**
+ * @brief ROS 2 Interface node for commanding and subscribing to buoy controllers and sensors.
+ *
+ * This template class uses the Curiously Recurring Template Pattern (CRTP) to provide a
+ * compile-time polymorphic interface for creating node-based controllers. By using CRTP,
+ * derived classes can override callback methods and parameter-setting behavior without incurring
+ * the overhead of virtual dispatch. The derived class must pass itself as the template parameter
+ * to `Interface`, enabling the base class to call into user-defined implementations.
+ *
+ * Provides service clients and functions to send commands to and receive telemetry from the
+ * MBARI WEC controllers:
+ *
+ * - AHRS
+ * - Power
+ * - Spring
+ * - Battery
+ * - Trefoil
+ *
+ * If the user has overridden one of these callbacks in their derived class, the corresponding
+ * topic subscriber will be set up and routed to their implementation. If not, that topic will
+ * not be subscribed to. The relevant callbacks include:
+ *
+ * - ahrs_callback
+ * - battery_callback
+ * - spring_callback
+ * - power_callback
+ * - trefoil_callback
+ * - powerbuoy_callback
+ *
+ * @tparam ControllerImplCRTP The concrete controller class that inherits from this interface.
+ *                 It must implement any callbacks or parameter-setting routines
+ *                 it needs, marked as `final`.
+ *
+ * ## How to Use
+ *
+ * 1. Include the header for `Interface`:
+ *    @code{.cpp}
+ *    #include <buoy_api/interface.hpp>
+ *    @endcode
+ *
+ * 2. Forward-declare any policies or helper classes you will use:
+ *    @code{.cpp}
+ *    struct PBTorqueControlPolicy;  // defined by user in torque_control_policy.hpp
+ *    @endcode
+ *
+ * 3. Define your controller class by inheriting from `buoy_api::Interface<YourClass>`
+ *    and adding `friend CRTP`:
+ *    @code{.cpp}
+ *    class PBTorqueController final : public buoy_api::Interface<PBTorqueController>
+ *    {
+ *    public:
+ *      explicit PBTorqueController(const std::string & node_name);
+ *      ~PBTorqueController() = default;
+ *
+ *    private:
+ *      friend CRTP;  // Enables base to access overrides.
+ *      void set_params() final;
+ *      void power_callback(const buoy_interfaces::msg::PCRecord & data);
+ *      std::unique_ptr<PBTorqueControlPolicy> policy_;
+ *    };
+ *    @endcode
+ *
+ * 4. Implement `set_params()` to declare or update ROS2 parameters to update your policy class.
+ *
+ * 5. Override any telemetry callbacks to process incoming data.
+ *
+ * 6. Construct your controller in your `main()` function, passing in the desired node name.
+ *    The base `Interface` handles common setup: parameters, services, publishers, and subscribers.
+ *
+ * ### Benefits of CRTP in This Context
+ * - **Zero-cost abstraction**: No virtual table; callbacks are resolved at compile time.
+ * - **Flexible overrides**: Only override what you use.
+ * - **Simplified boilerplate**: Base class manages ROS2 setup.
+ */
 template<class ControllerImplCRTP>
 class Interface : public rclcpp::Node
 {
@@ -94,6 +168,13 @@ public:
   {
   }
 
+  /**
+   * @brief Initialize the Interface node.
+   *
+   * @param node_name Name of the ROS2 node.
+   * @param _wait_for_services If true and check_for_services, block until services are available.
+   * @param _check_for_services If true, attempt to verify service availability before use.
+   */
   explicit Interface(
     const std::string & node_name,
     const bool _wait_for_services,
@@ -320,7 +401,11 @@ public:
     }
   }
 
-  // Setup node clock to use sim time from /clock
+  /**
+   * @brief Enable/Disable using sim time in Node clock from /clock.
+   *
+   * @param enable True to use /clock, False to use system time.
+   */
   void use_sim_time(bool enable = true)
   {
     this->set_parameter(
@@ -329,7 +414,11 @@ public:
         enable));
   }
 
-  // set publish rate of PC Microcontroller telemetry
+  /**
+   * @brief Set publish rate of PC Microcontroller telemetry.
+   *
+   * @param rate_hz Desired publish rate in Hz.
+   */
   void set_pc_pack_rate(const uint8_t & rate_hz = 50)
   {
     auto request = std::make_shared<buoy_interfaces::srv::PCPackRateCommand::Request>();
@@ -342,7 +431,11 @@ public:
     auto response = pc_pack_rate_client_->async_send_request(request, pc_pack_rate_callback);
   }
 
-  // set publish rate of SC Microcontroller telemetry
+  /**
+   * @brief Set publish rate of SC Microcontroller telemetry.
+   *
+   * @param rate_hz Desired publish rate in Hz.
+   */
   void set_sc_pack_rate(const uint8_t & rate_hz = 50)
   {
     auto request = std::make_shared<buoy_interfaces::srv::SCPackRateCommand::Request>();
@@ -355,7 +448,11 @@ public:
     auto response = sc_pack_rate_client_->async_send_request(request, sc_pack_rate_callback);
   }
 
-  // set publish rate of PC Microcontroller telemetry
+  /**
+   * @brief Set publish rate of PC Microcontroller telemetry via parameter server.
+   *
+   * @param rate_hz Desired publish rate in Hz.
+   */
   void set_pc_pack_rate_param(const double & rate_hz = 50.0)
   {
     std::vector<rclcpp::Parameter> params = {rclcpp::Parameter{"publish_rate",
@@ -372,7 +469,11 @@ public:
     }
   }
 
-  // set publish rate of SC Microcontroller telemetry
+  /**
+   * @brief Set publish rate of SC Microcontroller telemetry via parameter server.
+   *
+   * @param rate_hz Desired publish rate in Hz.
+   */
   void set_sc_pack_rate_param(const double & rate_hz = 50.0)
   {
     std::vector<rclcpp::Parameter> params = {rclcpp::Parameter{"publish_rate",
@@ -443,6 +544,12 @@ public:
   using TFResetServiceResponseFuture =
     rclcpp::Client<buoy_interfaces::srv::TFResetCommand>::SharedFuture;
 
+  /**
+   * @brief Turn valve on for a duration to lower mean piston position.
+   *
+   * @param duration_sec Valve on duration in seconds.
+   * @return A future containing the service response.
+   */
   ValveServiceResponseFuture send_valve_command(const uint16_t & duration_sec)
   {
     auto request = std::make_shared<buoy_interfaces::srv::ValveCommand::Request>();
@@ -454,6 +561,12 @@ public:
     return valve_response_future;
   }
 
+  /**
+   * @brief Turn pump on for a duration to raise mean piston position.
+   *
+   * @param duration_mins Pump on duration in minutes.
+   * @return A future containing the service response.
+   */
   PumpServiceResponseFuture send_pump_command(const float & duration_mins)
   {
     auto request = std::make_shared<buoy_interfaces::srv::PumpCommand::Request>();
@@ -465,6 +578,12 @@ public:
     return pump_response_future;
   }
 
+  /**
+   * @brief Set winding current setpoint to control piston damping.
+   *
+   * @param wind_curr Wind current setpoint in Amps.
+   * @return A future containing the service response.
+   */
   PCWindCurrServiceResponseFuture send_pc_wind_curr_command(const float & wind_curr)
   {
     auto request = std::make_shared<buoy_interfaces::srv::PCWindCurrCommand::Request>();
@@ -476,6 +595,14 @@ public:
     return pc_wind_curr_response_future;
   }
 
+  /**
+   * @brief Set bias current setpoint to control piston damping offset.
+   *
+   * A high bias in either direction will move the piston back and forth.
+   *
+   * @param bias_curr Bias current setpoint in Amps.
+   * @return A future containing the service response.
+   */
   PCBiasCurrServiceResponseFuture send_pc_bias_curr_command(const float & bias_curr)
   {
     auto request = std::make_shared<buoy_interfaces::srv::PCBiasCurrCommand::Request>();
@@ -487,6 +614,12 @@ public:
     return pc_bias_curr_response_future;
   }
 
+  /**
+   * @brief Set damping gain.
+   *
+   * @param scale Damping gain.
+   * @return A future containing the service response.
+   */
   PCScaleServiceResponseFuture send_pc_scale_command(const float & scale)
   {
     auto request = std::make_shared<buoy_interfaces::srv::PCScaleCommand::Request>();
@@ -498,6 +631,12 @@ public:
     return pc_scale_response_future;
   }
 
+  /**
+   * @brief Set additional damping gain in the piston retract direction.
+   *
+   * @param retract Additional damping gain for retraction.
+   * @return A future containing the service response.
+   */
   PCRetractServiceResponseFuture send_pc_retract_command(const float & retract)
   {
     auto request = std::make_shared<buoy_interfaces::srv::PCRetractCommand::Request>();
@@ -513,12 +652,52 @@ protected:
   virtual ~Interface() = default;
 
   // set_params and callbacks optionally defined by user
+
+  /**
+   * @brief Set user-defined Node parameters (e.g., custom controller gains).
+   */
   virtual void set_params() {}
+
+  /**
+   * @brief Override this function to subscribe to /ahrs_data to receive XBRecord telemetry.
+   *
+   * @param data Incoming XBRecord.
+   */
   void ahrs_callback(const buoy_interfaces::msg::XBRecord &) {}
+
+  /**
+   * @brief Override this function to subscribe to /battery_data to receive BCRecord telemetry.
+   *
+   * @param data Incoming BCRecord.
+   */
   void battery_callback(const buoy_interfaces::msg::BCRecord &) {}
+
+  /**
+   * @brief Override this function to subscribe to /spring_data to receive SCRecord telemetry.
+   *
+   * @param data Incoming SCRecord.
+   */
   void spring_callback(const buoy_interfaces::msg::SCRecord &) {}
+
+  /**
+   * @brief Override this function to subscribe to /power_data to receive PCRecord telemetry.
+   *
+   * @param data Incoming PCRecord.
+   */
   void power_callback(const buoy_interfaces::msg::PCRecord &) {}
+
+  /**
+   * @brief Override this function to subscribe to /trefoil_data to receive TFRecord telemetry.
+   *
+   * @param data Incoming TFRecord.
+   */
   void trefoil_callback(const buoy_interfaces::msg::TFRecord &) {}
+
+  /**
+   * @brief Override this function to subscribe to /powerbuoy_data to receive PBRecord telemetry.
+   *
+   * @param data Incoming PBRecord containing a slice of all microcontroller telemetry data.
+   */
   void powerbuoy_callback(const buoy_interfaces::msg::PBRecord &) {}
 
   // abbrv callback types
