@@ -104,7 +104,8 @@ class Interface(Node):
 
         :param str node_name: name of the ROS2 node
         :param bool check_for_services: if True, attempt to verify service availability before use
-        :param bool wait_for_services: if True and if check_for_services, block until all services are available
+        :param bool wait_for_services: if True and if check_for_services, block until all services
+                                       are available
         :param kwargs: additional keyword arguments forwarded to ROS 2 Node
         """
         super().__init__(node_name, **kwargs)
@@ -449,9 +450,7 @@ class Interface(Node):
 
     # set_params and callbacks optionally defined by user
     def set_params(self):
-        """
-        Set user-defined Node params (e.g. custom controller gains).
-        """
+        """Set user-defined Node params (e.g. custom controller gains)."""
         pass
 
     def ahrs_callback(self, data):
