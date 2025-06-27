@@ -59,6 +59,10 @@ from buoy_interfaces.msg import TFRecord  # trefoil  # noqa
 from buoy_interfaces.msg import XBRecord  # ahrs  # noqa
 
 
+# NOTE: ONLY AVAILABLE IN SIM
+from buoy_interfaces.msg import LatentData  # wave heights, forces, losses, power, etc  # noqa
+
+
 # Pack Rate Params
 from rclpy.parameter import Parameter  # noqa
 from rcl_interfaces.srv import SetParameters  # noqa
@@ -249,10 +253,17 @@ class Interface(Node):
         sub_info.append(['trefoil_callback', '/tf_record', TFRecord, self.trefoil_callback])
         sub_info.append(['powerbuoy_callback', '/powerbuoy_data',
                          PBRecord, self.powerbuoy_callback])
+
+        # NOTE: ONLY AVAILABLE IN SIM
+        sub_info.append(['latentdata_callback', '/latent_data',
+                         LatentData, self.latentdata_callback])
+
         for cb_name, topic, msg_type, cb in sub_info:
             if cb_name in self.__class__.__dict__:  # did derived override a callback?
-                self.get_logger().info("Subscribing to {msg_type} on '{topic}'".format(
-                                       msg_type=str(msg_type), topic=topic))
+                self.get_logger().info(f"Subscribing to {str(msg_type)} on '{topic}'")
+                if msg_type is LatentData:
+                    self.get_logger().warn(f"Note: {str(msg_type)} on '{topic}' is only available"
+                                           + 'in simulation!')
                 sub = self.create_subscription(msg_type, topic, cb, 10)
                 self.subs_.append(sub)
 
@@ -502,6 +513,9 @@ class Interface(Node):
         :param data: incoming PBRecord
         """
         pass
+
+    # NOTE: ONLY AVAILABLE IN SIM
+    def latentdata_callback(self, data): pass
 
     def param_response_callback(self, future):
         resp = future.result()

@@ -1,0 +1,11 @@
+# buoy_interfaces/msg/swift_telemetry
+
+builtin_interfaces/Time stamp
+
+float64 latitude
+float64 longitude
+
+float64 east_velocity
+float64 north_velocity
+
+float64 heave  # predicted or actual
