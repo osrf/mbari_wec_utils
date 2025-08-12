@@ -89,7 +89,7 @@ class NonLinearBiasDamping(Interface):
 def main():
     rclpy.init()
     controller = NonLinearBiasDamping()
-    rclpy.spin(controller)
+    controller.spin()
     rclpy.shutdown()
 
 
