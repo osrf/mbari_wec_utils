@@ -660,7 +660,7 @@ class Interface(Node):
             if not done.wait(timeout) or 'except' in resp_dict:
                 self.get_logger().error('retract command failed')
 
-    def get_inc_wave_height(self, x, y, t, use_buoy_origin, use_relative_time, timeout=None):
+    def get_inc_wave_height(self, x, y, t, use_buoy_origin, use_relative_time, timeout=2.0):
         """
         Request incident wave height at specific location(s) and time(s).
 
@@ -682,7 +682,9 @@ class Interface(Node):
         tn = np.atleast_1d(t)
 
         for x, y, t in zip(xn, yn, tn):
-            p = Point(x, y)
+            p = Point()
+            p.x = x
+            p.y = y
             request.points.append(p)
             if use_relative_time:
                 request.relative_time.append(t)
