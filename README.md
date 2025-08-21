@@ -6,7 +6,7 @@ Complete examples starting from template repositories may be found here:
 [Python linear damper](https://github.com/mbari-org/mbari_wec_template_py/tree/linear_damper_example)
 [C++ linear damper](https://github.com/mbari-org/mbari_wec_template_cpp/tree/linear_damper_example)
 
-And tutorials may be found [here](https://osrf.github.io/mbari_wec/main/tutorials).
+And tutorials may be found [here](https://osrf.github.io/mbari_wec/release/v2.0.0-rc1/tutorials).
 
 For more information about ROS 2 interfaces, see [docs.ros.org](https://docs.ros.org/en/rolling/Concepts/About-ROS-Interfaces.html).
 
