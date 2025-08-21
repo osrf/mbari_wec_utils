@@ -384,6 +384,13 @@ public:
     }
   }
 
+  /**
+   * @brief Sets up a `MultiThreadedExecutor` and spins the node (blocking).
+
+   * If you need non-blocking control over program flow, you may skip calling this function, but a
+   * `MultiThreadedExecutor` is required for this node. You may call non-blocking spin functions of
+   * a `MultiThreadedExecutor` in your own loop.
+   */
   void spin()
   {
     rclcpp::executors::MultiThreadedExecutor executor;
@@ -1152,10 +1159,14 @@ public:
   }
 
   /**
-   * @brief Set additional damping gain in the piston retract direction.
+   * @brief Get incident wave height at a single location and time
    *
-   * @param retract Additional damping gain for retraction.
-   * @return A future containing the service response.
+   * @param x float meters, x component of wave height location
+   * @param y float meters, y component of wave height location
+   * @param t float seconds, sim time to evaluate wave height
+   * @param use_buoy_origin boolean, (x,y) are relative to buoy location
+   * @param use_relative_time boolean, t is relative to current sim time
+   * @return vector of IncWaveHeight data (with a single index)
    */
   buoy_interfaces::srv::IncWaveHeight::Response::SharedPtr get_inc_wave_height(
     const float x,
@@ -1180,6 +1191,16 @@ public:
     );
   }
 
+  /**
+   * @brief Get incident wave height at multiple locations and times
+   *
+   * @param x std::vector<float> meters, x component of wave height location
+   * @param y std::vector<float> meters, y component of wave height location
+   * @param t std::vector<float> seconds, sim time to evaluate wave height
+   * @param use_buoy_origin boolean, all (x,y) are relative to buoy location
+   * @param use_relative_time boolean, all t are relative to current sim time
+   * @return vector of IncWaveHeight data
+   */
   buoy_interfaces::srv::IncWaveHeight::Response::SharedPtr get_inc_wave_height(
     const std::vector<float> x,
     const std::vector<float> y,
