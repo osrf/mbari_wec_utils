@@ -21,4 +21,4 @@ geometry_msgs/Point[] points
 # IncWaveHeight Response
 
 IncWaveHeight[] heights
-bool valid
+PBCommandResponse result
