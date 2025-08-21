@@ -8,7 +8,7 @@ package_name = 'buoy_api_py'
 
 setup(
     name=package_name,
-    version='0.0.0',
+    version='2.0.0',
     packages=['buoy_api', 'buoy_api.examples'],
     data_files=[
         ('share/ament_index/resource_index/packages',
