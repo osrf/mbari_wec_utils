@@ -310,10 +310,9 @@ class Interface(Node):
                     pass
             self.get_logger().info('Found all required services.')
 
-
     def spin(self):
         """
-        Sets up a `MultiThreadedExecutor` and spins the node (blocking).
+        Set up a `MultiThreadedExecutor` and spin the node (blocking).
 
         If you need non-blocking control over program flow, you may skip calling this function, but
         a `MultiThreadedExecutor` is required for this node. You may call non-blocking spin
