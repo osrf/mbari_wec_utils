@@ -404,11 +404,7 @@ def main():
     rclpy.init(args=extras)
     pblog = WECLogger(args.loghome if args.loghome else loghome_arg.default,
                       args.logdir if args.logdir else logdir_arg.default)
-    import time
-    while rclpy.ok():
-        rclpy.spin_once(pblog)
-        time.sleep(1./1000.)
-    rclpy.shutdown()
+    pblog.spin(exit=True)
 
 
 if __name__ == '__main__':
