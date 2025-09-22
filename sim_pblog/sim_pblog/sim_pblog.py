@@ -404,7 +404,7 @@ def main():
     rclpy.init(args=extras)
     pblog = WECLogger(args.loghome if args.loghome else loghome_arg.default,
                       args.logdir if args.logdir else logdir_arg.default)
-    pblog.spin(exit=True)
+    pblog.spin(sys_exit=True)
 
 
 if __name__ == '__main__':
