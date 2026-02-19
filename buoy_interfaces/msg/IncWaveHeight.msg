@@ -8,6 +8,9 @@ float64 relative_time
 # For now, position is always in world coords (use_buoy_origin always False)
 bool use_buoy_origin
 
+# cartesian coords are relative to this gps reference
+sensor_msgs/NavSatFix gps_ref
+
 # header.stamp = simulation time of computation
 #   time of wave height = header.stamp + relative_time
 # position = x, y, z(height above waterplane)

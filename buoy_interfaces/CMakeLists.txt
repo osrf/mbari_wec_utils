@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.10)
 project(buoy_interfaces)
 
 if(CMAKE_COMPILER_IS_GNUCXX OR CMAKE_CXX_COMPILER_ID MATCHES "Clang")
@@ -22,9 +22,12 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/PBRecord.msg"
   "msg/PBWatch.msg"
   "msg/PCRecord.msg"
+  "msg/ReconstructionData.msg"
   "msg/SCRecord.msg"
   "msg/TFRecord.msg"
   "msg/WaveBodyInteractions.msg"
+  "msg/WavePredictionOutput.msg"
+  "msg/WavePredictionPoint.msg"
   "msg/XBRecord.msg"
   "srv/BCResetCommand.srv"
   "srv/BenderCommand.srv"
