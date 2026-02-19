@@ -18,6 +18,7 @@ rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/ElectroHydraulic.msg"
   "msg/IncWaveHeight.msg"
   "msg/LatentData.msg"
+  "msg/MeasurementData.msg"
   "msg/PBCommandResponse.msg"
   "msg/PBRecord.msg"
   "msg/PBWatch.msg"

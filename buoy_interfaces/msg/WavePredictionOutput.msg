@@ -13,11 +13,26 @@ float64[] frequencies      # Wave frequencies [Hz]
 float64[] directions       # Wave directions [degrees] (shape: n_directions)
 float64[] energy_by_freq   # 1D spectrum energy [m^2/Hz]
 
+# Target location in local coordinates (meters)
+float64 x_target
+float64 y_target
+
+# Raw measurements used for the solve (for plotting/debug)
+MeasurementData measurements
+
 # Predictions at target location (WEC buoy)
 WavePredictionPoint[] predictions  # Array of predictions into future
 
 # Reconstruction data (solution fit quality)
 ReconstructionData reconstruction  # How well solution fits input measurements
+
+# Optional: latest "actual at target" sample packaged alongside the prediction.
+# This is commonly sourced from latent_data.inc_wave_heights[0].
+bool has_wec_actual
+float64 wec_time
+float64 wec_z
+float64 wec_u
+float64 wec_v
 
 # Solver diagnostics
 float64 solve_time  # Time to solve least-squares problem [seconds]
