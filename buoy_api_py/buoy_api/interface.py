@@ -310,7 +310,7 @@ class Interface(Node):
                     pass
             self.get_logger().info('Found all required services.')
 
-    def spin(self):
+    def spin(self, sys_exit=False):
         """
         Set up a `MultiThreadedExecutor` and spin the node (blocking).
 
@@ -320,7 +320,21 @@ class Interface(Node):
         """
         executor = MultiThreadedExecutor()
         executor.add_node(self)
-        executor.spin()
+        try:
+            executor.spin()
+        except KeyboardInterrupt:
+            if rclpy.ok():
+                self.get_logger().info('Shutting down (SIGINT)...')
+            else:
+                print(f'[{self.get_name()}] Shutting down (SIGINT)...')
+        finally:
+            executor.remove_node(self)
+            self.destroy_node()
+            if exit:
+                if rclpy.ok():
+                    rclpy.shutdown()
+                import sys
+                sys.exit(0)
 
     def wait_for_services(self):
         # TODO(andermi)
