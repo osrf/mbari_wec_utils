@@ -34,6 +34,23 @@ float64 wec_z
 float64 wec_u
 float64 wec_v
 
+# Optional: higher-rate “actual at target” time series for frequency/phase comparison.
+# This is typically populated from latent_data.inc_wave_heights[0] at the latent publish rate.
+bool has_wec_actual_series
+float64[] wec_series_time
+float64[] wec_series_z
+float64[] wec_series_u
+float64[] wec_series_v
+
+# Optional: dense model prediction at the target (WEC) over the measurement window.
+# Useful for frequency/phase comparisons against `wec_series_*` without changing
+# the future prediction grid resolution.
+bool has_dense_predictions
+float64[] dense_predictions_time
+float64[] dense_predictions_z
+float64[] dense_predictions_u
+float64[] dense_predictions_v
+
 # Solver diagnostics
 float64 solve_time  # Time to solve least-squares problem [seconds]
 int32 num_wavelengths  # Number of wave components solved
