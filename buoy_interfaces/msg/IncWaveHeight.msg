@@ -13,9 +13,11 @@ sensor_msgs/NavSatFix gps_ref
 
 # header.stamp = simulation time of computation
 #   time of wave height = header.stamp + relative_time
+# position frame: world ENU (x=East, y=North, z=Up)
 # position = x, y, z(height above waterplane)
 # orientation = normal vector (slope of wave) at position
 geometry_msgs/PoseStamped pose
 
-# Eulerian surface velocities x,y = u,v (East,North) and z = etadot (heave rate)
+# Eulerian surface velocities frame: world ENU
+# velocities.x/y = u/v (East/North) in m/s and velocities.z = etadot (m/s)
 geometry_msgs/Vector3 velocities

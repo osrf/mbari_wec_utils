@@ -55,3 +55,15 @@ float64[] dense_predictions_v
 float64 solve_time  # Time to solve least-squares problem [seconds]
 int32 num_wavelengths  # Number of wave components solved
 float64 centroid_period  # Spectral centroid period [seconds]
+
+# Bulk wave parameters derived from the (directional) wavespec used for prediction.
+# Direction convention matches SWIFTdirectionalspectra output used in the MATLAB example:
+# nautical compass degrees True, direction waves are coming FROM.
+bool has_wavespec_bulk
+float64 wavespec_hs  # Significant wave height Hs [m]
+float64 wavespec_tp  # Peak period Tp [s]
+float64 wavespec_tm01  # Mean period Tm01 [s]
+float64 wavespec_tm02  # Mean period Tm02 [s]
+float64 wavespec_dp  # Peak direction Dp [deg True, FROM]
+float64 wavespec_dm  # Mean direction Dm [deg True, FROM]
+float64 wavespec_spreadp  # Directional spread at peak frequency [deg]

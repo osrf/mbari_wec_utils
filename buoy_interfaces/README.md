@@ -290,6 +290,9 @@ Snapshot in time of all data from the buoy.
     # position = x, y, z(height above waterplane)
     # orientation = normal vector (slope of wave) at position
     geometry_msgs/PoseStamped pose
+
+    # Eulerian surface velocities x,y = u,v (East,North) and z = etadot (heave rate)
+    geometry_msgs/Vector3 velocities
     ```
 
 - type: `AirSpring.msg`  
