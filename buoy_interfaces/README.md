@@ -171,6 +171,17 @@ Snapshot in time of all data from the buoy.
     XBRecord xb  # Crossbow AHRS telemetry
     ```
 
+### Wave Prediction
+
+Wave prediction output produced by TheNextWave (or equivalent processing nodes).
+
+- type: `WavePredictionOutput`
+  topic: (deployment-specific; often a `the_next_wave` output topic)
+  Notes:
+  - `frequencies` is in Hz.
+  - `directions` is compass degrees True (0°=North, 90°=East), direction waves are coming FROM.
+  - Bulk fields `wavespec_dp` / `wavespec_dm` follow the same convention (deg True, FROM).
+
 ## Services (.srv)
 
 - type: `PumpCommand.srv`  

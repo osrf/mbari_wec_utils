@@ -10,7 +10,7 @@ int32 n_measurements       # Number of measurement samples in window
 
 # Wave spectra used for prediction
 float64[] frequencies      # Wave frequencies [Hz]
-float64[] directions       # Wave directions [degrees] (shape: n_directions)
+float64[] directions       # Wave directions [deg True, FROM] (0°=North, 90°=East), shape: n_directions
 float64[] energy_by_freq   # 1D spectrum energy [m^2/Hz]
 
 # Target location in local coordinates (meters)
@@ -57,8 +57,7 @@ int32 num_wavelengths  # Number of wave components solved
 float64 centroid_period  # Spectral centroid period [seconds]
 
 # Bulk wave parameters derived from the (directional) wavespec used for prediction.
-# Direction convention matches SWIFTdirectionalspectra output used in the MATLAB example:
-# nautical compass degrees True, direction waves are coming FROM.
+# Direction convention: compass degrees True (0°=North, 90°=East), direction waves are coming FROM.
 bool has_wavespec_bulk
 float64 wavespec_hs  # Significant wave height Hs [m]
 float64 wavespec_tp  # Peak period Tp [s]
