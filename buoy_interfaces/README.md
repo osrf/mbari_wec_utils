@@ -171,6 +171,17 @@ Snapshot in time of all data from the buoy.
     XBRecord xb  # Crossbow AHRS telemetry
     ```
 
+### Wave Prediction
+
+Wave prediction output from TheNextWave (or equivalent processing nodes).
+
+- type: `WavePredictionOutput`
+  topic: (deployment-specific; often a `the_next_wave` output topic)
+  Notes:
+  - `frequencies` is in Hz.
+  - `directions` is compass degrees True (0°=North, 90°=East), direction waves are coming FROM.
+  - Bulk fields `wavespec_dp` / `wavespec_dm` follow the same convention (deg True, FROM).
+
 ## Services (.srv)
 
 - type: `PumpCommand.srv`  
@@ -275,21 +286,23 @@ Snapshot in time of all data from the buoy.
   within the `model.sdf`.
 
     ```
-    # relative_time is the time height was computed in decimal seconds
-    # relative to simulation time in pose header.stamp
-    # time of wave height = header.stamp + relative_time
-    # Note: absolute_time from IncWaveHeight.srv converted to relative for response
-    # Note: all fixed-points in SDF are computed with relative_time = 0.0
+    # Time offset in seconds from pose.header.stamp
+    # sample_time = header.stamp + relative_time
     float64 relative_time
 
-    # For now, position is always in world coords (use_buoy_origin always False)
+    # Currently always false; returned pose is in world coordinates
     bool use_buoy_origin
 
-    # header.stamp = simulation time of computation
-    #   time of wave height = header.stamp + relative_time
-    # position = x, y, z(height above waterplane)
-    # orientation = normal vector (slope of wave) at position
+    # GPS reference for local Cartesian x/y in this sample
+    sensor_msgs/NavSatFix gps_ref
+
+    # header.stamp = simulation time at evaluation
+    # pose.position frame: world ENU (x=East, y=North, z=eta above waterplane)
+    # pose.orientation = surface normal at sample point
     geometry_msgs/PoseStamped pose
+
+    # velocities.x/y = u/v (East/North), velocities.z = etadot
+    geometry_msgs/Vector3 velocities
     ```
 
 - type: `AirSpring.msg`  
@@ -360,20 +373,18 @@ Snapshot in time of all data from the buoy.
     IncWaveHeight Request
 
     ```
-    # relative_time in decimal seconds to evaluate height at time relative to now (0)
-    # (Note: may be in future for wave prediction)
+    # Evaluate at now + relative_time (seconds)
     float64[] relative_time
 
-    # absolute_time in epoch decimal seconds (from 01/01/1970 or sim start) to evaluate height
-    # (Note: may be in future for wave prediction)
+    # Evaluate at absolute_time (seconds; epoch or sim time base)
     float64[] absolute_time
 
     bool use_relative_time
 
-    # x, y is relative to buoy origin; otherwise world origin
+    # If true, points are relative to buoy origin; otherwise world origin
     bool use_buoy_origin
 
-    # x, y to evaluate height above waterplane
+    # x/y points to evaluate
     geometry_msgs/Point[] points
     ```
 
