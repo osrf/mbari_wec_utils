@@ -15,6 +15,7 @@
 # limitations under the License.
 
 from buoy_api import Interface
+
 import numpy as np
 import rclpy
 from scipy import interpolate
@@ -96,7 +97,7 @@ class PBTorqueController(Interface):
 def main():
     rclpy.init()
     controller = PBTorqueController()
-    rclpy.spin(controller)
+    controller.spin()
     rclpy.shutdown()
 
 

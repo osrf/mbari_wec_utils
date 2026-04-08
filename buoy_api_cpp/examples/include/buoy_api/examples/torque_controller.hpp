@@ -18,6 +18,8 @@
 #include <memory>
 #include <string>
 
+#include <buoy_interfaces/msg/pc_record.hpp>  // power
+
 #include <buoy_api/interface.hpp>
 
 // forward declare

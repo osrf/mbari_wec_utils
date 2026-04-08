@@ -18,6 +18,8 @@
 #include <string>
 #include <memory>
 
+#include <buoy_interfaces/srv/inc_wave_height.hpp>
+
 
 PBTorqueController::PBTorqueController(const std::string & node_name)
 : buoy_api::Interface<PBTorqueController>(node_name)
@@ -30,22 +32,42 @@ PBTorqueController::PBTorqueController(const std::string & node_name)
 
 void PBTorqueController::power_callback(const buoy_interfaces::msg::PCRecord & data)
 {
-  auto request = std::make_shared<buoy_interfaces::srv::PCWindCurrCommand::Request>();
-  request->wind_curr = policy_->WindingCurrentTarget(data.rpm, data.scale, data.retract);
+  float wind_curr = policy_->WindingCurrentTarget(data.rpm, data.scale, data.retract);
 
   RCLCPP_INFO_STREAM(
     rclcpp::get_logger(
       this->get_name()),
     "WindingCurrent: f(" << data.rpm << ", " << data.scale << ", " << data.retract << ") = " <<
-      request->wind_curr);
+      wind_curr
+  );
 
-  PCWindCurrServiceCallback pc_wind_curr_callback =
-    default_service_response_callback<PCWindCurrServiceCallback,
-      PCWindCurrServiceResponseFuture>();
+  auto future = this->send_pc_wind_curr_command(wind_curr);
 
-  // NOTE: Move semantics destroys local
-  // pc_wind_curr_callback object
-  auto response = pc_wind_curr_client_->async_send_request(request, pc_wind_curr_callback);
+  /*
+  // Example using the full API
+  auto future = this->send_pc_wind_curr_command(
+    wind_curr,  // command value
+    true,  // blocking
+    0.1,  // timeout in seconds
+    true  // use default callback
+  );
+  if (future.valid())
+  {
+    RCLCPP_INFO_STREAM(
+      rclcpp::get_logger(
+        this->get_name()),
+      "Got valid pc wind curr command response: " << static_cast<int>(future.get()->result.value)
+    );
+  }
+  else
+  {
+    RCLCPP_ERROR(
+      rclcpp::get_logger(
+        this->get_name()),
+      "pc wind curr command did not complete within timeout"
+    );
+  }
+  */
 }
 
 
@@ -53,7 +75,8 @@ int main(int argc, char ** argv)
 {
   rclcpp::init(argc, argv);
 
-  rclcpp::spin(std::make_shared<PBTorqueController>("pb_torque_controller"));
+  auto controller = std::make_shared<PBTorqueController>("pb_torque_controller");
+  controller->spin();
   rclcpp::shutdown();
 
   return 0;

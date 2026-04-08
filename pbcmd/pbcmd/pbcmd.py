@@ -25,7 +25,7 @@ class _PBCmd(Interface):
     def __init__(self):
         rclpy.init()
         super().__init__('pbcmd', check_for_services=False)
-        self.spin_thread = threading.Thread(target=rclpy.spin, args=(self,))
+        self.spin_thread = threading.Thread(target=self.spin)
         self.spin_thread.daemon = True
         self.spin_thread.start()
 
