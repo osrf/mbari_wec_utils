@@ -65,7 +65,8 @@ from rcl_interfaces.srv import SetParameters  # noqa
 
 
 import rclpy
-from rclpy.node import Node
+#from rclpy.node import Node
+from rclpy.lifecycle import State, TransitionCallbackReturn, Node
 
 
 pbsrv_enum2str = {0: 'OK',
@@ -355,6 +356,18 @@ class Interface(Node):
         self.pc_retract_future_.add_done_callback(self.default_service_response_callback)
         if blocking:
             await self.pc_retract_future_
+
+    def send_door_command(self, open_doors, blocking=True):
+        return asyncio.run(self._send_door_command(open_doors, blocking))
+
+    async def _send_door_command(self, open_doors, blocking=True):
+        request = TFSetPosCommand.Request()
+        request.position = request.OPEN if open_doors else request.CLOSED
+
+        self.tf_set_pos_future_ = self.tf_set_pos_client_.call_async(request)
+        self.tf_set_pos_future_.add_done_callback(self.default_service_response_callback)
+        if blocking:
+            await self.tf_set_pos_future_
 
     # set_params and callbacks optionally defined by user
     def set_params(self): pass
